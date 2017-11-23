@@ -2,12 +2,15 @@
 FROM ubuntu:xenial
 MAINTAINER Michal Sustr <michal.sustr+sc@gmail.com>
 
+ENV HOME_DIR /home/starcraft
+ENV LOG_DIR $HOME_DIR/logs
+
 # Define which versions we need
 ENV WINE_MONO_VERSION 4.5.6
 ENV WINE_GECKO_VERSION 2.47
 
 # Make sure to run 32bit windows
-ENV WINEPREFIX /home/starcraft/.wine
+ENV WINEPREFIX $HOME_DIR/.wine
 ENV WINEARCH win32
 
 # X display
@@ -18,17 +21,16 @@ ENV DISPLAY :0.0
 RUN set -x \
   && addgroup --system starcraft \
   && adduser \
-    --home /home/starcraft \
+    --home $HOME_DIR \
     --disabled-password \
     --shell /bin/bash \
-    --gecos "user for running an torcraft application" \
     --ingroup starcraft \
     --quiet \
     starcraft
 
 # Install packages required for connecting against X Server
 RUN set -x \
- && apt-get update \
+ && apt-get update -y \
  && apt-get install -y --no-install-recommends \
   xvfb \
   xauth \
@@ -58,6 +60,9 @@ RUN set -x \
 
 
 # Install wine and related packages
+# todo: wine-devel=2.21.0~xenial is not a proper version fixation - it might be removed with new version?
+#       but no idea how it should be fixated... hopefully newer versions will not break the whole build
+#
 RUN set -x \
     && curl -L https://dl.winehq.org/wine-builds/Release.key -o Release.key \
     && apt-key add Release.key \
@@ -65,10 +70,13 @@ RUN set -x \
     && dpkg --add-architecture i386 \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends \
-        winehq-staging=2.20.0~xenial \
+        wine-staging-i386=2.20.0~xenial \
+        wine-staging-amd64=2.20.0~xenial \
+        wine-staging=2.20.0~xenial \
     && rm -rf /var/lib/apt/lists/* \
     && rm Release.key
 
+ENV PATH $PATH:/opt/wine-staging/bin
 
 # Use the latest version of winetricks
 RUN curl -SL 'https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks' -o /usr/local/bin/winetricks \
@@ -81,13 +89,15 @@ RUN echo 'starcraft:starcraft' | chpasswd
 # Disable stupid install of mono/gecko, we don't need that
 ENV WINEDLLOVERRIDES="mscoree,mshtml="
 
-COPY entrypoint.sh /entrypoint.sh
-
-WORKDIR /home/starcraft
+WORKDIR $HOME_DIR
 USER starcraft
 
+RUN mkdir $LOG_DIR
+
+COPY entrypoints/wine_entrypoint.sh .
+
 # Set some basic wine / vnc settings
-RUN echo "alias winegui='wine explorer /desktop=DockerDesktop,1024x768'" > /home/starcraft/.bash_aliases
+RUN echo "alias winegui='wine explorer /desktop=DockerDesktop,1024x768'" > $HOME_DIR/.bash_aliases
 # Init wine.
 # Let's run some command that will make sure the first init runs.
 #
@@ -95,4 +105,4 @@ RUN echo "alias winegui='wine explorer /desktop=DockerDesktop,1024x768'" > /home
 RUN set -eux && xvfb-run wine ping 127.0.0.1 -n 1 | cat
 
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["./wine_entrypoint.sh"]

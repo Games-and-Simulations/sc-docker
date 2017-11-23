@@ -1,10 +1,10 @@
 # StarCraft I (BroodWar) docker images
 
-`./build.sh` to build images.
+`./build_images.sh` to build images.
 
-`./run.sh` to launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave).
+`./run_bots.sh PurpleWave Tyr` to launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave).
 
-Not finished yet -- waiting for 32bit release of BWMirror
+Not finished yet -- only one bot playing now.
 
 ## Inspired by
 
@@ -22,7 +22,6 @@ Not finished yet -- waiting for 32bit release of BWMirror
 
 ## Todo:
 
-- fix 32bit issues with BWMirror, waiting for new release
 - parsed replays: https://github.com/vjurenka/BWMirror/tree/master/bwapi-data/BWTA2
 - headless/headful modes
 - two bots playing against each other
