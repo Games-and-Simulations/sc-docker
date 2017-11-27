@@ -10,5 +10,4 @@ RUN set -x \
     && mv jre1.8.0_152/ java/ \
     && rm jre.zip
 
-COPY entrypoints/java_entrypoint.sh .
-CMD ["./java_entrypoint.sh"]
+

@@ -1,10 +1,17 @@
 # StarCraft I (BroodWar) docker images
 
-`./build_images.sh` to build images.
+Build images:
 
-`./run_bots.sh PurpleWave Tyr` to launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave).
+    ./build_images.sh
 
-Not finished yet -- only one bot playing now.
+Launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave) (P as Protoss) against Tyr (also Protoss) on default map.
+
+    ./run_bots.sh PurpleWave:P Tyr:P
+
+Show help:
+
+    ./run_bots.sh --help
+
 
 ## Inspired by
 
@@ -24,6 +31,5 @@ Not finished yet -- only one bot playing now.
 
 - parsed replays: https://github.com/vjurenka/BWMirror/tree/master/bwapi-data/BWTA2
 - headless/headful modes
-- two bots playing against each other
 - human play against selected bot
 - run simulation with winner output - X vs Y, if Y wins -> output Y

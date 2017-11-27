@@ -48,10 +48,11 @@ RUN ln -s "${HOME_DIR}/.wine/drive_c/Program Files/Starcraft/" "${HOME_DIR}/.win
 COPY scripts/* $HOME_DIR
 
 RUN chown -R starcraft:starcraft $HOME_DIR
+RUN apt update && apt install -y screen
 
 # Volume to place your bot inside
 VOLUME $BOT_DIR
-# Volume to place your bot inside
+# Volume where logs will be stored
 VOLUME $LOG_DIR
 
 # Run everything as starcraft user.
