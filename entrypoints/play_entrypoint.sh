@@ -21,12 +21,18 @@ PREFIX="${GAME_NAME}_${RANDOM_POSTFIX:0:4}"
 
 sleep 0.5
 
-# Then launch the game
+# if playing against human, don't specify game
+# so it can connect easily (bots will discover the game)
+if [ "$GAME_NAME" -ne "human_against_bots" ]; then
+    GAME="--game ${GAME_NAME}"
+else
+    GAME=""
+fi
 
-echo "Launch with $@"
+# Launch the game!
 ./launch_game.sh \
     --name ${BOT_NAME} \
-    --game ${GAME_NAME} \
+    ${GAME} \
     "$@" >> ${LOG_DIR}/${PREFIX}_game_${BOT_NAME} 2>&1 &
 
 sleep 10

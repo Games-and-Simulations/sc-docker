@@ -12,6 +12,10 @@ Show help:
 
     ./run_bots.sh --help
 
+Play against a bot (follow instructions)
+
+    ./play_against_bots.sh PurpleWave:P
+
 
 ## Inspired by
 
@@ -31,5 +35,4 @@ Show help:
 
 - parsed replays: https://github.com/vjurenka/BWMirror/tree/master/bwapi-data/BWTA2
 - headless/headful modes
-- human play against selected bot
 - run simulation with winner output - X vs Y, if Y wins -> output Y
