@@ -10,6 +10,7 @@ function usage {
     echo "  -b, --botdir         Path to bot dir, defaults to $(pwd)/bots"
     echo "  -m, --map            Map name (path to map), such as "
     echo "  -g, --gui,--headful  Show the game in GUI"
+    echo "  --local              Use local image instead of dockerhub image."
     echo ""
     echo "  -h, --help           Show this help"
 }
@@ -24,6 +25,7 @@ BOT_DIR=$(pwd)/bots
 LOG_DIR=$(pwd)/logs
 
 MAP="sscai\(2)Benzene.scx"
+IMAGE="ggaic/starcraft:play"
 HEADFUL=""
 
 while true; do
@@ -33,6 +35,7 @@ while true; do
     -b | --botdir ) BOT_DIR="$2"; shift; shift ;;
     -m | --map ) MAP="$2"; shift; shift ;;
     -g | --gui | --headful ) HEADFUL="--headful"; shift; shift ;;
+    --local ) IMAGE="starcraft:play"; shift; shift ;;
     -- ) shift; break ;;
     * ) usage; exit 1; break ;;
   esac
@@ -60,7 +63,7 @@ function LAUNCH_BOT {
         --volume "$BOT_DIR:/home/starcraft/.wine/drive_c/bot" \
         --volume "$LOG_DIR:/home/starcraft/logs" \
         --net local_net \
-        starcraft:play \
+        ${IMAGE} \
         play_entrypoint.sh "$@" > /dev/null
 }
 

@@ -8,6 +8,7 @@ function usage {
     echo "  RACE_1 ... RACE_N    Races of bots - Z or T or P"
     echo "  -l, --logdir         Path to log dir, defaults to $(pwd)/logs"
     echo "  -b, --botdir         Path to bot dir, defaults to $(pwd)/bots"
+    echo "  --local              Use local image instead of dockerhub image."
     echo ""
     echo "  -h, --help           Show this help"
 }
@@ -18,12 +19,15 @@ eval set -- "$OPTS"
 
 BOT_DIR=$(pwd)/bots
 LOG_DIR=$(pwd)/logs
+IMAGE="ggaic/starcraft:play"
+
 
 while true; do
   case "$1" in
     -h | --help ) usage; exit 0; shift ;;
     -l | --logdir ) LOG_DIR="$2"; shift; shift ;;
     -b | --botdir ) BOT_DIR="$2"; shift; shift ;;
+    --local ) IMAGE="starcraft:play"; shift; shift ;;
     -- ) shift; break ;;
     * ) usage; exit 1; break ;;
   esac
@@ -34,7 +38,7 @@ docker run \
         --privileged \
         --volume "$LOG_DIR:/home/starcraft/logs" \
         --net host \
-        starcraft:play \
+        ${IMAGE} \
         launch_game.sh --headful
 
 echo "First setup the game:"
@@ -56,7 +60,7 @@ function LAUNCH_BOT {
         --volume "$BOT_DIR:/home/starcraft/.wine/drive_c/bot" \
         --volume "$LOG_DIR:/home/starcraft/logs" \
         --net local_net \
-        starcraft:play \
+        ${IMAGE} \
         play_entrypoint.sh "$@" > /dev/null
 }
 

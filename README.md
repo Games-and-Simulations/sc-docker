@@ -20,11 +20,7 @@ Specification:
 - wine 2.20.0~xenial
 - base image `ubuntu:xenial`
 
-## Overview
-
-Build images:
-
-    ./build_images.sh
+## Usage
 
 Launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave) (P as Protoss) against Tyr (also Protoss) on default map.
 
@@ -41,6 +37,12 @@ Play against a bot (follow instructions)
 Show help:
 
     ./play_against_bots.sh --help
+
+### Add your own bot
+
+Simply place your java bot to `bots/` directory.
+
+You can see logs from the games in `logs/` directory.
 
 ## Dockerhub images
 
@@ -60,6 +62,15 @@ The `run_bots.sh` and `play_against_bots.sh` use docker image `starcraft:play`
 PRs are welcome!
 
 Especially from todo list.
+
+### Development
+
+Build images:
+
+    ./build_images.sh
+
+The `run_bots.sh` and `play_against_bots.sh` have special flags `--local`
+which will lead to use of local instead of dockerhub images.
 
 ## Todo:
 
