@@ -1,5 +1,27 @@
 # StarCraft I (BroodWar) docker images
 
+This repository contains fully working StarCraft
+game running in Wine inside of docker image.
+
+It should run on all operating systems (but was tested only on
+`Linux 4.10.0-40-generic x86_64`). There might be problems
+with docker container networking on Mac/Windows, because
+these use virtualization of docker images and has to pass through
+special docker gateway.
+
+Specification:
+
+- StarCraft 1.16.1 game from ICCUP (no need for special installs!)
+- BWAPI 4.1.2
+- BWTA 2.2
+- SSCAI maps pack
+- 32bit Java
+- bwheadless
+- wine 2.20.0~xenial
+- base image `ubuntu:xenial`
+
+## Overview
+
 Build images:
 
     ./build_images.sh
@@ -20,6 +42,24 @@ Show help:
 
     ./play_against_bots.sh --help
 
+## Dockerhub images
+
+Images are also available on [Dockerhub](https://hub.docker.com/r/ggaic/starcraft/).
+
+You can use:
+
+    ggaic/starcraft:wine
+    ggaic/starcraft:bwapi
+    ggaic/starcraft:java
+    ggaic/starcraft:play
+
+The `run_bots.sh` and `play_against_bots.sh` use docker image `starcraft:play`
+
+## Contributing
+
+PRs are welcome!
+
+Especially from todo list.
 
 ## Todo:
 
