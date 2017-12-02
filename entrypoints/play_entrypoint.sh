@@ -5,12 +5,13 @@ set -eux
 
 BOT_NAME=$1
 GAME_NAME=$2
+POSTFIX=$3
 shift
-shift # rest of args are passed to launch_game.sh
+shift
+shift
 
 # Make sure we have further disambiguation in case same bots play against each other :)
-RANDOM_POSTFIX=$(cat /proc/sys/kernel/random/uuid)
-PREFIX="${GAME_NAME}_${RANDOM_POSTFIX:0:4}"
+PREFIX="${GAME_NAME}_${POSTFIX}"
 
 # First launch the bot
 {

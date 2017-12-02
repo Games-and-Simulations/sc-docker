@@ -84,6 +84,8 @@ which will lead to use of local instead of dockerhub images.
 - add cached parsed maps: https://github.com/vjurenka/BWMirror/tree/master/bwapi-data/BWTA2
 - save replays after game is done into logs folder (or maybe some other one)
 - output winner - X vs Y, if Y wins -> output "Y"
+- viewing headful via VNC, simplify the process. Maybe use bwapi.ini for hosts?
+- sound support (ALSA) :-)
 
 This will go into another repo:
 
