@@ -10,7 +10,7 @@ if [ ${#FILES[@]} -eq 0 ]; then
   exit 1
 fi
 
-echo "Starting to watching files:"
+echo "Starting to watch files:"
 echo ${FILES[0]}
 echo ${FILES[1]}
 echo ${FILES[2]}
@@ -18,8 +18,8 @@ echo ${FILES[3]}
 sleep 1
 
 tmux \
-  new-session  "tail -f ${FILES[0]} ; read" \; \
-  split-window "tail -f ${FILES[1]} ; read" \; \
-  split-window "tail -f ${FILES[2]} ; read" \; \
-  split-window "tail -f ${FILES[3]} ; read" \; \
+  new-session  "watch tail -10 ${FILES[0]} ; read" \; \
+  split-window "watch tail -10 ${FILES[1]} ; read" \; \
+  split-window "watch tail -10 ${FILES[2]} ; read" \; \
+  split-window "watch tail -10 ${FILES[3]} ; read" \; \
   select-layout even-vertical
