@@ -3,7 +3,27 @@
 This repository contains fully working StarCraft
 game running in Wine inside of docker image.
 
+## About
+We are pleased to publish StarCraft I - BroodWar docker images!
+
+This means the end of complicated game setup for newcomers, or people
+who would like to simply play SC1 game against some bot.
+
+You can also develop your bots on your favorite platform instead of relying on Windows.
+
+There are still many things to do, and we will be working on improvements.
+
+We have more things cooking: It is a part of our ongoing effor to create environment for reinforcement learning bots
+(bots that improve through self-play).
+
+If you'd like to support our effort on Patreon, we would be very grateful!
+[link]
+
+## Install
+
 [How to install docker.](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+
+## Specification:
 
 It should run on all operating systems (but was tested only on
 `Linux 4.10.0-40-generic x86_64` with `Docker version 17.09.0-ce, build afdb6d4`).
@@ -11,8 +31,6 @@ It should run on all operating systems (but was tested only on
 There might be problems with docker container networking on Mac/Windows, because
 these use virtualization of docker images and has to pass through
 special docker gateway.
-
-Specification:
 
 - StarCraft 1.16.1 game from ICCUP (no need for special installs!)
 - BWAPI 4.1.2
