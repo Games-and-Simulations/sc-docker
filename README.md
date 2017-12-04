@@ -138,7 +138,7 @@ If you use `sc-docker` in your (academic) work, please cite us:
 
     @misc{StarcraftDocker,
       title = {Starcraft-I docker images},
-      author = "Sustr, M. and Maly, J. and Certicky, M.",
+      author = "Sustr, Michal and Maly, Jan and Certicky, Michal",
       howpublished = {\url{https://github.com/Games-and-Simulations/sc-docker}},
     }
 
