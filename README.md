@@ -132,6 +132,16 @@ This will go into another repo:
   about who is to play with whom and they would run the simulation.
   Probably will use RabbitMQ.
 
+## Citation
+
+If you use `sc-docker` in your (academic) work, please cite us:
+
+    @misc{StarcraftDocker,
+      title = {Starcraft-I docker images},
+      author = "Sustr, M. and Maly, J. and Certicky, M.",
+      howpublished = {\url{https://github.com/Games-and-Simulations/sc-docker}},
+    }
+
 ## Inspired by
 
 - https://github.com/TorchCraft/TorchCraft/blob/master/docker/no-cuda/Dockerfile
