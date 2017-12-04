@@ -71,6 +71,9 @@ You can use:
     ggaic/starcraft:java
     ggaic/starcraft:play
 
+These are development images, and are subject to change.
+Stable images have version postfix, and correspond to git tags.
+
 The `run_bots.sh` and `play_against_bots.sh` use docker image `starcraft:play`
 
 ## Contributing
