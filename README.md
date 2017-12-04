@@ -6,6 +6,8 @@ game running in Wine inside of docker image.
 ## About
 We are pleased to publish StarCraft I - BroodWar docker images!
 
+![Starcraft playing on Linux](resources/linux_play.png)
+
 This means the end of complicated game setup for newcomers, or people
 who would like to simply play SC1 game against some bot.
 
@@ -22,6 +24,8 @@ If you'd like to support our effort on Patreon, we would be very grateful!
 ## Install
 
 [How to install docker.](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+
+Install VNC viewer (for viewing headful modes) - we used [TigerVNC](https://github.com/TigerVNC/tigervnc/releases)
 
 ## Specification:
 
@@ -43,7 +47,9 @@ special docker gateway.
 
 ## Usage
 
-Launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave) (P as Protoss) against Example Bot on default map.
+### Headless play
+
+Launch a headless play of [PurpleWave](https://github.com/dgant/PurpleWave) (P as Protoss) against Example Bot on default map.
 
     $ ./run_bots.sh ExampleBot:T PurpleWave:P
     f463e69d-7bbd-4638-a9a4
@@ -59,13 +65,34 @@ After a moment, PurpleWave should win the game and you'll get similar output to 
 
 ![Example log output](resources/example_log_output.png)
 
-Stop all running docker containers:
+### Stop finished games
+
+Stop all running games (docker containers):
 
     $  docker stop $(docker ps -a -q)
+
+### Play against bot
 
 Play against a bot (follow instructions)
 
     ./play_against_bots.sh PurpleWave:P
+
+### Watch bot game
+
+To watch headful game between bots (with gui):
+
+    $ ./run_bots.sh ExampleBot:T PurpleWave:P
+    $ tigervnc
+
+Set `tigervnc` port to 5900, IP address `172.18.0.3` and password `starcraft`.
+
+You have to join the game manually - via multiplayer.
+
+IP address troubleshooting: you may need to find container IP address, try something like
+
+    $ docker inspect -f '{{range .NetworkSss}}{{end}}' f73e612e-efb4-4b14-97e2_cfd8_bot_PurpleWave
+
+Use proper container name.
 
 ### Help
 
