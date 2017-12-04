@@ -3,9 +3,12 @@
 This repository contains fully working StarCraft
 game running in Wine inside of docker image.
 
+[How to install docker.](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+
 It should run on all operating systems (but was tested only on
-`Linux 4.10.0-40-generic x86_64`). There might be problems
-with docker container networking on Mac/Windows, because
+`Linux 4.10.0-40-generic x86_64` with `Docker version 17.09.0-ce, build afdb6d4`).
+
+There might be problems with docker container networking on Mac/Windows, because
 these use virtualization of docker images and has to pass through
 special docker gateway.
 
@@ -22,20 +25,33 @@ Specification:
 
 ## Usage
 
-Launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave) (P as Protoss) against Tyr (also Protoss) on default map.
+Launch an example play of [PurpleWave](https://github.com/dgant/PurpleWave) (P as Protoss) against Example Bot on default map.
 
-    ./run_bots.sh PurpleWave:P Tyr:P
+    $ ./run_bots.sh ExampleBot:T PurpleWave:P
+    f463e69d-7bbd-4638-a9a4
 
-Show help:
+Let's watch logs to see what is happenning in headless mode.
+You will need to have `tmux` installed.
 
-    ./run_bots.sh --help
+    $ ./watch_logs.sh f46
+
+(you don't need to specify the whole game name, just few chars)
+
+After a moment, PurpleWave should win the game and you'll get similar output to this:
+
+![Example log output](resources/example_log_output.png)
+
+Stop all running docker containers:
+
+    $  docker stop $(docker ps -a -q)
 
 Play against a bot (follow instructions)
 
     ./play_against_bots.sh PurpleWave:P
 
-Show help:
+### Help
 
+    ./run_bots.sh --help
     ./play_against_bots.sh --help
 
 ### Add your own bot

@@ -10,7 +10,16 @@ if [ ${#FILES[@]} -eq 0 ]; then
   exit 1
 fi
 
-echo "Starting to watch files:"
+if [ ! ${#FILES[@]} -eq 4 ]; then
+  echo "Too many files (${#FILES[@]}) found for game '$GAME_NAME'."
+  echo "Maybe use better game name disambiguation?"
+  echo ""
+  echo "Found files:"
+  echo "${FILES[@]}"
+  exit 1
+fi
+
+echo "Starting to watch log files:"
 echo ${FILES[0]}
 echo ${FILES[1]}
 echo ${FILES[2]}

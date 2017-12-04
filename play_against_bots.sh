@@ -46,6 +46,7 @@ echo " - run multiplayer on Expension"
 echo " - choose multi player on Local Area Network (UDP)"
 echo " - create game"
 echo " - choose a map"
+echo " - do not start game (yet)"
 echo ""
 echo "Now bots will be able to connect!"
 
@@ -61,7 +62,7 @@ function LAUNCH_BOT {
         --volume "$LOG_DIR:/home/starcraft/logs" \
         --net local_net \
         ${IMAGE} \
-        play_entrypoint.sh "$@" > /dev/null
+        play_entrypoint.sh "$@"
 }
 
 BOTS="$@"
