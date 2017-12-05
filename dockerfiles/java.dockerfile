@@ -11,3 +11,4 @@ RUN set -x \
     && rm jre.zip
 
 
+RUN echo "alias win_java32=\"wine ${HOME_DIR}/java/bin/java.exe\"" >> $HOME_DIR/.bash_aliases
