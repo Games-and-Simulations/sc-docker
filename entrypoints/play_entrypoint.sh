@@ -17,7 +17,7 @@ PREFIX="${GAME_NAME}_${POSTFIX}"
 {
     cd ${BOT_DIR}
     # todo: C-bot
-    wine ${HOME_DIR}/java/bin/java.exe -jar ${BOT_NAME}.jar 2>&1 | tee ${LOG_DIR}/${PREFIX}_bot_${BOT_NAME}.log
+    win_java32 -jar ${BOT_NAME}.jar 2>&1 | tee ${LOG_DIR}/${PREFIX}_bot_${BOT_NAME}.log
 } &
 
 sleep 0.5
@@ -31,7 +31,7 @@ else
 fi
 
 # Launch the game!
-./launch_game.sh \
+launch_game \
     --name ${BOT_NAME} \
     ${GAME} \
     "$@" >> ${LOG_DIR}/${PREFIX}_game_${BOT_NAME} 2>&1 &

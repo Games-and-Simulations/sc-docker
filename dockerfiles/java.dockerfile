@@ -10,5 +10,4 @@ RUN set -x \
     && mv jre1.8.0_152/ java/ \
     && rm jre.zip
 
-
-RUN echo "alias win_java32=\"wine ${HOME_DIR}/java/bin/java.exe\"" >> $HOME_DIR/.bash_aliases
+COPY scripts/win_java32.sh /usr/bin/win_java32

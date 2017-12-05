@@ -97,7 +97,8 @@ RUN mkdir $LOG_DIR
 COPY entrypoints/wine_entrypoint.sh .
 
 # Set some basic wine / vnc settings
-RUN echo "alias winegui='wine explorer /desktop=DockerDesktop,1024x768'" > $HOME_DIR/.bash_aliases
+COPY scripts/winegui.sh /usr/bin/winegui
+
 # Init wine.
 # Let's run some command that will make sure the first init runs.
 #
