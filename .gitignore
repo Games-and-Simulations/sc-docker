@@ -37,3 +37,4 @@ dist/
 *.env
 
 logs/*
+!logs/README.md
