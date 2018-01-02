@@ -45,7 +45,7 @@ RUN curl -L https://github.com/tscmoo/bwheadless/releases/download/v0.1/bwheadle
 # Just a useful link
 RUN ln -s "${HOME_DIR}/.wine/drive_c/Program Files/Starcraft/" "${HOME_DIR}/.wine/drive_c/sc"
 
-COPY scripts/launch_game.sh /usr/bin/launch_game
+COPY scripts/launch_game /usr/bin/launch_game
 
 RUN chown -R starcraft:starcraft $HOME_DIR
 RUN apt update && apt install -y screen

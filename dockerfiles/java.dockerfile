@@ -10,4 +10,4 @@ RUN set -x \
     && mv jre1.8.0_152/ java/ \
     && rm jre.zip
 
-COPY scripts/win_java32.sh /usr/bin/win_java32
+COPY scripts/win_java32 /usr/bin/win_java32

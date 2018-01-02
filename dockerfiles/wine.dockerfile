@@ -97,7 +97,7 @@ RUN mkdir $LOG_DIR
 COPY entrypoints/wine_entrypoint.sh .
 
 # Set some basic wine / vnc settings
-COPY scripts/winegui.sh /usr/bin/winegui
+COPY scripts/winegui /usr/bin/winegui
 
 # Init wine.
 # Let's run some command that will make sure the first init runs.
