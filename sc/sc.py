@@ -76,6 +76,8 @@ parser.add_argument('--bot_data_save_dir', type=str, default=SC_BOT_DATA_SAVE_DI
 parser.add_argument('--bot_data_logs_dir', type=str, default=SC_BOT_DATA_LOGS_DIR)
 
 # Settings
+parser.add_argument('--show_all', action="store_true",
+                    help="Launch VNC viewers for all containers, not just the server.")
 parser.add_argument('--verbosity', type=str, default="DEBUG",
                     choices=['DEBUG', 'INFO', 'WARN', 'ERROR'],
                     help="Logging level.")
@@ -135,9 +137,7 @@ if __name__ == '__main__':
     if not args.headless:
         time.sleep(1)
 
-        for i, player in enumerate(players):
+        for i, player in enumerate(players if args.show_all else players[:1]):
             port = 5900 + i
             logger.info(f"Launching vnc viewer for {player} on port {port}")
             subprocess.call(f"vnc-viewer localhost:{port} &", shell=True)
-
-    time.sleep(5)
