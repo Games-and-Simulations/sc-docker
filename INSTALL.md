@@ -1,8 +1,18 @@
 # Install
 
+What works (has been tested):
+
+  - Linux: headful/headless play, 1v1 (bot, human), VNC
+  - Windows: headless play, 1v1 (bot, human), _headful only via VNC_
+  - Mac: headless play, 1v1 (bot, human), _headful only via VNC_
+    (Headful natively could work if X server is installed - [if you try, please let us know](https://forums.docker.com/t/how-to-run-gui-apps-in-containiers-in-osx-docker-for-mac/17797/15).)
+
+Table of contents:
+
   * [Docker](#docker)
   * [Python](#python)
-  * [VNC viewer](#vnc-viewer)
+  * [Pip](#pip)
+  * [VNC viewer - optional](#vnc)
 
 ## Docker
 
@@ -60,13 +70,26 @@ Test in power shell to check install was successful:
 
 ### Mac
 
-TODO: test on Mac
+You may want to [read through manual for installing docker on Mac](https://docs.docker.com/docker-for-mac/install/)
+for troubleshooting.
+
+- Go to [docker releases for Mac](https://docs.docker.com/docker-for-mac/release-notes/#docker-community-edition-17090-ce-mac33-2017-10-03-stable)
+  and download `Docker Community Edition 17.09.0-ce-mac33 2017-10-03 (Stable)` ([direct download link](https://download.docker.com/mac/stable/19543/Docker.dmg))
+- Follow install instructions.
+
+Test in terminal that install was successful:
+
+    docker run hello-world
 
 ## Python
 
 TODO: python install guide
 
-## VNC viewer
+## Pip
+
+TODO: pip install guide, install package
+
+## VNC
 
 Install VNC viewer, for viewing GUI headful modes from the docker images.
 We used [TigerVNC](https://github.com/TigerVNC/tigervnc/releases/tag/v1.8.0).

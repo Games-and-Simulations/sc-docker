@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+wine ${APP_DIR}/java/bin/java.exe "$@"

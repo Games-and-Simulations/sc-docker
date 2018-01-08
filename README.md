@@ -35,6 +35,7 @@ It should run well on new versions of major operating systems. It was tested on:
 
 - Ubuntu 17.04 Zesty, `Linux 4.10.0-40-generic x86_64`
 - Microsoft Windows 10 (64-bit)
+- Mac OS Sieria 10.12.6 (64-bit, Mac mini)
 
 (testing and reporting on other platforms is very welcome, especially Mac!)
 
@@ -47,7 +48,12 @@ Launch a headless play of [PurpleWave](https://github.com/dgant/PurpleWave) (P a
 
 See [more usage examples](USAGE.md).
 
-## Specification:
+## Known limitations
+
+- Running .dll works only in headful mode, not in headless. 
+  Please compile as .exe and it will work. 
+
+## Specification
 
 - StarCraft 1.16.1 game from ICCUP (no need for special installs!)
 - BWAPI 4.1.2

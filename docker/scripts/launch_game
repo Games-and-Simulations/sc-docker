@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+pushd "$SC_DIR"
+
+winegui \
+    "$SC_DIR/bwheadless.exe" \
+    -l "$BWAPI_DATA_DIR/BWAPI.dll" \
+    -e "$SC_DIR/StarCraft.exe" \
+    --installpath "$SC_DIR" \
+    "$@"
+
+popd

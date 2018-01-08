@@ -1,6 +1,6 @@
 # TODOs:
 
-- add support for C/C++ bots
+- Running .dll works in headless mode 
 - set custom game speed, see how we could integrate bwapi.ini?
 - benchmark simulations on top game speed
 - add option to launch starcraft game, and bots can connect to it repeatedly

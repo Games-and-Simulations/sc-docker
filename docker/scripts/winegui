@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+wine explorer /desktop=${WINEGUI_TITLEBAR},640x480 "$@"
