@@ -163,10 +163,11 @@ This will go into another repo:
 
 If you use `sc-docker` in your (academic) work, please cite us:
 
-    @misc{StarcraftDocker,
-      title = {Starcraft-I docker images},
-      author = "Sustr, Michal and Maly, Jan and Certicky, Michal",
-      howpublished = {\url{https://github.com/Games-and-Simulations/sc-docker}},
+    @misc{sustr2018multi,
+    Author = {Michal \v{S}ustr and Jan Mal\'{y} and Michal \v{C}ertick\'{y}},
+    Title = {{Multi-platform Version of StarCraft: Brood War in a Docker Container: Technical Report}},
+    Year = {2018},
+    Eprint = {arXiv:1801.02193},
     }
 
 ## Inspired by
