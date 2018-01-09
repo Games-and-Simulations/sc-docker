@@ -2,8 +2,8 @@ import logging
 import subprocess
 from typing import List
 
-from player import Player, Bot
 from game import GameType
+from player import Player, Bot
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,8 @@ def launch_image(
         map_dir: str,
         bwapi_data_bwta_dir: str,
         bwapi_data_bwta2_dir: str,
-        bot_data_save_dir: str,
+        bot_data_read_dir: str,
+        bot_data_write_dir: str,
         bot_data_logs_dir: str,
 
         # docker
@@ -121,7 +122,8 @@ def launch_image(
            "--volume", f"{map_dir}:{MAP_DIR}:rw",
            "--volume", f"{bwapi_data_bwta_dir}:{BWAPI_DATA_BWTA_DIR}:rw",
            "--volume", f"{bwapi_data_bwta2_dir}:{BWAPI_DATA_BWTA2_DIR}:rw",
-           "--volume", f"{bot_data_save_dir}:{BOT_DATA_SAVE_DIR}:rw",
+           "--volume", f"{bot_data_read_dir}:{BOT_DATA_READ_DIR}:rw",
+           "--volume", f"{bot_data_write_dir}:{BOT_DATA_WRITE_DIR}:rw",
            "--volume", f"{bot_data_logs_dir}:{BOT_DATA_LOGS_DIR}:rw",
 
            "--net", DOCKER_STARCRAFT_NETWORK]
@@ -174,6 +176,10 @@ def launch_image(
     cmd += entrypoint_extra_cmd
 
     logger.debug(cmd)
-    subprocess.call(cmd)
+    code = subprocess.call(cmd)
 
-    logger.info(f"launched {player} in container {game_name}_{nth_player}_{player.name}")
+    if code == 0:
+        logger.info(f"launched {player} in container {game_name}_{nth_player}_{player.name}")
+    else:
+        raise Exception(
+            f"could not launch {player} in container {game_name}_{nth_player}_{player.name}")

@@ -6,6 +6,8 @@ import re
 from enum import Enum
 from os.path import exists, basename
 
+from bwapi import BWAPIVersion
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,19 +34,6 @@ class BotType(Enum):
     AI_MODULE = "dll"
     EXE = "exe"
     JAVA_MIRROR = "jar"
-
-
-class BWAPIVersion(Enum):
-    BWAPI_420 = "420"
-    BWAPI_412 = "412"
-
-    # More versions can be added, but we need these in /docker/bwapi/[version_name]/
-    # - BWAPI.dll
-    # - BWAPId.dll
-    # - bwapi.ini
-
-    # BWAPI_401B = "401B"
-    # BWAPI_374 = "374"
 
 
 class Bot(Player):

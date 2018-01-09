@@ -4,7 +4,8 @@ from player import Bot, PlayerRace, BWAPIVersion
 from bot_storage import BotStorage
 
 
-def retrieve_bots(bot_specs: Iterable[str], bot_storages: Iterable[BotStorage]) -> List[Bot]:
+def retrieve_bots(bot_specs: Iterable[str],
+                  bot_storages: Iterable[BotStorage]) -> List[Bot]:
     bots = []
     for bot_spec in bot_specs:
         parts = bot_spec.split(":")

@@ -89,9 +89,9 @@ Pull requests are welcome! There are still many things to do, especially from [t
 If you use `sc-docker` in your (academic) work, please cite us:
 
     @misc{StarcraftDocker,
-      title = {Starcraft-I docker images},
+      title = {Multi-platform Version of StarCraft: Brood War in a Docker Container: Technical Report},
       author = "Sustr, Michal and Maly, Jan and Certicky, Michal",
-      howpublished = {\url{https://github.com/Games-and-Simulations/sc-docker}},
+      howpublished = {\url{https://arxiv.org/abs/1801.02193}},
     }
 
 ## Links

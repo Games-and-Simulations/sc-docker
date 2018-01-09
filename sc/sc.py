@@ -8,11 +8,12 @@ from os.path import abspath
 
 import coloredlogs
 
-from player import BWAPIVersion, HumanPlayer, Bot, PlayerRace, bot_regex
-from bot_retriever import retrieve_bots
+from bot_factory import retrieve_bots
 from bot_storage import LocalBotStorage
 from docker import launch_image, check_docker_requirements
 from game import GameType
+from map import check_map_exists
+from player import BWAPIVersion, HumanPlayer, Bot, PlayerRace, bot_regex
 from utils import random_string
 
 SC_BOT_DIR = abspath("bots")
@@ -21,13 +22,14 @@ SC_MAP_DIR = abspath("maps")
 
 SC_BWAPI_DATA_BWTA_DIR = abspath("bwapi-data/BWTA")
 SC_BWAPI_DATA_BWTA2_DIR = abspath("bwapi-data/BWTA2")
-SC_BOT_DATA_SAVE_DIR = abspath("bot-data/save")
+SC_BOT_DATA_READ_DIR = abspath("bot-data/read")
+SC_BOT_DATA_WRITE_DIR = abspath("bot-data/write")
 SC_BOT_DATA_LOGS_DIR = abspath("bot-data/logs")
 
 SC_IMAGE = "ggaic/starcraft:play"
 
 parser = argparse.ArgumentParser(
-    description='Launch stacraft docker images for bot/human headless/headful play',
+    description='Launch StarCraft docker images for bot/human headless/headful play',
     formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--bots', nargs="+", required=True, type=bot_regex,
                     metavar="BOT_NAME:RACE:BWAPI_VERSION",
@@ -45,6 +47,7 @@ parser.add_argument('--bots', nargs="+", required=True, type=bot_regex,
                     )
 parser.add_argument('--human', action='store_true',
                     help="Allow play as human against bot.\n")
+# todo: support builtin AI
 # parser.add_argument('--builtin_ai', type=int, default=0,
 #                     help="Add builtin (default) AI to play against.\n"
 #                          "Specify how many AIs will play the game. (default 0)")
@@ -56,9 +59,10 @@ parser.add_argument('--headless', action='store_true',
                          "No VNC viewer will be launched.")
 
 # Game settings
-parser.add_argument("--game_name", type=str, default="GAME_" + random_string(8),
+parser.add_argument("--game_name", type=str, default=random_string(8),
                     help="Override the auto-generated game name")
-parser.add_argument("--game_type", type=str, default="MELEE", metavar="GAME_TYPE",
+parser.add_argument("--game_type", type=str, metavar="GAME_TYPE",
+                    default=GameType.FREE_FOR_ALL.value,
                     choices=[game_type.value for game_type in GameType],
                     help="Set game type. It can be one of:\n- " +
                          "\n- ".join([game_type.value for game_type in GameType]))
@@ -69,10 +73,11 @@ parser.add_argument("--game_speed", type=int, default=-1,
 parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR)
 parser.add_argument('--log_dir', type=str, default=SC_LOG_DIR)
 parser.add_argument('--map_dir', type=str, default=SC_MAP_DIR)
-
+#  BWAPI data volumes
 parser.add_argument('--bwapi_data_bwta_dir', type=str, default=SC_BWAPI_DATA_BWTA_DIR)
 parser.add_argument('--bwapi_data_bwta2_dir', type=str, default=SC_BWAPI_DATA_BWTA2_DIR)
-parser.add_argument('--bot_data_save_dir', type=str, default=SC_BOT_DATA_SAVE_DIR)
+parser.add_argument('--bot_data_read_dir', type=str, default=SC_BOT_DATA_READ_DIR)
+parser.add_argument('--bot_data_write_dir', type=str, default=SC_BOT_DATA_WRITE_DIR)
 parser.add_argument('--bot_data_logs_dir', type=str, default=SC_BOT_DATA_LOGS_DIR)
 
 # Settings
@@ -98,6 +103,7 @@ if __name__ == '__main__':
     coloredlogs.install(level=args.verbosity)
 
     check_docker_requirements()
+    check_map_exists(args.map_dir + "/" + args.map)
 
     players = []
     if args.human:
@@ -109,7 +115,7 @@ if __name__ == '__main__':
     launch_params = dict(
         # game settings
         headless=args.headless,
-        game_name=args.game_name,
+        game_name="GAME_" + args.game_name,
         map_name=args.map,
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
@@ -120,13 +126,16 @@ if __name__ == '__main__':
         map_dir=args.map_dir,
         bwapi_data_bwta_dir=args.bwapi_data_bwta_dir,
         bwapi_data_bwta2_dir=args.bwapi_data_bwta2_dir,
-        bot_data_save_dir=args.bot_data_save_dir,
+        bot_data_read_dir=args.bot_data_read_dir,
+        bot_data_write_dir=args.bot_data_write_dir,
         bot_data_logs_dir=args.bot_data_logs_dir,
 
         # docker
         docker_image=args.docker_image,
         docker_opts=args.opt
     )
+
+    logger.info(f"Logs can be found in {args.log_dir}/GAME_{args.game_name}_*")
 
     for i, player in enumerate(players):
         if isinstance(player, Bot):
@@ -141,3 +150,8 @@ if __name__ == '__main__':
             port = 5900 + i
             logger.info(f"Launching vnc viewer for {player} on port {port}")
             subprocess.call(f"vnc-viewer localhost:{port} &", shell=True)
+
+        logger.info("\n"
+                    "In headful mode, you must specify and start the game manually.\n"
+                    "Select the map, wait for bots to join the game and then\n"
+                    "start the game.")
