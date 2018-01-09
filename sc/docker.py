@@ -3,7 +3,7 @@ import subprocess
 from typing import List
 
 from game import GameType
-from player import Player, Bot
+from player import Player, BotPlayer
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +137,7 @@ def launch_image(
     cmd += [docker_image]
 
     entrypoint_cmd = []
-    if isinstance(player, Bot):
+    if isinstance(player, BotPlayer):
         entrypoint_cmd += ["/app/play_bot.sh"]
     else:
         entrypoint_cmd += ["/app/play_human.sh"]
@@ -150,7 +150,7 @@ def launch_image(
                        f"/app/sc/maps/{map_name}",
                        game_type.value,
                        str(game_speed)]
-    if isinstance(player, Bot):
+    if isinstance(player, BotPlayer):
         entrypoint_cmd += [player.bot_basefilename,
                            player.bwapi_version.value]
 

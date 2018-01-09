@@ -7,14 +7,14 @@ from typing import Optional
 import numpy as np
 import requests
 
-from player import Bot, BotType, PlayerRace, BWAPIVersion
+from player import BotPlayer, BotType, PlayerRace, BWAPIVersion
 from utils import levenshtein_dist
 
 logger = logging.getLogger(__name__)
 
 
 class BotStorage:
-    def find_bot(self, name: str) -> Optional[Bot]:
+    def find_bot(self, name: str) -> Optional[BotPlayer]:
         raise NotImplemented
 
 
@@ -22,7 +22,7 @@ class LocalBotStorage(BotStorage):
     def __init__(self, bot_dir: str):
         self.bot_dir = bot_dir
 
-    def find_bot(self, name: str) -> Optional[Bot]:
+    def find_bot(self, name: str) -> Optional[BotPlayer]:
         bot_filename = None
         bot_type = None
 
@@ -37,7 +37,7 @@ class LocalBotStorage(BotStorage):
         if bot_filename is None:
             return None
 
-        bot = Bot(name, bot_filename, bot_type)
+        bot = BotPlayer(name, bot_filename, bot_type)
 
         # todo: try to find from cache
         bot.race = PlayerRace.TERRAN
@@ -50,7 +50,7 @@ class SscaitBotStorage(BotStorage):
 
     MAX_MATCHING_SUGGESTIONS = 5
 
-    def find_bot(self, name: str) -> Optional[Bot]:
+    def find_bot(self, name: str) -> Optional[BotPlayer]:
         try:
             bots = self.get_bot_specs()
             bot_names = np.array([bot['name'] for bot in bots])
@@ -62,7 +62,7 @@ class SscaitBotStorage(BotStorage):
             logger.info("not finished yet")
             pprint(bot_spec)
 
-            return Bot(bot_spec['name'])
+            return BotPlayer(bot_spec['name'])
         except Exception as e:
             logger.exception(e)
             logger.warning(f"Could not find the bot '{name}' on SSCAIT server")

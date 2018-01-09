@@ -1,11 +1,12 @@
+from collections import Counter
 from typing import List, Iterable
 
-from player import Bot, PlayerRace, BWAPIVersion
 from bot_storage import BotStorage
+from player import BotPlayer, PlayerRace, BWAPIVersion
 
 
 def retrieve_bots(bot_specs: Iterable[str],
-                  bot_storages: Iterable[BotStorage]) -> List[Bot]:
+                  bot_storages: Iterable[BotStorage]) -> List[BotPlayer]:
     bots = []
     for bot_spec in bot_specs:
         parts = bot_spec.split(":")
@@ -35,4 +36,14 @@ def retrieve_bots(bot_specs: Iterable[str],
 
         bots.append(bot)
 
+    # Make sure that the same bot doesn't play against itself (names should be unique)
+    # This is to prevent overwriting and corrupting its own data in mounted dirs
+    counter = Counter([bot.name for bot in bots])
+    # todo: maybe automatic copy?
+    for bot_name in counter.keys():
+        if counter[bot_name] > 1:
+            raise Exception(f"Bots with same names cannot play against themselves. "
+                            f"Please create a copy of '{bot_name}' in the bot_dir "
+                            f"with a different name (like '{bot_name}_copy') "
+                            f"and start a game under this new reference name.")
     return bots

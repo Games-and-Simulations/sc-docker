@@ -36,7 +36,7 @@ class BotType(Enum):
     JAVA_MIRROR = "jar"
 
 
-class Bot(Player):
+class BotPlayer(Player):
     def __init__(self,
                  name: str,
                  bot_filename: str,

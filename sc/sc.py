@@ -13,13 +13,13 @@ from bot_storage import LocalBotStorage
 from docker import launch_image, check_docker_requirements
 from game import GameType
 from map import check_map_exists
-from player import BWAPIVersion, HumanPlayer, Bot, PlayerRace, bot_regex
+from player import BWAPIVersion, HumanPlayer, BotPlayer, PlayerRace, bot_regex
 from utils import random_string
 
+# Default bot dirs
 SC_BOT_DIR = abspath("bots")
 SC_LOG_DIR = abspath("logs")
 SC_MAP_DIR = abspath("maps")
-
 SC_BWAPI_DATA_BWTA_DIR = abspath("bwapi-data/BWTA")
 SC_BWAPI_DATA_BWTA2_DIR = abspath("bwapi-data/BWTA2")
 SC_BOT_DATA_READ_DIR = abspath("bot-data/read")
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     logger.info(f"Logs can be found in {args.log_dir}/GAME_{args.game_name}_*")
 
     for i, player in enumerate(players):
-        if isinstance(player, Bot):
+        if isinstance(player, BotPlayer):
             player.save_settings()
 
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
