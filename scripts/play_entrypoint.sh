@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-set -eux
+set +x
 
-./bwapi_entrypoint.sh
+./scripts/bwapi_entrypoint.sh
 
 BOT_NAME=$1
 GAME_NAME=$2
@@ -24,11 +24,7 @@ sleep 0.5
 
 # if playing against human, don't specify game
 # so it can connect easily (bots will discover the game)
-if [ "$GAME_NAME" -ne "human_against_bots" ]; then
-    GAME="--game ${GAME_NAME}"
-else
-    GAME=""
-fi
+GAME="--game ${GAME_NAME}"
 
 # Launch the game!
 launch_game \

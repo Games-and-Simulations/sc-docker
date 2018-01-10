@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set +x
 
 function usage {
     echo "Usage: $0 [options] BOT_1:RACE_1 BOT_2:RACE_2 ... BOT_N:RACE_N"
@@ -27,6 +27,7 @@ eval set -- "$OPTS"
 
 BOT_DIR=$(pwd)/bots
 LOG_DIR=$(pwd)/logs
+SCRIPT_DIR=$(pwd)/scripts
 
 MAP="sscai\(2)Benzene.scx"
 IMAGE="ggaic/starcraft:play"
@@ -66,14 +67,15 @@ function LAUNCH_BOT {
     POSTFIX=$3
 
     docker run \
-        --rm -d \
+        --rm \
         --privileged \
         --name "${GAME_NAME}_${POSTFIX}_bot_${BOT}" \
         --volume "$BOT_DIR:/home/starcraft/.wine/drive_c/bot" \
         --volume "$LOG_DIR:/home/starcraft/logs" \
+        --volume "$SCRIPT_DIR:/home/starcraft/scripts" \
         --net local_net \
         ${IMAGE} \
-        play_entrypoint.sh "$@" > /dev/null
+        scripts/play_entrypoint.sh "$@" > /dev/null
 }
 
 IS_FIRST=1
@@ -88,10 +90,10 @@ do
     POSTFIX="${RANDOM_POSTFIX:0:4}"
 
     if [ ${IS_FIRST} -eq 1 ]; then
-        LAUNCH_BOT ${BOT} ${GAME_NAME} ${POSTFIX} --race ${RACE} --map "C:\\sc\\maps\\${MAP}" --lan --host
+        LAUNCH_BOT ${BOT} ${GAME_NAME} ${POSTFIX} --race ${RACE} --map "C:\\sc\\maps\\${MAP}" --lan --host &
         IS_FIRST=0
     else
-        LAUNCH_BOT ${BOT} ${GAME_NAME} ${POSTFIX} --race ${RACE} --lan --join ${HEADFUL}
+        LAUNCH_BOT ${BOT} ${GAME_NAME} ${POSTFIX} --race ${RACE} --lan --join ${HEADFUL} &
     fi
 done
 
