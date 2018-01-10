@@ -47,6 +47,10 @@ special docker gateway.
 - wine 2.20.0~xenial
 - base image `ubuntu:xenial`
 
+## Preliminaries
+
+    $ chmod 777 bots logs
+
 ## Usage
 
 ### Headless play
