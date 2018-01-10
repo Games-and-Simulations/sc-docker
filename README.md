@@ -3,6 +3,8 @@
 This repository contains fully working StarCraft
 game running in Wine inside of docker image.
 
+**UPDATE (2018-01-10): the final dev version will be merged into master in a few days, current master might not work as expected.**
+
 ## About
 We are pleased to publish StarCraft I - BroodWar docker images!
 
