@@ -9,39 +9,42 @@ GAME_NAME="$5"
 MAP_NAME="$6"
 GAME_TYPE="$7"
 SPEED_OVERRIDE="$8"
-BOT_FILE="$9"
-BOT_BWAPI="${10}"
+BOT_NAME="$9"
+BOT_FILE="${10}"
 shift 10
 
-LOG_BASENAME=${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME}
+if [ "$1" == "--headful" ]; then
+    IS_HEADFUL="1"
+else
+    IS_HEADFUL="0"
+fi
+
+LOG_BASENAME="${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME}"
 BOT_TYPE="${BOT_FILE##*.}"
 . play_common.sh
 
-# Make sure the bot file exists
-if [ ! -f "$BOT_DIR/$BOT_FILE" ]; then
-    echo "Bot not found in '$BOT_DIR/$BOT_FILE'"
-    exit 1
-fi
-
-# Make sure that bot type is recognized
-if [ "$BOT_TYPE" != "jar" ] && [ "$BOT_TYPE" != "exe" ] && [ "$BOT_TYPE" != "dll" ]; then
-    echo "Bot type can be only one of 'jar', 'exe', 'dll' but the type supplied is '$BOT_TYPE'"
-    exit 1
-fi
+check_bot_requirements
 
 # Copy to BWAPI data dir
-cp "$BOT_DIR/$BOT_FILE" "$SC_DIR/$BOT_FILE"
+cp -r "$BOT_DIR/$BOT_NAME/AI/." "$BOT_DATA_AI_DIR"
+cp -r "$BOT_DIR/$BOT_NAME/read/." "$BOT_DATA_READ_DIR"
+cp -r "$BWAPI_DIR/bot/." "$BWAPI_DATA_DIR"
+cp "$BOT_DIR/$BOT_NAME/BWAPI.dll" "$BWAPI_DATA_DIR"
 
-# Prepare BWAPI version (this copies default bwapi.ini)
-cp $BWAPI_DIR/$BOT_BWAPI/* "$BWAPI_DATA_DIR"
 
-PREPARE_BWAPI "$BOT_FILE"
-PREPARE_CHARACTER
-START_GUI
-START_BOT
+BOT_EXECUTABLE="$BWAPI_DATA_DIR/AI/$BOT_FILE"
+if [ "$BOT_TYPE" == "dll" ]; then
+    prepare_bwapi "bwapi-data/AI/$BOT_FILE"
+else
+    prepare_bwapi "NULL"
+fi
+
+prepare_character
+start_gui
+start_bot
 sleep 3
 
-START_GAME "$@"
+start_game "$@"
 sleep 10
 
 # todo: shutdown the bot & game once it is finished

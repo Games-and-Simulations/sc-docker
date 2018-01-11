@@ -11,16 +11,19 @@ GAME_TYPE="$7"
 SPEED_OVERRIDE="$8"
 shift 8
 
+# human is always headful
+IS_HEADFUL="1"
+
 LOG_BASENAME=${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME}
 . play_common.sh
 
 # Prepare BWAPI version (this copies default bwapi.ini)
 cp $BWAPI_DIR/human/* "$BWAPI_DATA_DIR"
 
-PREPARE_BWAPI "NULL"
-PREPARE_CHARACTER
-START_GUI
-START_GAME "$@"
+prepare_bwapi "NULL"
+prepare_character
+start_gui
+start_game "$@"
 sleep 10
 
 # todo: shutdown the bot & game once it is finished

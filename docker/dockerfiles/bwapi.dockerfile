@@ -14,7 +14,6 @@ ENV BWAPI_DATA_BWTA2_DIR="$BWAPI_DATA_DIR/BWTA2"
 ENV BOT_DATA_READ_DIR="$BWAPI_DATA_DIR/read"
 ENV BOT_DATA_WRITE_DIR="$BWAPI_DATA_DIR/write"
 ENV BOT_DATA_AI_DIR="$BWAPI_DATA_DIR/AI"
-ENV BOT_DATA_LOGS_DIR="$BWAPI_DATA_DIR/logs"
 
 ENV BOT_UID 1002
 
@@ -68,27 +67,30 @@ RUN chmod -R 770 $SC_DIR
 RUN cp -r /home/starcraft/.wine /home/bot/.wine \
     && chown -R bot:users /home/bot/.wine
 
+# these are ports that SC uses,
+# according to http://wiki.teamliquid.net/starcraft/Port_Forwarding
+EXPOSE 6111:6119 6111:6119/udp
+
 # Run starcraft as starcraft user, and bot as bot user :)
 #
 # If you need to install something switch to root and then back to starcraft,
 # but you shouldn't usually need root. Wine requires running everything as non-root user!
 
+# todo: permissions -AI ro, read/save rw
+RUN mkdir -m 775 $BWAPI_DATA_DIR $BWAPI_DATA_BWTA_DIR $BWAPI_DATA_BWTA2_DIR
+RUN mkdir -m 755 $MAP_DIR $BOT_DIR $BOT_DATA_AI_DIR
+VOLUME $BWAPI_DATA_BWTA_DIR $BWAPI_DATA_BWTA2_DIR $MAP_DIR $BOT_DIR
+
+RUN mkdir -m 775 $BOT_DATA_READ_DIR
+RUN mkdir -m 775 $BOT_DATA_WRITE_DIR
+VOLUME $BOT_DATA_READ_DIR $BOT_DATA_WRITE_DIR
+
+RUN chown starcraft:users -R \
+    $BWAPI_DATA_DIR $BWAPI_DATA_BWTA_DIR $BWAPI_DATA_BWTA2_DIR $MAP_DIR $BOT_DATA_AI_DIR $BOT_DIR $BOT_DATA_READ_DIR $BOT_DATA_WRITE_DIR
+
 USER starcraft
 
-RUN mkdir -m 770 $BWAPI_DATA_DIR
-RUN mkdir -m 750 $BWAPI_DATA_BWTA_DIR $BWAPI_DATA_BWTA2_DIR $MAP_DIR $BOT_DIR $BOT_DATA_AI_DIR
-VOLUME $BWAPI_DATA_BWTA_DIR $BWAPI_DATA_BWTA2_DIR $MAP_DIR $BOT_DIR
 RUN echo "umask 0027" >> /home/starcraft/.bashrc
 
-USER root
-RUN mkdir -m 755 $BOT_DATA_LOGS_DIR $BOT_DATA_READ_DIR $BOT_DATA_WRITE_DIR
-RUN chown bot:bot $BOT_DATA_LOGS_DIR $BOT_DATA_READ_DIR $BOT_DATA_WRITE_DIR -R
-VOLUME $BOT_DATA_LOGS_DIR $BOT_DATA_READ_DIR $BOT_DATA_WRITE_DIR
-
-# these are ports that SC uses,
-# according to http://wiki.teamliquid.net/starcraft/Port_Forwarding
-EXPOSE 6111:6119 6111:6119/udp
-
-USER starcraft
 WORKDIR $APP_DIR
 CMD ["./bwapi_entrypoint.sh"]
