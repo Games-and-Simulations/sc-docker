@@ -1,12 +1,12 @@
 # TODOs:
 
-- benchmark simulations on top game speed
-- add option to launch starcraft game, and bots can connect to it repeatedly
-  (save time for repeated plays)
-- add support for singularity containers
-- add cached parsed maps: https://github.com/vjurenka/BWMirror/tree/master/bwapi-data/BWTA2
-- output winner - X vs Y, if Y wins -> output "Y"
-- sound support (ALSA) :-)
+- Play against in-game AI
+- Play on multiple computers
+- Launch game, and bots can connect to it repeatedly (save time for repeated plays)
+- Support for singularity containers
+- Add cached parsed maps: https://github.com/vjurenka/BWMirror/tree/master/bwapi-data/BWTA2
+- Output winner - X vs Y, if Y wins -> output "Y"
+- Sound support (ALSA) for human player
 - Copy crash files from SC folder outside (java crashes are in Z:\app\sc\hs_err_pid8.log)
 
 This will go into another repo:

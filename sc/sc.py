@@ -2,19 +2,17 @@
 
 import argparse
 import logging
-import subprocess
 import time
-from distutils.dir_util import copy_tree
 from os.path import abspath
 
 import coloredlogs
 
 from bot_factory import retrieve_bots
 from bot_storage import LocalBotStorage, SscaitBotStorage
-from docker import launch_image, check_docker_requirements, running_containers, BASE_VNC_PORT
+from docker import check_docker_requirements, BASE_VNC_PORT, launch_game
 from game import GameType
 from map import check_map_exists, SC_MAP_DIR
-from player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR, BotPlayer
+from player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR
 from utils import random_string
 
 # Default bot dirs
@@ -145,40 +143,7 @@ if __name__ == '__main__':
         docker_opts=args.opt
     )
 
-    logger.info(f"Logs can be found in {args.log_dir}/GAME_{args.game_name}_*")
-
-    for i, player in enumerate(players):
-        launch_image(player, nth_player=i, num_players=len(players), **launch_params)
-
-    logger.info("Checking if game has launched properly...")
-    time.sleep(2)
-    containers = running_containers(game_name)
-    if len(containers) != len(players):
-        raise Exception("Some containers exited prematurely, please check logs")
-
-    if not args.headless:
-        time.sleep(1)
-
-        for i, player in enumerate(players if args.show_all else players[:1]):
-            port = args.vnc_base_port + i
-            logger.info(f"Launching vnc viewer for {player} on port {port}")
-            subprocess.call(f"vnc-viewer localhost:{port} &", shell=True)
-
-        logger.info("\n"
-                    "In headful mode, you must specify and start the game manually.\n"
-                    "Select the map, wait for bots to join the game "
-                    "and then start the game.")
-
-    logger.info("Waiting until game is finished...")
-    while len(running_containers(game_name)) > 0:
-        logger.debug("sleep")
-        time.sleep(3)
-
-    if args.read_overwrite:
-        logger.info("Overwriting bot files")
-        for nth_player, player in enumerate(players):
-            if isinstance(player, BotPlayer):
-                logger.debug(f"Overwriting files for {player}")
-                copy_tree(f"{player.write_dir}/{game_name}_{nth_player}", player.read_dir)
-
-    logger.info("Game finished! :)")
+    time_start = time.time()
+    launch_game(players, launch_params, args.show_all, args.read_overwrite)
+    diff = time.time() - time_start
+    logger.info(f"Game finished in {diff:.2f} seconds.")

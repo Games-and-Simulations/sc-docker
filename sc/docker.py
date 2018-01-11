@@ -1,10 +1,12 @@
 import logging
 import os
 import subprocess
+import time
+from distutils.dir_util import copy_tree
 from typing import List
 
 from game import GameType
-from player import Player, BotPlayer
+from player import BotPlayer, Player
 
 logger = logging.getLogger(__name__)
 
@@ -193,3 +195,43 @@ def running_containers(name_prefix):
                   container != ""]
     logger.debug(f"running containers: {containers}")
     return containers
+
+
+def launch_game(players, launch_params, show_all, read_overwrite):
+    logger.info(f"Logs can be found in {launch_params['log_dir']}"
+                f"/GAME_{launch_params['game_name']}_*")
+
+    for i, player in enumerate(players):
+        launch_image(player, nth_player=i, num_players=len(players), **launch_params)
+
+    logger.info("Checking if game has launched properly...")
+    time.sleep(2)
+    containers = running_containers(launch_params['game_name'])
+    if len(containers) != len(players):
+        raise Exception("Some containers exited prematurely, please check logs")
+
+    if not launch_params['headless']:
+        time.sleep(1)
+
+        for i, player in enumerate(players if show_all else players[:1]):
+            port = launch_params['vnc_base_port'] + i
+            logger.info(f"Launching vnc viewer for {player} on port {port}")
+            subprocess.call(f"vnc-viewer localhost:{port} &", shell=True)
+
+        logger.info("\n"
+                    "In headful mode, you must specify and start the game manually.\n"
+                    "Select the map, wait for bots to join the game "
+                    "and then start the game.")
+
+    logger.info("Waiting until game is finished...")
+    while len(running_containers(launch_params['game_name'])) > 0:
+        logger.debug("sleep")
+        time.sleep(3)
+
+    if read_overwrite:
+        logger.info("Overwriting bot files")
+        for nth_player, player in enumerate(players):
+            if isinstance(player, BotPlayer):
+                logger.debug(f"Overwriting files for {player}")
+                copy_tree(f"{player.write_dir}/{launch_params['game_name']}_{nth_player}",
+                          player.read_dir)
