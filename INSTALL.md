@@ -2,10 +2,9 @@
 
 What works (has been tested):
 
-  - Linux: headful/headless play, 1v1 (bot, human), VNC
-  - Windows: headless play, 1v1 (bot, human), _headful only via VNC_
-  - Mac: headless play, 1v1 (bot, human), _headful only via VNC_
-    (Headful natively could work if X server is installed - [if you try, please let us know](https://forums.docker.com/t/how-to-run-gui-apps-in-containiers-in-osx-docker-for-mac/17797/15).)
+  - _Linux / Windows / Mac_: headful/headless play, 1v1 (bot, human), VNC
+  - Bot type: `AI_MODULE`, `EXE`, `JAVA_JNI`, `JAVA_MIRROR`
+  - Tested on all SSCAIT 2017 tournament bots: _ForceBot, Dawid Loranc, PurpleCheese, Microwave, Blonws31, Lukas Moravec, Hannes Bredberg, Black Crow, TyrProtoss, Arrakhammer, tscmoor, Goliat, Kruecke, NLPRbot, McRave, ZurZurZur, UPStarCraftAI 2016, auxanic, Marine Hell, KaonBot, Neo Edmund Zerg, igjbot, UC3ManoloBot, 100382319, Laura Martin Gallardo, HOLD Z, Pineapple Cactus, MegaBot2017, NiteKatT, Lluvatar, Ecgberht, Korean, FTTankTER, MorglozBot, MadMixP, CherryPi, Guillermo Agitaperas, Hao Pan, WillBot, Niels Justesen, Andrey Kurdiumov, Bryan Weber, AyyyLmao, Yuanheng Zhu, JEMMET, KillAlll, CasiaBot, Steamhammer, Martin Rooijackers, Iron bot, NUS Bot, Roman Danielis, Matej Istenik, Dave Churchill, Tomas Vajda, Marian Devecka, Marek Kadek, Soeren Klett, Jakub Trancik, Oleg Ostroumov, ICELab, Florian Richoux, Andrew Smith, WuliBot, Zia bot, DAIDOES, Flash, Travis Shelton, Bereaver, Aurelien Lermant, AILien, Bjorn P Mattsson, Gaoyuan Chen, Carsten Nielsen, OpprimoBot, PeregrineBot, Sijia Xu, Tomas Cere_
 
 Table of contents:
 
@@ -81,9 +80,15 @@ TODO: python install guide
 
 ## Pip
 
+TODO: create python package
 TODO: pip install guide, install package
+
+For now, install dependencies using:
+
+    $ pip install -r requirements.txt
 
 ## VNC
 
-Install VNC viewer, for viewing GUI headful modes from the docker images.
-We used [TigerVNC](https://github.com/TigerVNC/tigervnc/releases/tag/v1.8.0).
+Install [RealVNC viewer](https://www.realvnc.com ) for viewing GUI headful modes from the docker images.
+
+Save the executable in PATH so that it can be launched as `vnc-viewer`

@@ -21,7 +21,7 @@ def retrieve_bots(bot_specs: Iterable[str],
         if bot is None:
             raise Exception(f"Could not find bot {bot_name}")
 
-        if len(parts) >= 2 and parts[1]:
+        if len(parts) == 2:
             bot.race = PlayerRace(parts[1])
 
         bots.append(bot)

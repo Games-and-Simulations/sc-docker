@@ -8,6 +8,7 @@
 - Output winner - X vs Y, if Y wins -> output "Y"
 - Sound support (ALSA) for human player
 - Copy crash files from SC folder outside (java crashes are in Z:\app\sc\hs_err_pid8.log)
+- Create python package
 
 This will go into another repo:
 
