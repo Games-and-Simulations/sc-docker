@@ -6,6 +6,7 @@ import re
 from datetime import datetime
 from enum import Enum
 from os.path import exists, basename, abspath
+from typing import Dict
 
 from dateutil.parser import parse as parse_iso_date
 
@@ -80,24 +81,9 @@ class BotPlayer(Player):
 
     def _read_meta(self) -> BotJsonMeta:
         with open(f"{self.base_dir}/bot.json", "r") as f:
-            r = json.load(f)
+            json_spec = json.load(f)
 
-        meta = BotJsonMeta()
-        meta.name = r['name']
-        meta.race = PlayerRace[r['race'].upper()]
-        meta.description = r['description']
-
-        bot_type = r['botType']
-        if bot_type == "JAVA_JNI" or bot_type == "JAVA_MIRROR":
-            bot_type = "JAVA"
-        meta.botType = BotType[bot_type]
-
-        meta.update = parse_iso_date(r['update'])
-        meta.botBinary = r['botBinary']
-        meta.bwapiDLL = r['bwapiDLL']
-        meta.botProfileURL = r['botProfileURL']
-
-        return meta
+        return self.parse_meta(json_spec)
 
     def _find_bot_filename(self, bot_type: BotType) -> str:
         expr = f"{self.ai_dir}/*.{bot_type.value}"
@@ -143,9 +129,28 @@ class BotPlayer(Player):
         if not exists(f"{self.read_dir}"):
             raise Exception(f"read folder cannot be found in {self.read_dir}")
 
+    @staticmethod
+    def parse_meta(json_spec: Dict):
+        meta = BotJsonMeta()
+        meta.name = json_spec['name']
+        meta.race = PlayerRace[json_spec['race'].upper()]
+        meta.description = json_spec['description']
+
+        bot_type = json_spec['botType']
+        if bot_type == "JAVA_JNI" or bot_type == "JAVA_MIRROR":
+            bot_type = "JAVA"
+        meta.botType = BotType[bot_type]
+
+        meta.update = parse_iso_date(json_spec['update'])
+        meta.botBinary = json_spec['botBinary']
+        meta.bwapiDLL = json_spec['bwapiDLL']
+        meta.botProfileURL = json_spec['botProfileURL']
+
+        return meta
+
 
 _races = "|".join([race.value for race in PlayerRace])
-_expr = re.compile("^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,15}"
+_expr = re.compile("^[a-zA-Z0-9_][a-zA-Z0-9_. -]{0,15}"
                    "(\:(" + _races + "))?$")
 
 

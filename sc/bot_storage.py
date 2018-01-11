@@ -1,13 +1,16 @@
 import json
 import logging
+import os
+import shutil
+import urllib.request
+import zipfile
 from os.path import exists
-from pprint import pprint
-from typing import Optional
+from typing import Optional, Dict
 
 import numpy as np
 import requests
 
-from player import BotPlayer
+from player import BotPlayer, BotJsonMeta
 from utils import levenshtein_dist
 
 logger = logging.getLogger(__name__)
@@ -37,19 +40,25 @@ class LocalBotStorage(BotStorage):
 class SscaitBotStorage(BotStorage):
     MAX_MATCHING_SUGGESTIONS = 5
 
+    def __init__(self, bot_dir: str):
+        self.bot_dir = bot_dir
+
     def find_bot(self, name: str) -> Optional[BotPlayer]:
         try:
             bots = self.get_bot_specs()
             bot_names = np.array([bot['name'] for bot in bots])
             matching_name = self.find_matching_name(name, bot_names)
 
-            bot_spec = [bot for bot in bots if bot['name'] == matching_name][0]
+            json_spec = [bot for bot in bots if bot['name'] == matching_name][0]
+            logger.debug(json_spec)
 
-            # todo: finish try_download
-            logger.info("not finished yet")
-            pprint(bot_spec)
+            bot_spec = self.try_download(json_spec)
+            if bot_spec is None:
+                return None
 
-            return BotPlayer(bot_spec['name'])
+            logger.info(f"Successfully downloaded {bot_spec.name} from SSCAIT server")
+            return BotPlayer(bot_spec.name, self.bot_dir)
+
         except Exception as e:
             logger.exception(e)
             logger.warning(f"Could not find the bot '{name}' on SSCAIT server")
@@ -77,3 +86,36 @@ class SscaitBotStorage(BotStorage):
     def get_bot_specs(self):
         response = requests.get("http://sscaitournament.com/api/bots.php")
         return json.loads(response.content)
+
+    def try_download(self, json_spec: Dict) -> Optional[BotJsonMeta]:
+        bot_spec = BotPlayer.parse_meta(json_spec)
+
+        base_dir = f'{self.bot_dir}/{bot_spec.name}'
+        try:
+            os.makedirs(base_dir, exist_ok=False)
+
+            #  hotfix for https which does not work, right Michal? ;-)
+            urllib.request.urlretrieve(bot_spec.botBinary.replace("https", "http"),
+                                       f'{base_dir}/AI.zip')
+            urllib.request.urlretrieve(bot_spec.bwapiDLL.replace("https", "http"),
+                                       f'{base_dir}/BWAPI.dll')
+
+            with zipfile.ZipFile(f'{base_dir}/AI.zip', 'r') as zip_ref:
+                zip_ref.extractall(f'{base_dir}/AI')
+                os.remove(f'{base_dir}/AI.zip')
+
+            os.makedirs(f'{base_dir}/read', exist_ok=False)
+
+            with open(f'{base_dir}/bot.json', 'w') as f:
+                json.dump(json_spec, f)
+
+            return bot_spec
+
+        except Exception as e:
+            logger.exception(f"Failed to process bot {bot_spec.name}")
+            logger.exception(e)
+
+            logger.info(f"Cleaning up dir {base_dir}")
+            shutil.rmtree(base_dir)
+
+            return None

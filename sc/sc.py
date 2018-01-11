@@ -9,7 +9,7 @@ from os.path import abspath
 import coloredlogs
 
 from bot_factory import retrieve_bots
-from bot_storage import LocalBotStorage
+from bot_storage import LocalBotStorage, SscaitBotStorage
 from docker import launch_image, check_docker_requirements, running_containers, BASE_VNC_PORT
 from game import GameType
 from map import check_map_exists, SC_MAP_DIR
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     if args.human:
         players.append(HumanPlayer())
 
-    bot_storages = (LocalBotStorage(args.bot_dir),)
+    bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
     players += retrieve_bots(args.bots, bot_storages)
 
     launch_params = dict(
