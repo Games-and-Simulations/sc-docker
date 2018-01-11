@@ -7,6 +7,7 @@ from typing import List
 
 from game import GameType
 from player import BotPlayer, Player
+from vnc import launch_vnc_viewer
 
 logger = logging.getLogger(__name__)
 
@@ -216,7 +217,7 @@ def launch_game(players, launch_params, show_all, read_overwrite):
         for i, player in enumerate(players if show_all else players[:1]):
             port = launch_params['vnc_base_port'] + i
             logger.info(f"Launching vnc viewer for {player} on port {port}")
-            subprocess.call(f"vnc-viewer localhost:{port} &", shell=True)
+            launch_vnc_viewer(port)
 
         logger.info("\n"
                     "In headful mode, you must specify and start the game manually.\n"

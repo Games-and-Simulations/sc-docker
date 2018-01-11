@@ -16,6 +16,8 @@ from player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR
 from utils import random_string
 
 # Default bot dirs
+from vnc import check_vnc_exists
+
 SC_LOG_DIR = abspath("logs")
 SC_BWAPI_DATA_BWTA_DIR = abspath("bwapi-data/BWTA")
 SC_BWAPI_DATA_BWTA2_DIR = abspath("bwapi-data/BWTA2")
@@ -107,6 +109,8 @@ if __name__ == '__main__':
 
     check_docker_requirements()
     check_map_exists(args.map_dir + "/" + args.map)
+    if not args.headless:
+        check_vnc_exists()
 
     if args.human and args.headless:
         raise Exception("Cannot use human play in headless mode")

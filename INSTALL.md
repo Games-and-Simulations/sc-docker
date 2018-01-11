@@ -9,8 +9,7 @@ What works (has been tested):
 Table of contents:
 
   * [Docker](#docker)
-  * [Python](#python)
-  * [Pip](#pip)
+  * [Python & pip](#python-pip)
   * [VNC viewer - optional](#vnc)
 
 ## Docker
@@ -74,21 +73,30 @@ Test in terminal that install was successful:
 
     docker run hello-world
 
-## Python
+## Python & pip
 
-TODO: python install guide
-
-## Pip
-
+TODO: proper python install guide
 TODO: create python package
 TODO: pip install guide, install package
 
+Lazy version with a lot of sudo:
+
+Ubuntu: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
+(use `python3.6` instead of just `python`)
+
+    $ curl https://bootstrap.pypa.io/get-pip.py | sudo python3.6
+
 For now, install dependencies using:
 
-    $ pip install -r requirements.txt
+    $ pip3.6 install -r requirements.txt
 
 ## VNC
 
 Install [RealVNC viewer](https://www.realvnc.com ) for viewing GUI headful modes from the docker images.
 
 Save the executable in PATH so that it can be launched as `vnc-viewer`
+
+## Download maps
+
+Either from http://sscaitournament.com/files/sscai_map_pack.zip
+or use `download.sh`

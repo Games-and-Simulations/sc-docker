@@ -9,6 +9,8 @@
 - Sound support (ALSA) for human player
 - Copy crash files from SC folder outside (java crashes are in Z:\app\sc\hs_err_pid8.log)
 - Create python package
+- Add tournament dll to save frame times & scores
+- Try to make the docker image smaller
 
 This will go into another repo:
 

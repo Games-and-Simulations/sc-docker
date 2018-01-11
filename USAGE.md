@@ -4,13 +4,17 @@
 
     $ python sc.py -h
 
-Contains a lot of options.
+Contains a lot of options, quite well documented.
 
-## Headless play
+## Headful play
 
 Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action=botDetails&bot=PurpleWave) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
 
     $ python sc.py --bots "PurpleWave" "CherryPi" --show_all
+
+## Headless play
+
+Simply add `--headless` option.
 
 ## Play against bot
 
