@@ -34,24 +34,27 @@ See [installation instructions for Linux / Windows / Mac](INSTALL.md).
 It should run well on new versions of major operating systems. It was tested on:
 
 - Ubuntu 17.04 Zesty, `Linux 4.10.0-40-generic x86_64`
+<!--
+will do that on Monday :)
 - Microsoft Windows 10 (64-bit)
 - Mac OS Sieria 10.12.6 (64-bit, Mac mini)
+-->
 
 (testing and reporting on other platforms is very welcome, especially Mac!)
 
 ## Usage
 
-Launch a headless play of [PurpleWave](https://github.com/dgant/PurpleWave) (P as Protoss) against Example Bot on default map.
+Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action=botDetails&bot=PurpleWave) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
 
-    $ ./run_bots.sh ExampleBot:T PurpleWave:P
-    f463e69d-7bbd-4638-a9a4
+    $ python sc.py --bots "krasi0" "CherryPi" --show_all
+
+Create game on the server (VNC viewer on port 5900) and wait for bots to join the game.
 
 See [more usage examples](USAGE.md).
 
 ## Known limitations
 
-- Running .dll works only in headful mode, not in headless.
-  Please compile as .exe and it will work.
+- Headful mode needs to specify the map manually due to "Unable to distribute map" bug.
 
 ## Specification
 
@@ -67,7 +70,7 @@ See [more usage examples](USAGE.md).
 
 ## Dockerhub images
 
-Images are also available on [Dockerhub](https://hub.docker.com/r/ggaic/starcraft/).
+Images are available on [Dockerhub](https://hub.docker.com/r/ggaic/starcraft/).
 
 You can use:
 

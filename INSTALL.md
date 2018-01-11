@@ -2,9 +2,14 @@
 
 What works (has been tested):
 
-  - _Linux / Windows / Mac_: headful/headless play, 1v1 (bot, human), VNC
+  - _Linux_: headful/headless play, 1v1 (bot, human), VNC
   - Bot type: `AI_MODULE`, `EXE`, `JAVA_JNI`, `JAVA_MIRROR`
-  - Tested on all SSCAIT 2017 tournament bots: _ForceBot, Dawid Loranc, PurpleCheese, Microwave, Blonws31, Lukas Moravec, Hannes Bredberg, Black Crow, TyrProtoss, Arrakhammer, tscmoor, Goliat, Kruecke, NLPRbot, McRave, ZurZurZur, UPStarCraftAI 2016, auxanic, Marine Hell, KaonBot, Neo Edmund Zerg, igjbot, UC3ManoloBot, 100382319, Laura Martin Gallardo, HOLD Z, Pineapple Cactus, MegaBot2017, NiteKatT, Lluvatar, Ecgberht, Korean, FTTankTER, MorglozBot, MadMixP, CherryPi, Guillermo Agitaperas, Hao Pan, WillBot, Niels Justesen, Andrey Kurdiumov, Bryan Weber, AyyyLmao, Yuanheng Zhu, JEMMET, KillAlll, CasiaBot, Steamhammer, Martin Rooijackers, Iron bot, NUS Bot, Roman Danielis, Matej Istenik, Dave Churchill, Tomas Vajda, Marian Devecka, Marek Kadek, Soeren Klett, Jakub Trancik, Oleg Ostroumov, ICELab, Florian Richoux, Andrew Smith, WuliBot, Zia bot, DAIDOES, Flash, Travis Shelton, Bereaver, Aurelien Lermant, AILien, Bjorn P Mattsson, Gaoyuan Chen, Carsten Nielsen, OpprimoBot, PeregrineBot, Sijia Xu, Tomas Cere_
+  - Tested on almost all SSCAIT 2017 tournament bots (and works on most)
+
+<!--
+todo: finish proper testing
+_ForceBot, Dawid Loranc, PurpleCheese, Microwave, Blonws31, Lukas Moravec, Hannes Bredberg, Black Crow, TyrProtoss, Arrakhammer, tscmoor, Goliat, Kruecke, NLPRbot, McRave, ZurZurZur, UPStarCraftAI 2016, auxanic, Marine Hell, KaonBot, Neo Edmund Zerg, igjbot, UC3ManoloBot, 100382319, Laura Martin Gallardo, HOLD Z, Pineapple Cactus, MegaBot2017, NiteKatT, Lluvatar, Ecgberht, Korean, FTTankTER, MorglozBot, MadMixP, CherryPi, Guillermo Agitaperas, Hao Pan, WillBot, Niels Justesen, Andrey Kurdiumov, Bryan Weber, AyyyLmao, Yuanheng Zhu, JEMMET, KillAlll, CasiaBot, Steamhammer, Martin Rooijackers, Iron bot, NUS Bot, Roman Danielis, Matej Istenik, Dave Churchill, Tomas Vajda, Marian Devecka, Marek Kadek, Soeren Klett, Jakub Trancik, Oleg Ostroumov, ICELab, Florian Richoux, Andrew Smith, WuliBot, Zia bot, DAIDOES, Flash, Travis Shelton, Bereaver, Aurelien Lermant, AILien, Bjorn P Mattsson, Gaoyuan Chen, Carsten Nielsen, OpprimoBot, PeregrineBot, Sijia Xu, Tomas Cere_
+-->
 
 Table of contents:
 
@@ -95,6 +100,12 @@ For now, install dependencies using:
 Install [RealVNC viewer](https://www.realvnc.com ) for viewing GUI headful modes from the docker images.
 
 Save the executable in PATH so that it can be launched as `vnc-viewer`
+
+Quick links:
+
+- [Windows](https://www.realvnc.com/en/connect/download/viewer/windows/)
+- [Linux](https://www.realvnc.com/en/connect/download/viewer/linux/)
+- [Mac](https://www.realvnc.com/en/connect/download/viewer/macos/)
 
 ## Download maps
 
