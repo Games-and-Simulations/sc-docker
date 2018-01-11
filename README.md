@@ -40,6 +40,8 @@ will do that on Monday :)
 - Mac OS Sieria 10.12.6 (64-bit, Mac mini)
 -->
 
+(more to come very soon)
+
 (testing and reporting on other platforms is very welcome, especially Mac!)
 
 ## Usage
@@ -92,10 +94,10 @@ Pull requests are welcome! There are still many things to do, especially from [t
 If you use `sc-docker` in your (academic) work, please cite us:
 
     @misc{sustr2018multi,
-    Author = {Michal \v{S}ustr and Jan Mal\'{y} and Michal \v{C}ertick\'{y}},
-    Title = {{Multi-platform Version of StarCraft: Brood War in a Docker Container: Technical Report}},
-    Year = {2018},
-    Eprint = {arXiv:1801.02193},
+        Author = {Michal \v{S}ustr and Jan Mal\'{y} and Michal \v{C}ertick\'{y}},
+        Title = {{Multi-platform Version of StarCraft: Brood War in a Docker Container: Technical Report}},
+        Year = {2018},
+        Eprint = {arXiv:1801.02193},
     }
 
 ## Links
