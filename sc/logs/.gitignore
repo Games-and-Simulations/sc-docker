@@ -1,2 +1,2 @@
-GAME_*
-*.log
+*
+!README.md
