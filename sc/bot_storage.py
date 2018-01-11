@@ -49,15 +49,17 @@ class SscaitBotStorage(BotStorage):
             bot_names = np.array([bot['name'] for bot in bots])
             matching_name = self.find_matching_name(name, bot_names)
 
-            json_spec = [bot for bot in bots if bot['name'] == matching_name][0]
-            logger.debug(json_spec)
+            if not exists(f"{self.bot_dir}/{matching_name}"):
+                json_spec = [bot for bot in bots if bot['name'] == matching_name][0]
+                logger.debug(json_spec)
 
-            bot_spec = self.try_download(json_spec)
-            if bot_spec is None:
-                return None
+                bot_spec = self.try_download(json_spec)
+                if bot_spec is None:
+                    return None
 
-            logger.info(f"Successfully downloaded {bot_spec.name} from SSCAIT server")
-            return BotPlayer(bot_spec.name, self.bot_dir)
+                logger.info(f"Successfully downloaded {bot_spec.name} from SSCAIT server")
+
+            return BotPlayer(matching_name, self.bot_dir)
 
         except Exception as e:
             logger.exception(e)
@@ -68,7 +70,7 @@ class SscaitBotStorage(BotStorage):
         if name in bot_names:
             return name
         else:
-            logger.info(f"Could not find {name}, trying to find closest match")
+            logger.info(f"Could not find {name}, trying to find closest match in {len(bot_names)} available bots")
 
             distances = np.array([levenshtein_dist(name, bot_name) for bot_name in bot_names])
             closest_idxs = np.argsort(distances)[:self.MAX_MATCHING_SUGGESTIONS]
@@ -105,6 +107,7 @@ class SscaitBotStorage(BotStorage):
                 os.remove(f'{base_dir}/AI.zip')
 
             os.makedirs(f'{base_dir}/read', exist_ok=False)
+            os.makedirs(f'{base_dir}/write', exist_ok=False)
 
             with open(f'{base_dir}/bot.json', 'w') as f:
                 json.dump(json_spec, f)

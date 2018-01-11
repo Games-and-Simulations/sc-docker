@@ -132,7 +132,7 @@ def launch_image(
         cmd += ["-p", f"{vnc_base_port+nth_player}:5900"]
 
     if isinstance(player, BotPlayer):
-        bot_data_write_dir = f"{player.base_dir}/write_{game_name}_{nth_player}"
+        bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
         os.makedirs(bot_data_write_dir, mode=0o777)  # todo: proper mode
         cmd += ["--volume", f"{bot_data_write_dir}:{BOT_DATA_WRITE_DIR}:rw"]
 

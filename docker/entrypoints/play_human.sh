@@ -15,6 +15,8 @@ shift 8
 IS_HEADFUL="1"
 
 LOG_BASENAME=${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME}
+DATE=$(date +%Y-%m-%d)
+REPLAY_FILE="maps/replays/${DATE}_${GAME_NAME}_${NTH_PLAYER}.rep"
 . play_common.sh
 
 # Prepare BWAPI version (this copies default bwapi.ini)
@@ -26,6 +28,4 @@ start_gui
 start_game "$@"
 sleep 10
 
-# todo: shutdown the bot & game once it is finished
-
-wait # until bg processes finish
+detect_game_finished

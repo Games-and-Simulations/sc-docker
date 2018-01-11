@@ -117,6 +117,10 @@ class BotPlayer(Player):
     def read_dir(self):
         return f"{self.base_dir}/read"
 
+    @property
+    def write_dir(self):
+        return f"{self.base_dir}/write"
+
     def _check_structure(self):
         if not exists(f"{self.base_dir}"):
             raise Exception(f"Bot cannot be found in {self.base_dir}")
@@ -128,6 +132,8 @@ class BotPlayer(Player):
             raise Exception(f"AI folder cannot be found in {self.ai_dir}")
         if not exists(f"{self.read_dir}"):
             raise Exception(f"read folder cannot be found in {self.read_dir}")
+        if not exists(f"{self.write_dir}"):
+            raise Exception(f"write folder cannot be found in {self.write_dir}")
 
     @staticmethod
     def parse_meta(json_spec: Dict):

@@ -22,14 +22,12 @@ function prepare_bwapi() {
 
     MAP=$(echo $MAP_NAME | sed "s:$MAP_DIR:maps:g")
     RACE=$(fully_qualified_race_name ${PLAYER_RACE})
-    DATE=$(date +%Y-%m-%d)
-    SAVE_REPLAY="maps/replays/${DATE}_${GAME_NAME}.rep"
 
     sed -i "s:^ai = NULL:ai = $PLAYER:g" "${BWAPI_INI}"
     sed -i "s:^character_name = :character_name = $PLAYER_NAME:g" "${BWAPI_INI}"
     sed -i "s:^race = :race = $RACE:g" "${BWAPI_INI}"
     sed -i "s:^game_type = :game_type = $GAME_TYPE:g" "${BWAPI_INI}"
-    sed -i "s:^save_replay = :save_replay = $SAVE_REPLAY:g" "${BWAPI_INI}"
+    sed -i "s:^save_replay = :save_replay = $REPLAY_FILE:g" "${BWAPI_INI}"
     sed -i "s:^wait_for_min_players = :wait_for_min_players = $NUM_PLAYERS:g" "${BWAPI_INI}"
     sed -i "s:^speed_override = :speed_override = $SPEED_OVERRIDE:g" "${BWAPI_INI}"
 
@@ -96,6 +94,9 @@ function start_game() {
 
     # Launch the game!
     LOG_GAME="${LOG_DIR}/${LOG_BASENAME}_game.log"
+
+    [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
+
     echo "Starting game, savings logs to $LOG_GAME"
     echo "------------------------------------------" >> "$LOG_GAME"
     echo "Started game at" `date +%Y-%m-%dT%H:%M:%S%z` >> "$LOG_GAME"
@@ -133,4 +134,31 @@ function check_bot_requirements() {
         echo "Bot type can be only one of 'jar', 'exe', 'dll' but the type supplied is '$BOT_TYPE'"
         exit 1
     fi
+}
+
+function detect_game_finished() {
+    # game is finished if
+    # - there is a new replay file
+    # - or the game crashed.
+
+    while true
+    do
+        echo "Checking game status ..."
+
+        if ! pgrep -x "StarCraft.exe" > /dev/null
+        then
+            echo "Game crashed!"
+            exit 1
+        fi
+
+        if [ -f "$SC_DIR/$REPLAY_FILE" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
+        then
+            echo "Game finished."
+
+            [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
+            exit 0
+        fi
+
+        sleep 3
+    done;
 }

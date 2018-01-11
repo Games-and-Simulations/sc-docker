@@ -21,6 +21,9 @@ fi
 
 LOG_BASENAME="${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME}"
 BOT_TYPE="${BOT_FILE##*.}"
+DATE=$(date +%Y-%m-%d)
+REPLAY_FILE="maps/replays/${DATE}_${GAME_NAME}_${NTH_PLAYER}.rep"
+
 . play_common.sh
 
 check_bot_requirements
@@ -47,6 +50,4 @@ sleep 3
 start_game "$@"
 sleep 10
 
-# todo: shutdown the bot & game once it is finished
-
-wait # until bg processes finish
+detect_game_finished
