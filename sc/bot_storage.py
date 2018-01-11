@@ -7,7 +7,7 @@ from typing import Optional
 import numpy as np
 import requests
 
-from player import BotPlayer, BotType, PlayerRace, BWAPIVersion
+from player import BotPlayer
 from utils import levenshtein_dist
 
 logger = logging.getLogger(__name__)
@@ -23,31 +23,18 @@ class LocalBotStorage(BotStorage):
         self.bot_dir = bot_dir
 
     def find_bot(self, name: str) -> Optional[BotPlayer]:
-        bot_filename = None
-        bot_type = None
-
-        for ext in [e.value for e in BotType]:
-            f_name = f"{self.bot_dir}/{name}.{ext}"
-            logger.debug(f"checking bot in {f_name}")
-            if exists(f_name):
-                logger.info(f"found bot in {f_name}")
-                bot_filename = f_name
-                bot_type = BotType(ext)
-
-        if bot_filename is None:
+        f_name = f"{self.bot_dir}/{name}"
+        logger.debug(f"checking bot in {f_name}")
+        if not exists(f_name):
             return None
 
-        bot = BotPlayer(name, bot_filename, bot_type)
-
-        # todo: try to find from cache
-        bot.race = PlayerRace.TERRAN
-        bot.bwapi_version = BWAPIVersion.BWAPI_420
+        logger.info(f"found bot in {f_name}")
+        bot = BotPlayer(name, self.bot_dir)
 
         return bot
 
 
 class SscaitBotStorage(BotStorage):
-
     MAX_MATCHING_SUGGESTIONS = 5
 
     def find_bot(self, name: str) -> Optional[BotPlayer]:

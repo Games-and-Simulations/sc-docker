@@ -1,4 +1,5 @@
 import logging
+import os
 import subprocess
 from typing import List
 
@@ -102,9 +103,8 @@ def launch_image(
         map_dir: str,
         bwapi_data_bwta_dir: str,
         bwapi_data_bwta2_dir: str,
-        bot_data_read_dir: str,
-        bot_data_write_dir: str,
-        bot_data_logs_dir: str,
+
+        vnc_base_port: int,
 
         # docker
         docker_image: str,
@@ -115,16 +115,13 @@ def launch_image(
            "-d",
            "--privileged",
 
-           "--name", f"{game_name}_{nth_player}_{player.name}",
+           "--name", f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}",
 
            "--volume", f"{log_dir}:{LOG_DIR}:rw",
            "--volume", f"{bot_dir}:{BOT_DIR}:ro",
            "--volume", f"{map_dir}:{MAP_DIR}:rw",
            "--volume", f"{bwapi_data_bwta_dir}:{BWAPI_DATA_BWTA_DIR}:rw",
            "--volume", f"{bwapi_data_bwta2_dir}:{BWAPI_DATA_BWTA2_DIR}:rw",
-           "--volume", f"{bot_data_read_dir}:{BOT_DATA_READ_DIR}:rw",
-           "--volume", f"{bot_data_write_dir}:{BOT_DATA_WRITE_DIR}:rw",
-           "--volume", f"{bot_data_logs_dir}:{BOT_DATA_LOGS_DIR}:rw",
 
            "--net", DOCKER_STARCRAFT_NETWORK]
 
@@ -132,7 +129,12 @@ def launch_image(
         cmd += docker_opts
 
     if not headless:
-        cmd += ["-p", f"{BASE_VNC_PORT+nth_player}:5900"]
+        cmd += ["-p", f"{vnc_base_port+nth_player}:5900"]
+
+    if isinstance(player, BotPlayer):
+        bot_data_write_dir = f"{player.base_dir}/write_{game_name}_{nth_player}"
+        os.makedirs(bot_data_write_dir, mode=0o777)  # todo: proper mode
+        cmd += ["--volume", f"{bot_data_write_dir}:{BOT_DATA_WRITE_DIR}:rw"]
 
     cmd += [docker_image]
 
@@ -151,8 +153,8 @@ def launch_image(
                        game_type.value,
                        str(game_speed)]
     if isinstance(player, BotPlayer):
-        entrypoint_cmd += [player.bot_basefilename,
-                           player.bwapi_version.value]
+        entrypoint_cmd += [player.name,
+                           player.bot_basefilename]
 
     cmd += entrypoint_cmd
 
@@ -183,3 +185,11 @@ def launch_image(
     else:
         raise Exception(
             f"could not launch {player} in container {game_name}_{nth_player}_{player.name}")
+
+
+def running_containers(name_prefix):
+    out = subprocess.check_output(f'docker ps -f "name={name_prefix}" -q', shell=True)
+    containers = [container.strip() for container in out.decode("utf-8").split("\n") if
+                  container != ""]
+    logger.debug(f"running containers: {containers}")
+    return containers

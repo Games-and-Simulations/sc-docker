@@ -10,16 +10,14 @@ import coloredlogs
 
 from bot_factory import retrieve_bots
 from bot_storage import LocalBotStorage
-from docker import launch_image, check_docker_requirements
+from docker import launch_image, check_docker_requirements, running_containers, BASE_VNC_PORT
 from game import GameType
-from map import check_map_exists
-from player import BWAPIVersion, HumanPlayer, BotPlayer, PlayerRace, bot_regex
+from map import check_map_exists, SC_MAP_DIR
+from player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR
 from utils import random_string
 
 # Default bot dirs
-SC_BOT_DIR = abspath("bots")
 SC_LOG_DIR = abspath("logs")
-SC_MAP_DIR = abspath("maps")
 SC_BWAPI_DATA_BWTA_DIR = abspath("bwapi-data/BWTA")
 SC_BWAPI_DATA_BWTA2_DIR = abspath("bwapi-data/BWTA2")
 SC_BOT_DATA_READ_DIR = abspath("bot-data/read")
@@ -32,18 +30,17 @@ parser = argparse.ArgumentParser(
     description='Launch StarCraft docker images for bot/human headless/headful play',
     formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--bots', nargs="+", required=True, type=bot_regex,
-                    metavar="BOT_NAME:RACE:BWAPI_VERSION",
+                    metavar="BOT_NAME:RACE",
                     help='Specify the names of the bots that should play.\n'
                          f'RACE can be one of {[race.value for race in PlayerRace]} \n'
-                         f'BWAPI_VERSION can be one of {[bwapi.value for bwapi in BWAPIVersion]} \n'
-                         'If RACE or BWAPI_VERSION aren\'t specified\n'
+                         'If RACEs aren\'t specified\n'
                          'they will be loaded from cache if possible.\n'
                          'The bots are looked up in the --bot_dir directory.\n'
                          'If some does not exist, launcher \n'
                          'will try to download it from SSCAIT server.\n'
                          'Examples: \n'
-                         '  --bots Tyr:P:420 PurpleWave:P\n'
-                         '  --bots Tyr::420 PurpleWave '
+                         '  --bots Tyr:P PurpleWave:P\n'
+                         '  --bots Tyr PurpleWave '
                     )
 parser.add_argument('--human', action='store_true',
                     help="Allow play as human against bot.\n")
@@ -66,8 +63,8 @@ parser.add_argument("--game_type", type=str, metavar="GAME_TYPE",
                     choices=[game_type.value for game_type in GameType],
                     help="Set game type. It can be one of:\n- " +
                          "\n- ".join([game_type.value for game_type in GameType]))
-parser.add_argument("--game_speed", type=int, default=-1,
-                    help="Set game speed (pause of ms between frames), -1 for game default.")
+parser.add_argument("--game_speed", type=int, default=0,
+                    help="Set game speed (pause of ms between frames), use -1 for game default.")
 
 # Volumes
 parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR)
@@ -76,9 +73,9 @@ parser.add_argument('--map_dir', type=str, default=SC_MAP_DIR)
 #  BWAPI data volumes
 parser.add_argument('--bwapi_data_bwta_dir', type=str, default=SC_BWAPI_DATA_BWTA_DIR)
 parser.add_argument('--bwapi_data_bwta2_dir', type=str, default=SC_BWAPI_DATA_BWTA2_DIR)
-parser.add_argument('--bot_data_read_dir', type=str, default=SC_BOT_DATA_READ_DIR)
-parser.add_argument('--bot_data_write_dir', type=str, default=SC_BOT_DATA_WRITE_DIR)
-parser.add_argument('--bot_data_logs_dir', type=str, default=SC_BOT_DATA_LOGS_DIR)
+
+# VNC
+parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT)
 
 # Settings
 parser.add_argument('--show_all', action="store_true",
@@ -86,6 +83,10 @@ parser.add_argument('--show_all', action="store_true",
 parser.add_argument('--verbosity', type=str, default="DEBUG",
                     choices=['DEBUG', 'INFO', 'WARN', 'ERROR'],
                     help="Logging level.")
+parser.add_argument('--read_overwrite', action="store_true",
+                    help="At the end of each game, take the contents of 'write' directory\n"
+                         "and copy them over to read directory of the bot.\n"
+                         "Needs to be explicitly turned on.")
 parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
                     help="The name of the image that should be used to launch the game.\n"
                          "This helps with local development.")
@@ -105,6 +106,11 @@ if __name__ == '__main__':
     check_docker_requirements()
     check_map_exists(args.map_dir + "/" + args.map)
 
+    if args.human and args.headless:
+        raise Exception("Cannot use human play in headless mode")
+
+    game_name = "GAME_" + args.game_name
+
     players = []
     if args.human:
         players.append(HumanPlayer())
@@ -115,7 +121,7 @@ if __name__ == '__main__':
     launch_params = dict(
         # game settings
         headless=args.headless,
-        game_name="GAME_" + args.game_name,
+        game_name=game_name,
         map_name=args.map,
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
@@ -126,9 +132,9 @@ if __name__ == '__main__':
         map_dir=args.map_dir,
         bwapi_data_bwta_dir=args.bwapi_data_bwta_dir,
         bwapi_data_bwta2_dir=args.bwapi_data_bwta2_dir,
-        bot_data_read_dir=args.bot_data_read_dir,
-        bot_data_write_dir=args.bot_data_write_dir,
-        bot_data_logs_dir=args.bot_data_logs_dir,
+
+        # vnc
+        vnc_base_port=args.vnc_base_port,
 
         # docker
         docker_image=args.docker_image,
@@ -138,10 +144,13 @@ if __name__ == '__main__':
     logger.info(f"Logs can be found in {args.log_dir}/GAME_{args.game_name}_*")
 
     for i, player in enumerate(players):
-        if isinstance(player, BotPlayer):
-            player.save_settings()
-
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
+
+    logger.info("Waiting...")
+    time.sleep(2)
+    containers = running_containers(game_name)
+    if len(containers) != len(players):
+        raise Exception("Some containers exited prematurely, please check logs")
 
     if not args.headless:
         time.sleep(1)
@@ -155,3 +164,8 @@ if __name__ == '__main__':
                     "In headful mode, you must specify and start the game manually.\n"
                     "Select the map, wait for bots to join the game and then\n"
                     "start the game.")
+
+    # todo wait until game is finished
+    if args.read_overwrite:
+        # todo: copy contents
+        pass

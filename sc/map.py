@@ -1,4 +1,6 @@
-from os.path import exists
+from os.path import exists, abspath
+
+SC_MAP_DIR = abspath("maps")
 
 
 def check_map_exists(map_file: str):
