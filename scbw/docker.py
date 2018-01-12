@@ -15,6 +15,7 @@ DOCKER_STARCRAFT_NETWORK = "sc_net"
 
 
 def check_docker_version():
+    logger.info("checking docker version")
     try:
         out = subprocess.check_output(["docker", "--version"])
     except Exception as e:
@@ -27,6 +28,7 @@ def check_docker_version():
 
 
 def check_docker_can_run():
+    logger.info("checking docker can run")
     try:
         out = subprocess.check_output(["docker", "run", "hello-world"])
     except Exception as e:
@@ -40,6 +42,7 @@ def check_docker_can_run():
 
 
 def check_docker_has_local_net() -> bool:
+    logger.info(f"checking docker has network {DOCKER_STARCRAFT_NETWORK}")
     try:
         out = subprocess.check_output(
             ["docker", "network", "ls", "-f", f"name={DOCKER_STARCRAFT_NETWORK}", "-q"])
