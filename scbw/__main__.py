@@ -67,6 +67,9 @@ parser.add_argument("--game_type", type=str, metavar="GAME_TYPE",
 parser.add_argument("--game_speed", type=int, default=0,
                     help="Set game speed (pause of ms between frames),\n"
                          "use -1 for game default.")
+parser.add_argument("--timeout", type=int, default=None,
+                    help="Kill docker container after timeout seconds.\n"
+                         "If not set, run without timeout.")
 
 # Volumes
 parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR,
@@ -147,6 +150,7 @@ def main():
         map_name=args.map,
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
+        timeout=args.timeout,
 
         # mount dirs
         log_dir=args.log_dir,

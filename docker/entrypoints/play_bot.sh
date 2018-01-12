@@ -1,17 +1,5 @@
 #!/usr/bin/env bash
-set -eu
-
-PLAYER_NAME="$1"
-PLAYER_RACE="$2"
-NTH_PLAYER="$3"
-NUM_PLAYERS="$4"
-GAME_NAME="$5"
-MAP_NAME="$6"
-GAME_TYPE="$7"
-SPEED_OVERRIDE="$8"
-BOT_NAME="$9"
-BOT_FILE="${10}"
-shift 10
+set -eux
 
 if [ "$1" == "--headful" ]; then
     IS_HEADFUL="1"
@@ -50,4 +38,12 @@ sleep 3
 start_game "$@"
 sleep 10
 
-detect_game_finished
+if [ -z "${PLAY_TIMEOUT+set}" ]; then
+    play_detect_game_finished.sh "$REPLAY_FILE"
+else
+    if timeout "${PLAY_TIMEOUT}s" ./play_detect_game_finished.sh "$REPLAY_FILE"; then
+        echo "Game finished within timeout limit."
+    else
+        echo "Game timed out!"
+    fi
+fi

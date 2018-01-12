@@ -3,7 +3,7 @@ import os
 import subprocess
 import time
 from distutils.dir_util import copy_tree
-from typing import List
+from typing import List, Optional
 
 from .game import GameType
 from .player import BotPlayer, Player
@@ -99,6 +99,7 @@ def launch_image(
         map_name: str,
         game_type: GameType,
         game_speed: int,
+        timeout: Optional[int],
 
         # mount dirs
         log_dir: str,
@@ -139,46 +140,46 @@ def launch_image(
         os.makedirs(bot_data_write_dir, mode=0o777)  # todo: proper mode
         cmd += ["--volume", f"{bot_data_write_dir}:{BOT_DATA_WRITE_DIR}:rw"]
 
+    env = ["-e", f"PLAYER_NAME={player.name}",
+           "-e", f"PLAYER_RACE={player.race.value}",
+           "-e", f"NTH_PLAYER={str(nth_player)}",
+           "-e", f"NUM_PLAYERS={str(num_players)}",
+           "-e", f"GAME_NAME={game_name}",
+           "-e", f"MAP_NAME=/app/sc/maps/{map_name}",
+           "-e", f"GAME_TYPE={game_type.value}",
+           "-e", f"SPEED_OVERRIDE={str(game_speed)}"]
+    if isinstance(player, BotPlayer):
+        env += ["-e", f"BOT_NAME={player.name}",
+                "-e", f"BOT_FILE={player.bot_basefilename}"]
+    if timeout is not None:
+        env += ["-e", f"PLAY_TIMEOUT={timeout}"]
+
+    cmd += env
+
     cmd += [docker_image]
-
-    entrypoint_cmd = []
     if isinstance(player, BotPlayer):
-        entrypoint_cmd += ["/app/play_bot.sh"]
+        cmd += ["/app/play_bot.sh"]
     else:
-        entrypoint_cmd += ["/app/play_human.sh"]
+        cmd += ["/app/play_human.sh"]
 
-    entrypoint_cmd += [player.name,
-                       player.race.value,
-                       str(nth_player),
-                       str(num_players),
-                       game_name,
-                       f"/app/sc/maps/{map_name}",
-                       game_type.value,
-                       str(game_speed)]
-    if isinstance(player, BotPlayer):
-        entrypoint_cmd += [player.name,
-                           player.bot_basefilename]
-
-    cmd += entrypoint_cmd
-
-    entrypoint_extra_cmd = []
+    entrypoint_opts = []
     is_server = nth_player == 0
 
     if not headless:
-        entrypoint_extra_cmd += ["--headful"]
+        entrypoint_opts += ["--headful"]
     else:
-        entrypoint_extra_cmd += ["--game", game_name,
+        entrypoint_opts += ["--game", game_name,
                                  "--name", player.name,
                                  "--race", player.race.value,
                                  "--lan"]
 
         if is_server:
-            entrypoint_extra_cmd += ["--host",
+            entrypoint_opts += ["--host",
                                      "--map", f"/app/sc/maps/{map_name}"]
         else:
-            entrypoint_extra_cmd += ["--join"]
+            entrypoint_opts += ["--join"]
 
-    cmd += entrypoint_extra_cmd
+    cmd += entrypoint_opts
 
     logger.debug(cmd)
     code = subprocess.call(cmd)
@@ -196,6 +197,7 @@ def running_containers(name_prefix):
                   container != ""]
     logger.debug(f"running containers: {containers}")
     return containers
+
 
 def stop_containers(name_prefix: str):
     containers = running_containers(name_prefix)

@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-PLAYER_NAME="$1"
-PLAYER_RACE="$2"
-NTH_PLAYER="$3"
-NUM_PLAYERS="$4"
-GAME_NAME="$5"
-MAP_NAME="$6"
-GAME_TYPE="$7"
-SPEED_OVERRIDE="$8"
-shift 8
-
 # human is always headful
 IS_HEADFUL="1"
 
@@ -28,4 +18,4 @@ start_gui
 start_game "$@"
 sleep 10
 
-detect_game_finished
+play_detect_game_finished.sh "$REPLAY_FILE"
