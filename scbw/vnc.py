@@ -1,11 +1,11 @@
-import subprocess
+import shutil
 
-from .utils import which
+import os
 
 
 def check_vnc_exists():
     try:
-        out = which("vnc-viewer")
+        out = shutil.which("vnc-viewer")
     except Exception as e:
         raise Exception("An error occurred while trying to find path to vnc-viewer")
 
@@ -14,4 +14,5 @@ def check_vnc_exists():
 
 
 def launch_vnc_viewer(port: int):
-    subprocess.call(f"vnc-viewer localhost:{port} &", shell=True)
+    # launch in bg
+    os.spawnl(os.P_NOWAIT, shutil.which("vnc-viewer"), "vnc-viewer", f"localhost:{port}")
