@@ -3,7 +3,7 @@
 import argparse
 import logging
 import time
-from os.path import abspath
+from os import path
 
 import coloredlogs
 
@@ -11,18 +11,21 @@ from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
 from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_containers
 from .game import GameType
-from .map import check_map_exists, SC_MAP_DIR
-from .player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR
+from .map import check_map_exists
+from .player import HumanPlayer, PlayerRace, bot_regex
 from .utils import random_string
 from .vnc import check_vnc_exists
 
 # Default bot dirs
-SC_LOG_DIR = abspath("logs")
-SC_BWAPI_DATA_BWTA_DIR = abspath("bwapi-data/BWTA")
-SC_BWAPI_DATA_BWTA2_DIR = abspath("bwapi-data/BWTA2")
-SC_BOT_DATA_READ_DIR = abspath("bot-data/read")
-SC_BOT_DATA_WRITE_DIR = abspath("bot-data/write")
-SC_BOT_DATA_LOGS_DIR = abspath("bot-data/logs")
+here = path.abspath(path.dirname(__file__))
+SC_LOG_DIR = f"{here}/logs"
+SC_BWAPI_DATA_BWTA_DIR = f"{here}/bwapi-data/BWTA"
+SC_BWAPI_DATA_BWTA2_DIR = f"{here}/bwapi-data/BWTA2"
+SC_BOT_DATA_READ_DIR = f"{here}/bot-data/read"
+SC_BOT_DATA_WRITE_DIR = f"{here}/bot-data/write"
+SC_BOT_DATA_LOGS_DIR = f"{here}/bot-data/logs"
+SC_BOT_DIR =f"{here}/bots"
+SC_MAP_DIR = f"{here}/maps"
 
 SC_IMAGE = "ggaic/starcraft:play"
 
