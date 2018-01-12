@@ -14,10 +14,9 @@ from game import GameType
 from map import check_map_exists, SC_MAP_DIR
 from player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR
 from utils import random_string
-
-# Default bot dirs
 from vnc import check_vnc_exists
 
+# Default bot dirs
 SC_LOG_DIR = abspath("logs")
 SC_BWAPI_DATA_BWTA_DIR = abspath("bwapi-data/BWTA")
 SC_BWAPI_DATA_BWTA2_DIR = abspath("bwapi-data/BWTA2")
@@ -31,11 +30,10 @@ parser = argparse.ArgumentParser(
     description='Launch StarCraft docker images for bot/human headless/headful play',
     formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--bots', nargs="+", required=True, type=bot_regex,
-                    metavar="BOT_NAME:RACE",
+                    metavar="BOT_NAME[:RACE]",
                     help='Specify the names of the bots that should play.\n'
-                         f'RACE can be one of {[race.value for race in PlayerRace]} \n'
-                         'If RACEs aren\'t specified\n'
-                         'they will be loaded from cache if possible.\n'
+                         f'Optional RACE can be one of {[race.value for race in PlayerRace]} \n'
+                         'If RACE isn\'t specified it will be loaded from cache if possible.\n'
                          'The bots are looked up in the --bot_dir directory.\n'
                          'If some does not exist, launcher \n'
                          'will try to download it from SSCAIT server.\n'
@@ -52,7 +50,7 @@ parser.add_argument('--human', action='store_true',
 #                          "Specify how many AIs will play the game. (default 0)")
 
 parser.add_argument('--map', type=str, metavar="MAP.scx", default="sscai/(2)Benzene.scx",
-                    help="Name of map on which SC should be played, "
+                    help="Name of map on which SC should be played,\n"
                          "relative to --map_dir")
 parser.add_argument('--headless', action='store_true',
                     help="Launch play in headless mode. \n"
@@ -67,19 +65,28 @@ parser.add_argument("--game_type", type=str, metavar="GAME_TYPE",
                     help="Set game type. It can be one of:\n- " +
                          "\n- ".join([game_type.value for game_type in GameType]))
 parser.add_argument("--game_speed", type=int, default=0,
-                    help="Set game speed (pause of ms between frames), use -1 for game default.")
+                    help="Set game speed (pause of ms between frames),\n"
+                         "use -1 for game default.")
 
 # Volumes
-parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR)
-parser.add_argument('--log_dir', type=str, default=SC_LOG_DIR)
-parser.add_argument('--map_dir', type=str, default=SC_MAP_DIR)
+parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR,
+                    help=f"Directory where bots are stored, default:\n{SC_BOT_DIR}")
+parser.add_argument('--log_dir', type=str, default=SC_LOG_DIR,
+                    help=f"Directory where logs are stored, default:\n{SC_LOG_DIR}")
+parser.add_argument('--map_dir', type=str, default=SC_MAP_DIR,
+                    help=f"Directory where maps are stored, default:\n{SC_MAP_DIR}")
 
 #  BWAPI data volumes
-parser.add_argument('--bwapi_data_bwta_dir', type=str, default=SC_BWAPI_DATA_BWTA_DIR)
-parser.add_argument('--bwapi_data_bwta2_dir', type=str, default=SC_BWAPI_DATA_BWTA2_DIR)
+parser.add_argument('--bwapi_data_bwta_dir', type=str, default=SC_BWAPI_DATA_BWTA_DIR,
+                    help=f"Directory where BWTA map caches are stored, default:\n{SC_BWAPI_DATA_BWTA_DIR}")
+parser.add_argument('--bwapi_data_bwta2_dir', type=str, default=SC_BWAPI_DATA_BWTA2_DIR,
+                    help=f"Directory where BWTA2 map caches are stored, default:\n{SC_BWAPI_DATA_BWTA2_DIR}")
 
 # VNC
-parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT)
+parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT,
+                    help="VNC lowest port number (for server).\n"
+                         "Each consecutive n-th client (player)\n"
+                         "has higher port number - vnc_base_port+n ")
 
 # Settings
 parser.add_argument('--show_all', action="store_true",
@@ -88,11 +95,13 @@ parser.add_argument('--log_level', type=str, default="INFO",
                     choices=['DEBUG', 'INFO', 'WARN', 'ERROR'],
                     help="Logging level.")
 parser.add_argument('--read_overwrite', action="store_true",
-                    help="At the end of each game, take the contents of 'write' directory\n"
-                         "and copy them over to read directory of the bot.\n"
+                    help="At the end of each game, copy the contents\n"
+                         "of 'write' directory to the read directory\n"
+                         "of the bot.\n"
                          "Needs to be explicitly turned on.")
 parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
-                    help="The name of the image that should be used to launch the game.\n"
+                    help="The name of the image that should \n"
+                         "be used to launch the game.\n"
                          "This helps with local development.")
 parser.add_argument('--opt', nargs="+",
                     help="Specify custom docker run options")
@@ -103,10 +112,8 @@ parser.add_argument('--opt', nargs="+",
 
 logger = logging.getLogger(__name__)
 
-if __name__ == '__main__':
-    args = parser.parse_args()
-    coloredlogs.install(level=args.log_level)
 
+def main(args):
     check_docker_requirements()
     check_map_exists(args.map_dir + "/" + args.map)
     if not args.headless:
@@ -114,6 +121,8 @@ if __name__ == '__main__':
 
     if args.human and args.headless:
         raise Exception("Cannot use human play in headless mode")
+    if args.headless and args.show_all:
+        raise Exception("Cannot show all screens in headless mode")
 
     game_name = "GAME_" + args.game_name
 
@@ -151,3 +160,10 @@ if __name__ == '__main__':
     launch_game(players, launch_params, args.show_all, args.read_overwrite)
     diff = time.time() - time_start
     logger.info(f"Game finished in {diff:.2f} seconds.")
+
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    coloredlogs.install(level=args.log_level)
+
+    main(args)

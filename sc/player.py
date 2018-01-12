@@ -87,10 +87,11 @@ class BotPlayer(Player):
 
     def _find_bot_filename(self, bot_type: BotType) -> str:
         expr = f"{self.ai_dir}/*.{bot_type.value}"
-        candidate_files = glob.glob(expr)
+        candidate_files = [file for file in glob.glob(expr)
+                           if "BWAPI" not in file]
 
         if len(candidate_files) == 1:
-            return candidate_files[0]
+            return list(candidate_files)[0]
         elif len(candidate_files) > 1:
             raise Exception(f"Too many files found as candidates "
                             f"for bot launcher, searching for {expr}")
@@ -156,7 +157,7 @@ class BotPlayer(Player):
 
 
 _races = "|".join([race.value for race in PlayerRace])
-_expr = re.compile("^[a-zA-Z0-9_][a-zA-Z0-9_. -]{0,15}"
+_expr = re.compile("^[a-zA-Z0-9_][a-zA-Z0-9_. -]{0,40}"
                    "(\:(" + _races + "))?$")
 
 
