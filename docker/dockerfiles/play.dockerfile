@@ -11,5 +11,8 @@ COPY protocols /etc/protocols
 COPY requirements $APP_DIR/requirements
 COPY dlls $SC_DIR/
 
+RUN chown starcraft:users $APP_DIR/requirements/* && chmod 750 $APP_DIR/requirements/*
+RUN chown starcraft:users $SC_DIR/* && chmod 770 $SC_DIR/*
+
 USER starcraft
 CMD ["/app/play_entrypoint.sh"]

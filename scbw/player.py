@@ -163,5 +163,6 @@ _expr = re.compile("^[a-zA-Z0-9_][a-zA-Z0-9_. -]{0,40}"
 
 def bot_regex(bot: str):
     if not _expr.match(bot):
-        raise argparse.ArgumentTypeError(f"Bot specification '{bot}' is not valid, should match {_expr.pattern}")
+        raise argparse.ArgumentTypeError(
+            f"Bot specification '{bot}' is not valid, should match {_expr.pattern}")
     return bot

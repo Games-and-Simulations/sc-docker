@@ -1,5 +1,0 @@
-requests
-coloredlogs
-numpy
-requests
-python-dateutil

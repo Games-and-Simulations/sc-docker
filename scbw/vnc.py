@@ -1,6 +1,6 @@
 import subprocess
 
-from utils import which
+from .utils import which
 
 
 def check_vnc_exists():

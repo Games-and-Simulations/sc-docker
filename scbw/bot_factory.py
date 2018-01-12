@@ -1,7 +1,7 @@
 from typing import List, Iterable
 
-from bot_storage import BotStorage
-from player import BotPlayer, PlayerRace
+from .bot_storage import BotStorage
+from .player import BotPlayer, PlayerRace
 
 
 def retrieve_bots(bot_specs: Iterable[str],

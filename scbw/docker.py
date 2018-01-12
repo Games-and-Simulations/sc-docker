@@ -5,9 +5,9 @@ import time
 from distutils.dir_util import copy_tree
 from typing import List
 
-from game import GameType
-from player import BotPlayer, Player
-from vnc import launch_vnc_viewer
+from .game import GameType
+from .player import BotPlayer, Player
+from .vnc import launch_vnc_viewer
 
 logger = logging.getLogger(__name__)
 
@@ -196,6 +196,10 @@ def running_containers(name_prefix):
                   container != ""]
     logger.debug(f"running containers: {containers}")
     return containers
+
+def stop_containers(name_prefix: str):
+    containers = running_containers(name_prefix)
+    subprocess.call(['docker', 'stop'] + containers)
 
 
 def launch_game(players, launch_params, show_all, read_overwrite):

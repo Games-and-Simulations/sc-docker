@@ -10,8 +10,8 @@ from typing import Optional, Dict
 import numpy as np
 import requests
 
-from player import BotPlayer, BotJsonMeta
-from utils import levenshtein_dist
+from .player import BotPlayer, BotJsonMeta
+from .utils import levenshtein_dist
 
 logger = logging.getLogger(__name__)
 

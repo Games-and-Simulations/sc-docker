@@ -7,14 +7,14 @@ from os.path import abspath
 
 import coloredlogs
 
-from bot_factory import retrieve_bots
-from bot_storage import LocalBotStorage, SscaitBotStorage
-from docker import check_docker_requirements, BASE_VNC_PORT, launch_game
-from game import GameType
-from map import check_map_exists, SC_MAP_DIR
-from player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR
-from utils import random_string
-from vnc import check_vnc_exists
+from .bot_factory import retrieve_bots
+from .bot_storage import LocalBotStorage, SscaitBotStorage
+from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_containers
+from .game import GameType
+from .map import check_map_exists, SC_MAP_DIR
+from .player import HumanPlayer, PlayerRace, bot_regex, SC_BOT_DIR
+from .utils import random_string
+from .vnc import check_vnc_exists
 
 # Default bot dirs
 SC_LOG_DIR = abspath("logs")
@@ -78,9 +78,11 @@ parser.add_argument('--map_dir', type=str, default=SC_MAP_DIR,
 
 #  BWAPI data volumes
 parser.add_argument('--bwapi_data_bwta_dir', type=str, default=SC_BWAPI_DATA_BWTA_DIR,
-                    help=f"Directory where BWTA map caches are stored, default:\n{SC_BWAPI_DATA_BWTA_DIR}")
+                    help=f"Directory where BWTA map caches are stored, "
+                         f"default:\n{SC_BWAPI_DATA_BWTA_DIR}")
 parser.add_argument('--bwapi_data_bwta2_dir', type=str, default=SC_BWAPI_DATA_BWTA2_DIR,
-                    help=f"Directory where BWTA2 map caches are stored, default:\n{SC_BWAPI_DATA_BWTA2_DIR}")
+                    help=f"Directory where BWTA2 map caches are stored, "
+                         f"default:\n{SC_BWAPI_DATA_BWTA2_DIR}")
 
 # VNC
 parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT,
@@ -103,7 +105,7 @@ parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
                     help="The name of the image that should \n"
                          "be used to launch the game.\n"
                          "This helps with local development.")
-parser.add_argument('--opt', nargs="+",
+parser.add_argument('--opt', type=str,
                     help="Specify custom docker run options")
 
 # todo: add support for multi-PC play.
@@ -113,7 +115,10 @@ parser.add_argument('--opt', nargs="+",
 logger = logging.getLogger(__name__)
 
 
-def main(args):
+def main():
+    args = parser.parse_args()
+    coloredlogs.install(level=args.log_level)
+
     check_docker_requirements()
     check_map_exists(args.map_dir + "/" + args.map)
     if not args.headless:
@@ -132,6 +137,8 @@ def main(args):
 
     bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
     players += retrieve_bots(args.bots, bot_storages)
+
+    opts = [] if not args.opt else args.opt.split(" ")
 
     launch_params = dict(
         # game settings
@@ -153,17 +160,22 @@ def main(args):
 
         # docker
         docker_image=args.docker_image,
-        docker_opts=args.opt
+        docker_opts=opts
     )
 
     time_start = time.time()
-    launch_game(players, launch_params, args.show_all, args.read_overwrite)
-    diff = time.time() - time_start
-    logger.info(f"Game finished in {diff:.2f} seconds.")
+    try:
+        launch_game(players, launch_params, args.show_all, args.read_overwrite)
+        diff = time.time() - time_start
+        logger.info(f"Game finished in {diff:.2f} seconds.")
+
+    except KeyboardInterrupt:
+        logger.info("Caught interrupt, shutting down containers")
+        logger.info("This can take a moment, please wait.")
+        stop_containers(game_name)
+        diff = time.time() - time_start
+        logger.info(f"Game cancelled after {diff:.2f} seconds.")
 
 
 if __name__ == '__main__':
-    args = parser.parse_args()
-    coloredlogs.install(level=args.log_level)
-
-    main(args)
+    main()
