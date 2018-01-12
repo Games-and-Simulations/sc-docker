@@ -18,5 +18,6 @@ def download_sscait_maps(map_dir: str):
     urllib.request.urlretrieve("http://sscaitournament.com/files/sscai_map_pack.zip", 'maps.zip')
     with zipfile.ZipFile(f'maps.zip', 'r') as zip_ref:
         zip_ref.extractall(map_dir)
-        os.remove(f'maps.zip')
+
+    os.remove(f'maps.zip')
     os.makedirs(f"{map_dir}/replays", exist_ok=True)

@@ -104,8 +104,8 @@ class SscaitBotStorage(BotStorage):
 
             with zipfile.ZipFile(f'{base_dir}/AI.zip', 'r') as zip_ref:
                 zip_ref.extractall(f'{base_dir}/AI')
-                os.remove(f'{base_dir}/AI.zip')
 
+            os.remove(f'{base_dir}/AI.zip')
             os.makedirs(f'{base_dir}/read', exist_ok=False)
             os.makedirs(f'{base_dir}/write', exist_ok=False)
 
