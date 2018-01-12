@@ -6,12 +6,13 @@ import time
 from os import path
 
 import coloredlogs
+from os.path import exists
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
 from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_containers
 from .game import GameType
-from .map import check_map_exists
+from .map import check_map_exists, download_sscait_maps
 from .player import HumanPlayer, PlayerRace, bot_regex
 from .utils import random_string
 from .vnc import check_vnc_exists
@@ -126,7 +127,13 @@ def main():
     coloredlogs.install(level=args.log_level)
 
     check_docker_requirements()
-    check_map_exists(args.map_dir + "/" + args.map)
+    try:
+        check_map_exists(args.map_dir + "/" + args.map)
+    except Exception:
+        if "sscai" in args.map and not exists(f"{args.map_dir}/sscai"):
+            download_sscait_maps(args.map_dir)
+            # todo: download BWTA
+
     if not args.headless:
         check_vnc_exists()
 
