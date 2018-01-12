@@ -38,3 +38,5 @@ dist/
 
 logs/*
 !logs/README.md
+
+scbw.egg-info/*

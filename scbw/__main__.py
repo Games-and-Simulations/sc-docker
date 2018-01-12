@@ -167,8 +167,8 @@ def main():
         docker_opts=opts
     )
 
-    time_start = time.time()
     try:
+        time_start = time.time()
         launch_game(players, launch_params, args.show_all, args.read_overwrite)
         diff = time.time() - time_start
         logger.info(f"Game finished in {diff:.2f} seconds.")
@@ -177,8 +177,7 @@ def main():
         logger.info("Caught interrupt, shutting down containers")
         logger.info("This can take a moment, please wait.")
         stop_containers(game_name)
-        diff = time.time() - time_start
-        logger.info(f"Game cancelled after {diff:.2f} seconds.")
+        logger.info(f"Game cancelled.")
 
 
 if __name__ == '__main__':

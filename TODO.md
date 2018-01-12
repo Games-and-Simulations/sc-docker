@@ -1,6 +1,5 @@
 # TODOs:
 
-- Create python package
 - Add tournament dll to save frame times & scores
 - Play against in-game AI
 - Play on multiple computers
