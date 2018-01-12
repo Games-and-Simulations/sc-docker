@@ -49,16 +49,15 @@ You can manually [download docker of specified version](https://download.docker.
 
 ### Python & pip
 
-Lazy version with a lot of sudo:
-
-Ubuntu: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
 (use `python3.6` instead of just `python`)
 
-    $ curl https://bootstrap.pypa.io/get-pip.py | sudo python3.6
+Lazy version with a lot of sudo (based on [this](http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/))
 
-For now, install dependencies using:
-
-    $ pip3.6 install scbw
+    sudo add-apt-repository ppa:jonathonf/python-3.6
+    sudo apt-get update
+    sudo apt-get install python3.6
+    curl https://bootstrap.pypa.io/get-pip.py | sudo python3.6
+    sudo pip3.6 install scbw
 
 ### VNC
 
