@@ -34,9 +34,8 @@ See [installation instructions for Linux / Windows / Mac](INSTALL.md).
 It should run well on new versions of major operating systems. It was tested on:
 
 - Ubuntu 17.04 Zesty, `Linux 4.10.0-40-generic x86_64`
-<!--
-will do that on Monday :)
 - Microsoft Windows 10 (64-bit)
+<!--
 - Mac OS Sieria 10.12.6 (64-bit, Mac mini)
 -->
 
@@ -48,7 +47,7 @@ will do that on Monday :)
 
 Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action=botDetails&bot=PurpleWave) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
 
-    $ python sc.py --bots "krasi0" "CherryPi" --show_all
+    $ scbw --bots "krasi0" "CherryPi" --show_all
 
 Create game on the server (VNC viewer on port 5900) and wait for bots to join the game.
 

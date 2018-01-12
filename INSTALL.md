@@ -7,11 +7,6 @@ What works (has been tested):
   - [Tested on all SSCAIT 2017 tournament bots (and works on most)](tested_bots.md)
 
 
-<!--
-todo: finish proper testing
-_ForceBot, Dawid Loranc, PurpleCheese, Microwave, Blonws31, Lukas Moravec, Hannes Bredberg, Black Crow, TyrProtoss, Arrakhammer, tscmoor, Goliat, Kruecke, NLPRbot, McRave, ZurZurZur, UPStarCraftAI 2016, auxanic, Marine Hell, KaonBot, Neo Edmund Zerg, igjbot, UC3ManoloBot, 100382319, Laura Martin Gallardo, HOLD Z, Pineapple Cactus, MegaBot2017, NiteKatT, Lluvatar, Ecgberht, Korean, FTTankTER, MorglozBot, MadMixP, CherryPi, Guillermo Agitaperas, Hao Pan, WillBot, Niels Justesen, Andrey Kurdiumov, Bryan Weber, AyyyLmao, Yuanheng Zhu, JEMMET, KillAlll, CasiaBot, Steamhammer, Martin Rooijackers, Iron bot, NUS Bot, Roman Danielis, Matej Istenik, Dave Churchill, Tomas Vajda, Marian Devecka, Marek Kadek, Soeren Klett, Jakub Trancik, Oleg Ostroumov, ICELab, Florian Richoux, Andrew Smith, WuliBot, Zia bot, DAIDOES, Flash, Travis Shelton, Bereaver, Aurelien Lermant, AILien, Bjorn P Mattsson, Gaoyuan Chen, Carsten Nielsen, OpprimoBot, PeregrineBot, Sijia Xu, Tomas Cere_
--->
-
 Table of contents:
 
   * [Ubuntu](#ubuntu)
@@ -19,6 +14,8 @@ Table of contents:
   * [Mac](#mac)
 
 Docker version used to build the images is `17.09.0-ce`
+
+Currently supports only `Python >= 3.6`, but Py2/3 support is planned soon.
 
 ## Ubuntu
 
@@ -52,10 +49,6 @@ You can manually [download docker of specified version](https://download.docker.
 
 ### Python & pip
 
-TODO: proper python install guide
-TODO: create python package
-TODO: pip install guide, install package
-
 Lazy version with a lot of sudo:
 
 Ubuntu: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
@@ -65,28 +58,21 @@ Ubuntu: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubun
 
 For now, install dependencies using:
 
-    $ pip3.6 install -r requirements.txt
+    $ pip3.6 install scbw
 
 ### VNC
 
 Install [RealVNC viewer](https://www.realvnc.com ) for viewing GUI headful modes from the docker images.
 
-Save the executable in PATH so that it can be launched as `vncviewer`
+Save the executable in PATH so that it can be launched as `vnc-viewer`
 
 Something like
 
-    $ sudo ln -s [where-you-put-vnc] /usr/bin/vncviewer
+    $ sudo ln -s [where-you-put-vnc] /usr/bin/vnc-viewer
 
 Quick links:
 
-- [Linux](https://www.realvnc.com/en/connect/download/viewer/linux/)
-
-### Download maps
-
-Either from http://sscaitournament.com/files/sscai_map_pack.zip
-or use `download.sh`
-
-
+- [download RealVNC](https://www.realvnc.com/en/connect/download/viewer/linux/)
 
 ## Windows
 
@@ -105,8 +91,13 @@ Test in power shell to check install was successful:
 
     docker run hello-world
 
+### Python & pip
+TODO: finish
+
 ### VNC
-- [Windows](https://www.realvnc.com/en/connect/download/viewer/windows/)
+TODO: finish
+
+- [download RealVNC](https://www.realvnc.com/en/connect/download/viewer/windows/)
 
 
 ## Mac
@@ -124,5 +115,8 @@ Test in terminal that install was successful:
 
     docker run hello-world
 
+### Python & pip
+TODO: finish
+
 ### VNC
-- [Mac](https://www.realvnc.com/en/connect/download/viewer/macos/)
+- [download RealVNC](https://www.realvnc.com/en/connect/download/viewer/macos/)

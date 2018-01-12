@@ -2,7 +2,7 @@
 
 ## Help
 
-    $ python sc.py -h
+    $ scbw -h
 
 Contains a lot of options, quite well documented.
 
@@ -10,7 +10,7 @@ Contains a lot of options, quite well documented.
 
 Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action=botDetails&bot=PurpleWave) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
 
-    $ python sc.py --bots "PurpleWave" "CherryPi" --show_all
+    $ scbw--bots "PurpleWave" "CherryPi" --show_all
 
 ## Headless play
 
@@ -20,7 +20,7 @@ Simply add `--headless` option.
 
 Play against a bot
 
-    $ python sc.py --bots "PurpleWave" --human
+    $ scbw --bots "PurpleWave" --human
 
 ## Stop games that failed to finish
 
