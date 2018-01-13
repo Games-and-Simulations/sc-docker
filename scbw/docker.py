@@ -22,9 +22,9 @@ def check_docker_version():
         raise Exception("An error occurred while trying to call `docker --version`,"
                         " did you install docker?")
 
-    if not out.startswith(b"Docker version 17.09.0-ce"):
+    if not out.startswith(b"Docker version 17.12.0-ce"):
         raise Exception(
-            f"Docker version does not start with 'Docker version 17.09.0-ce', found {out}")
+            f"Docker version does not start with 'Docker version 17.12.0-ce', found {out}")
 
 
 def check_docker_can_run():
