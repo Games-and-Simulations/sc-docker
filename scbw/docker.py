@@ -17,14 +17,11 @@ DOCKER_STARCRAFT_NETWORK = "sc_net"
 def check_docker_version():
     logger.info("checking docker version")
     try:
-        out = subprocess.check_output(["docker", "--version"])
+        out = subprocess.check_output(["docker", "version", "--format", "'{{.Server.APIVersion}}'"])
     except Exception as e:
-        raise Exception("An error occurred while trying to call `docker --version`,"
+        raise Exception("An error occurred while trying to call `docker version`,"
                         " did you install docker?")
-
-    if not out.startswith(b"Docker version 17.09.0-ce"):
-        raise Exception(
-            f"Docker version does not start with 'Docker version 17.09.0-ce', found {out}")
+    logger.debug(f"Using docker API version {out}")
 
 
 def check_docker_can_run():
