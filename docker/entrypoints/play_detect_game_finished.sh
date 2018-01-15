@@ -13,6 +13,7 @@ do
     if ! pgrep -x "StarCraft.exe" > /dev/null
     then
         echo "Game crashed!"
+        sleep 3
         exit 1
     fi
 
@@ -21,6 +22,7 @@ do
         echo "Game finished."
 
         [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
+        sleep 3
         exit 0
     fi
 
