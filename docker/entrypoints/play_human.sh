@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -eux
 
 # human is always headful
 IS_HEADFUL="1"
