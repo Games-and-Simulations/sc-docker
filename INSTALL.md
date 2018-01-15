@@ -36,8 +36,9 @@ Copy-paste script into terminal:
     # Make sure you can run docker without sudo
     # (based on https://docs.docker.com/engine/installation/linux/linux-postinstall/#manage-docker-as-a-non-root-user)
     sudo usermod -aG docker $USER
-    # Log out and log back in so that your group membership is re-evaluated.
-    # (close and open terminal window)
+    # Log out and log back in so that your group membership is re-evaluated
+    # (close and open terminal window).
+    # Someone had to restart their entire machine, but that should not be necessary.
 
 Test to check install was successful:
 
