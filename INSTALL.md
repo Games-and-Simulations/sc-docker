@@ -68,7 +68,7 @@ Save the executable in PATH so that it can be launched as `vnc-viewer`
 
 Something like
 
-    $ sudo ln -s [where-you-put-vnc] /usr/bin/vnc-viewer
+    sudo ln -s [where-you-put-vnc] /usr/bin/vnc-viewer
 
 Quick links:
 
@@ -92,13 +92,21 @@ Test in power shell to check install was successful:
     docker run hello-world
 
 ### Python & pip
-TODO: finish
+
+Download and install Python 3.6 release from [Python releases for Windows](https://www.python.org/downloads/windows/)
+
+You might need to [add python / pip to PATH](https://stackoverflow.com/a/4855685).
+
+Install `scbw` package in PowerShell:
+
+    pip install scbw
+
 
 ### VNC
-TODO: finish
-
 - [download RealVNC](https://www.realvnc.com/en/connect/download/viewer/windows/)
 
+Install, and rename binary to `vnc-viewer`, add the folder with the `vnc-viewer` binary
+to `PATH`.
 
 ## Mac
 
@@ -115,8 +123,22 @@ Test in terminal that install was successful:
 
     docker run hello-world
 
+You might need to add `/Library` folder in `File Sharing` settings.
+
 ### Python & pip
-TODO: finish
+
+Download and install Python 3.6 release from [Python releases for Mac Os X](https://www.python.org/downloads/mac-osx/)
+
+Install `scbw` package:
+
+    pip3.6 install scbw
 
 ### VNC
 - [download RealVNC](https://www.realvnc.com/en/connect/download/viewer/macos/)
+
+Create a launcher in `/usr/local/bin/vnc-viewer`:
+
+    #!/bin/sh
+    /Applications/VNC \\Viewer.app/Contents/MacOS/vncviewer "$@"
+
+(of course, update path as necessary).

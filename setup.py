@@ -17,7 +17,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='scbw',
-    version='0.2a1',
+    version='0.2a2',
     description='Multi-platform Version of StarCraft: Brood War in a Docker Container',
     long_description=long_description,
     url='https://github.com/Games-and-Simulations/sc-docker',

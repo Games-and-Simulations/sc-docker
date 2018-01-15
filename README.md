@@ -35,13 +35,9 @@ It should run well on new versions of major operating systems. It was tested on:
 
 - Ubuntu 17.04 Zesty, `Linux 4.10.0-40-generic x86_64`
 - Microsoft Windows 10 (64-bit)
-<!--
 - Mac OS Sieria 10.12.6 (64-bit, Mac mini)
--->
 
-(more to come very soon)
-
-(testing and reporting on other platforms is very welcome, especially Mac!)
+Testing and reporting in other settings is very welcome!
 
 ## Usage
 
