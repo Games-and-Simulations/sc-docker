@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 DOCKER_STARCRAFT_NETWORK = "sc_net"
 
+try:
+    from subprocess import DEVNULL # py3k
+except ImportError:
+    DEVNULL = open(os.devnull, 'wb')
+
 
 def check_docker_version():
     logger.info("checking docker version")
@@ -182,7 +187,7 @@ def launch_image(
     cmd += entrypoint_opts
 
     logger.debug(cmd)
-    code = subprocess.call(cmd)
+    code = subprocess.call(cmd, stdout=DEVNULL)
 
     if code == 0:
         logger.info(f"launched {player} in container {game_name}_{nth_player}_{player.name}")
@@ -201,7 +206,7 @@ def running_containers(name_prefix):
 
 def stop_containers(name_prefix: str):
     containers = running_containers(name_prefix)
-    subprocess.call(['docker', 'stop'] + containers)
+    subprocess.call(['docker', 'stop'] + containers, stdout=DEVNULL)
 
 
 def launch_game(players, launch_params, show_all, read_overwrite):

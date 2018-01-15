@@ -15,7 +15,7 @@ from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_
 from .game import GameType
 from .map import check_map_exists, download_sscait_maps
 from .player import HumanPlayer, PlayerRace, bot_regex
-from .utils import random_string, DelayedKeyboardInterrupt
+from .utils import random_string
 from .vnc import check_vnc_exists
 
 # Default bot dirs
