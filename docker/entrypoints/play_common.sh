@@ -15,7 +15,7 @@ function fully_qualified_race_name() {
 }
 
 function prepare_bwapi() {
-    PLAYER="$1"
+    PLAYER_DLL="$1"
 
     echo "Preparing bwapi.ini"
     BWAPI_INI="$BWAPI_DATA_DIR/bwapi.ini"
@@ -23,7 +23,7 @@ function prepare_bwapi() {
     MAP=$(echo $MAP_NAME | sed "s:$MAP_DIR:maps:g")
     RACE=$(fully_qualified_race_name ${PLAYER_RACE})
 
-    sed -i "s:^ai = NULL:ai = $PLAYER:g" "${BWAPI_INI}"
+    sed -i "s:^ai = NULL:ai = $PLAYER_DLL:g" "${BWAPI_INI}"
     sed -i "s:^character_name = :character_name = $PLAYER_NAME:g" "${BWAPI_INI}"
     sed -i "s:^race = :race = $RACE:g" "${BWAPI_INI}"
     sed -i "s:^game_type = :game_type = $GAME_TYPE:g" "${BWAPI_INI}"
