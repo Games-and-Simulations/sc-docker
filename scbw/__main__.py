@@ -2,11 +2,12 @@
 
 import argparse
 import logging
+import signal
 import time
 from os import path
+from os.path import exists
 
 import coloredlogs
-from os.path import exists
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
@@ -14,7 +15,7 @@ from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_
 from .game import GameType
 from .map import check_map_exists, download_sscait_maps
 from .player import HumanPlayer, PlayerRace, bot_regex
-from .utils import random_string
+from .utils import random_string, DelayedKeyboardInterrupt
 from .vnc import check_vnc_exists
 
 # Default bot dirs
@@ -25,7 +26,7 @@ SC_BWAPI_DATA_BWTA2_DIR = f"{here}/bwapi-data/BWTA2"
 SC_BOT_DATA_READ_DIR = f"{here}/bot-data/read"
 SC_BOT_DATA_WRITE_DIR = f"{here}/bot-data/write"
 SC_BOT_DATA_LOGS_DIR = f"{here}/bot-data/logs"
-SC_BOT_DIR =f"{here}/bots"
+SC_BOT_DIR = f"{here}/bots"
 SC_MAP_DIR = f"{here}/maps"
 
 SC_IMAGE = "ggaic/starcraft:play"
@@ -124,7 +125,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     args = parser.parse_args()
-    coloredlogs.install(level=args.log_level)
+    coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
 
     check_docker_requirements()
     try:
@@ -186,6 +187,7 @@ def main():
     except KeyboardInterrupt:
         logger.info("Caught interrupt, shutting down containers")
         logger.info("This can take a moment, please wait.")
+        signal.signal(signal.SIGINT, signal.SIG_IGN)  # prevent another throw of exception
         stop_containers(game_name)
         logger.info(f"Game cancelled.")
 
