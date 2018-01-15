@@ -12,7 +12,7 @@ import coloredlogs
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
 from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_containers
-from .game import GameType
+from .game import GameType, find_winner
 from .map import check_map_exists, download_sscait_maps
 from .player import HumanPlayer, PlayerRace, bot_regex
 from .utils import random_string
@@ -183,6 +183,12 @@ def main():
         launch_game(players, launch_params, args.show_all, args.read_overwrite)
         diff = time.time() - time_start
         logger.info(f"Game finished in {diff:.2f} seconds.")
+
+        nth_player = find_winner(game_name, args.map_dir)
+        logger.info(f"Winner is {players[nth_player]} (player {nth_player})")
+
+        # the only print!
+        print(nth_player)
 
     except KeyboardInterrupt:
         logger.info("Caught interrupt, shutting down containers")

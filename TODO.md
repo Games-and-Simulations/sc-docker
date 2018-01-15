@@ -6,7 +6,6 @@
 - Launch game, and bots can connect to it repeatedly (save time for repeated plays)
 - Support for singularity containers
 - Add cached parsed maps: https://github.com/vjurenka/BWMirror/tree/master/bwapi-data/BWTA2
-- Output winner - X vs Y, if Y wins -> output "Y"
 - Sound support (ALSA) for human player
 - Copy crash files from SC folder outside (java crashes are in Z:\app\sc\hs_err_pid8.log)
 - Try to make the docker image smaller
