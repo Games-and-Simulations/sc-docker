@@ -2,8 +2,6 @@ import json
 import logging
 import os
 import shutil
-import urllib.request
-import zipfile
 from os.path import exists
 from typing import Optional, Dict
 
@@ -11,7 +9,7 @@ import numpy as np
 import requests
 
 from .player import BotPlayer, BotJsonMeta
-from .utils import levenshtein_dist
+from .utils import levenshtein_dist, download_extract_zip, download_file
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +68,8 @@ class SscaitBotStorage(BotStorage):
         if name in bot_names:
             return name
         else:
-            logger.info(f"Could not find {name}, trying to find closest match in {len(bot_names)} available bots")
+            logger.info(f"Could not find {name}, trying to find closest match "
+                        f"in {len(bot_names)} available bots")
 
             distances = np.array([levenshtein_dist(name, bot_name) for bot_name in bot_names])
             closest_idxs = np.argsort(distances)[:self.MAX_MATCHING_SUGGESTIONS]
@@ -96,16 +95,11 @@ class SscaitBotStorage(BotStorage):
         try:
             os.makedirs(base_dir, exist_ok=False)
 
-            #  hotfix for https which does not work, right Michal? ;-)
-            urllib.request.urlretrieve(bot_spec.botBinary.replace("https", "http"),
-                                       f'{base_dir}/AI.zip')
-            urllib.request.urlretrieve(bot_spec.bwapiDLL.replace("https", "http"),
-                                       f'{base_dir}/BWAPI.dll')
+            # use http because local network on CTU has broken records
+            # and it should work everywhere...
+            download_extract_zip(bot_spec.botBinary.replace("https", "http"), f'{base_dir}/AI')
+            download_file(bot_spec.bwapiDLL.replace("https", "http"), f'{base_dir}/BWAPI.dll')
 
-            with zipfile.ZipFile(f'{base_dir}/AI.zip', 'r') as zip_ref:
-                zip_ref.extractall(f'{base_dir}/AI')
-
-            os.remove(f'{base_dir}/AI.zip')
             os.makedirs(f'{base_dir}/read', exist_ok=False)
             os.makedirs(f'{base_dir}/write', exist_ok=False)
 

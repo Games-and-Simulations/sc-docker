@@ -1,5 +1,8 @@
+import os
+import urllib.request as request
+import zipfile
 from random import choice
-from typing import Optional
+from tempfile import mkstemp
 
 
 def levenshtein_dist(s1, s2):
@@ -28,20 +31,19 @@ def random_string(len: int = 8) -> str:
     return "".join(choice("0123456789ABCDEF") for _ in range(len))
 
 
-def which(program: str) -> Optional[str]:
-    import os
+def download_extract_zip(url: str, extract_to: str):
+    _, filename = mkstemp()
+    try:
+        download_file(url, filename)
+        with zipfile.ZipFile(filename, 'r') as zip_ref:
+            zip_ref.extractall(extract_to)
 
-    def is_exe(fpath: str):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    finally:
+        os.remove(filename)
 
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
 
-    return None
+def download_file(url: str, as_file: str):
+    opener = request.FancyURLopener()
+    # python is sending some python User-Agent that Cloudflare doesn't like
+    opener.version = 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0'
+    opener.retrieve(url, as_file)

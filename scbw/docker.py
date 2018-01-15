@@ -232,7 +232,6 @@ def launch_game(players, launch_params, show_all, read_overwrite):
 
     logger.info("Waiting until game is finished...")
     while len(running_containers(launch_params['game_name'])) > 0:
-        logger.debug("sleep")
         time.sleep(3)
 
     if read_overwrite:
