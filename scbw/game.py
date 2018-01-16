@@ -32,3 +32,7 @@ def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
     winner_file = replay_files[winner_idx]
     nth_player = winner_file.replace(".rep", "").split("_")[-1]
     return int(nth_player)
+
+def create_data_dirs(*dir_paths):
+    for dir_path in dir_paths:
+        os.makedirs(dir_path, mode=0o775, exist_ok=True)
