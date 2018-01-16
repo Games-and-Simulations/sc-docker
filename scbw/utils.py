@@ -39,13 +39,14 @@ def random_string(len: int = 8) -> str:
 
 
 def download_extract_zip(url: str, extract_to: str):
-    _, filename = mkstemp()
+    fd, filename = mkstemp()
     try:
         download_file(url, filename)
         with zipfile.ZipFile(filename, 'r') as zip_ref:
             zip_ref.extractall(extract_to)
 
     finally:
+        os.close(fd)
         os.remove(filename)
 
 

@@ -6,6 +6,8 @@ from distutils.dir_util import copy_tree
 from os.path import abspath, dirname, exists
 from typing import List, Optional
 
+import sys
+
 from .game import GameType
 from .player import BotPlayer, Player
 from .utils import download_file, get_data_dir
@@ -87,7 +89,7 @@ def create_local_image():
     try:
         # first copy all docker files we will need
         # for building image to somewhere we can write
-        pkg_docker_dir = abspath(dirname(__file__) + '/../docker/')
+        pkg_docker_dir = f'{sys.prefix}/scbw_local_docker/'
         base_dir = get_data_dir() + "/docker"
 
         logger.info(f"creating docker local image")
@@ -112,7 +114,7 @@ def create_local_image():
         # build starcraft:game
         logger.info("building local image starcraft:game, this may take a while...")
         if subprocess.call(['docker', 'build',
-                            '-f', 'dockerfiles/game.dockerfile',
+                            '-f', 'game.dockerfile',
                             '-t', "starcraft:game", '.'],
                            cwd=base_dir, stdout=DEVNULL) != 0:
             raise Exception

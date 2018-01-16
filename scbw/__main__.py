@@ -19,7 +19,7 @@ from .player import HumanPlayer, PlayerRace, bot_regex
 from .utils import random_string
 from .vnc import check_vnc_exists
 
-VERSION = "0.2a4"
+VERSION = "0.2a7"
 
 # Default bot dirs
 here = path.abspath(path.dirname(__file__))

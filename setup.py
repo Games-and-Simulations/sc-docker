@@ -47,6 +47,7 @@ setup(
     install_requires=['requests',
                       'coloredlogs',
                       'numpy',
+                      'tqdm',
                       'requests',
                       'python-dateutil'],
     extras_require={
@@ -59,9 +60,9 @@ setup(
     },
     python_requires='>=3.6',
 
-    data_files=[('docker_build', ['docker/dockerfiles/game.dockerfile',
-                                  'docker/default.mpc',
-                                  'docker/default.spc',
-                                  ])
+    data_files=[('scbw_local_docker', ['scbw/local_docker/game.dockerfile',
+                                       'scbw/local_docker/default.mpc',
+                                       'scbw/local_docker/default.spc',
+                                       ])
                 ]
 )
