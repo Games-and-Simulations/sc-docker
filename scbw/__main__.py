@@ -29,7 +29,7 @@ SC_BWAPI_DATA_BWTA2_DIR = f"{here}/bwapi-data/BWTA2"
 SC_BOT_DIR = f"{here}/bots"
 SC_MAP_DIR = f"{here}/maps"
 
-SC_IMAGE = "ggaic/starcraft:game-" + VERSION
+SC_IMAGE = "starcraft:game"
 
 parser = argparse.ArgumentParser(
     description='Launch StarCraft docker images for bot/human headless/headful play',
@@ -127,7 +127,7 @@ def main():
     args = parser.parse_args()
     coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
 
-    check_docker_requirements()
+    check_docker_requirements(args.docker_image)
     try:
         check_map_exists(args.map_dir + "/" + args.map)
     except Exception:

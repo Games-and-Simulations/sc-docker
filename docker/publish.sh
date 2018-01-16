@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eux
 
+# do not publish starcraft:game
 VERSION=$(python ../setup.py --version)
 
 docker tag starcraft:wine  ggaic/starcraft:wine

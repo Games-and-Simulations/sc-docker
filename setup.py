@@ -58,4 +58,10 @@ setup(
         ],
     },
     python_requires='>=3.6',
+
+    data_files=[('docker_build', ['docker/dockerfiles/game.dockerfile',
+                                  'docker/default.mpc',
+                                  'docker/default.spc',
+                                  ])
+                ]
 )

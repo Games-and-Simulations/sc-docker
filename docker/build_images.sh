@@ -5,5 +5,5 @@ docker build -f dockerfiles/wine.dockerfile  -t starcraft:wine   .
 docker build -f dockerfiles/bwapi.dockerfile -t starcraft:bwapi  .
 docker build -f dockerfiles/play.dockerfile  -t starcraft:play   .
 docker build -f dockerfiles/java.dockerfile  -t starcraft:java   .
-
-. ./build_image_game.sh
+[ ! -f starcraft.zip ] && curl -SL 'http://files.theabyss.ru/sc/starcraft.zip' -o starcraft.zip
+docker build -f dockerfiles/game.dockerfile  -t "starcraft:game" .

@@ -3,10 +3,12 @@ import os
 import subprocess
 import time
 from distutils.dir_util import copy_tree
+from os.path import abspath, dirname, exists
 from typing import List, Optional
 
 from .game import GameType
 from .player import BotPlayer, Player
+from .utils import download_file, get_data_dir
 from .vnc import launch_vnc_viewer
 
 logger = logging.getLogger(__name__)
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 DOCKER_STARCRAFT_NETWORK = "sc_net"
 
 try:
-    from subprocess import DEVNULL # py3k
+    from subprocess import DEVNULL  # py3k
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
 
@@ -68,10 +70,65 @@ def create_local_net():
     logger.debug(f"docker network id: {out}")
 
 
-def check_docker_requirements():
+def check_docker_has_local_image(image: str) -> bool:
+    try:
+        logger.info(f"checking if there is local image {image}")
+        out = subprocess.check_output(["docker", "images", "-q", image])
+
+    except Exception as e:
+        raise Exception(
+            f"An error occurred while trying to call `docker images -q {image}`")
+
+    logger.debug(f"docker image id: {out}")
+    return bool(out)
+
+
+def create_local_image():
+    try:
+        # first copy all docker files we will need
+        # for building image to somewhere we can write
+        pkg_docker_dir = abspath(dirname(__file__) + '/../docker/')
+        base_dir = get_data_dir() + "/docker"
+
+        logger.info(f"creating docker local image")
+        logger.info(f"copying files from {pkg_docker_dir} to {base_dir}")
+        copy_tree(pkg_docker_dir, base_dir)
+
+        # pull java parent image if not found locally
+        if not bool(subprocess.check_output(["docker", "images", "-q", "starcraft:java"])):
+            logger.info("pulling image starcraft:java, this may take a while...")
+            if subprocess.call(['docker', 'pull', 'ggaic/starcraft:java'], stdout=DEVNULL) != 0:
+                raise Exception
+            if subprocess.call(['docker', 'tag', 'ggaic/starcraft:java', 'starcraft:java'],
+                               stdout=DEVNULL) != 0:
+                raise Exception
+
+        # download starcraft.zip
+        starcraft_zip_file = f"{base_dir}/starcraft.zip"
+        if not exists(starcraft_zip_file):
+            logger.info(f"downloading starcraft.zip to {starcraft_zip_file}")
+            download_file('http://files.theabyss.ru/sc/starcraft.zip', starcraft_zip_file)
+
+        # build starcraft:game
+        logger.info("building local image starcraft:game, this may take a while...")
+        if subprocess.call(['docker', 'build',
+                            '-f', 'dockerfiles/game.dockerfile',
+                            '-t', "starcraft:game", '.'],
+                           cwd=base_dir, stdout=DEVNULL) != 0:
+            raise Exception
+
+        logger.info("successfully built image starcraft:game")
+
+    except Exception as e:
+        raise Exception(
+            f"An error occurred while trying to build local image")
+
+
+def check_docker_requirements(image: str):
     check_docker_version()
     check_docker_can_run()
     check_docker_has_local_net() or create_local_net()
+    check_docker_has_local_image(image) or create_local_image()
 
 
 BASE_VNC_PORT = 5900
@@ -174,13 +231,13 @@ def launch_image(
         entrypoint_opts += ["--headful"]
     else:
         entrypoint_opts += ["--game", game_name,
-                                 "--name", player.name,
-                                 "--race", player.race.value,
-                                 "--lan"]
+                            "--name", player.name,
+                            "--race", player.race.value,
+                            "--lan"]
 
         if is_server:
             entrypoint_opts += ["--host",
-                                     "--map", f"/app/sc/maps/{map_name}"]
+                                "--map", f"/app/sc/maps/{map_name}"]
         else:
             entrypoint_opts += ["--join"]
 

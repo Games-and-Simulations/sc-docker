@@ -20,8 +20,12 @@ class GameType(Enum):
     TEAM_CAPTURE_THE_FLAG = "TEAM_CAPTURE_THE_FLAG"
 
 
-def find_winner(game_name: str, map_dir: str) -> int:
+def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
     replay_files = glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.rep")
+    if len(replay_files) != num_players:
+        raise Exception(f"The game did not finish properly! "
+                        f"Did not find replay files from all players in '{map_dir}/replays/'.")
+
     replay_sizes = map(os.path.getsize, replay_files)
 
     winner_idx = np.argmax(replay_sizes)
