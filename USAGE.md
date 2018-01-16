@@ -10,7 +10,7 @@ Contains a lot of options, quite well documented.
 
 Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action=botDetails&bot=PurpleWave) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
 
-    $ scbw--bots "PurpleWave" "CherryPi" --show_all
+    $ scbw --bots "PurpleWave" "CherryPi" --show_all
 
 ## Headless play
 
