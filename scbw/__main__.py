@@ -1,6 +1,7 @@
 #!/usr/bin/python3.6
 
 import argparse
+import glob
 import logging
 import signal
 import time
@@ -23,9 +24,6 @@ here = path.abspath(path.dirname(__file__))
 SC_LOG_DIR = f"{here}/logs"
 SC_BWAPI_DATA_BWTA_DIR = f"{here}/bwapi-data/BWTA"
 SC_BWAPI_DATA_BWTA2_DIR = f"{here}/bwapi-data/BWTA2"
-SC_BOT_DATA_READ_DIR = f"{here}/bot-data/read"
-SC_BOT_DATA_WRITE_DIR = f"{here}/bot-data/write"
-SC_BOT_DATA_LOGS_DIR = f"{here}/bot-data/logs"
 SC_BOT_DIR = f"{here}/bots"
 SC_MAP_DIR = f"{here}/maps"
 
@@ -182,7 +180,12 @@ def main():
         time_start = time.time()
         launch_game(players, launch_params, args.show_all, args.read_overwrite)
         diff = time.time() - time_start
-        logger.info(f"Game finished in {diff:.2f} seconds.")
+        logger.info(f"Game {game_name} finished in {diff:.2f} seconds.")
+
+        logger.info("Logs are saved here:")
+        log_files = glob.glob(f"{args.log_dir}/*{game_name}*.log")
+        for log_file in log_files:
+            logger.info(log_file)
 
         nth_player = find_winner(game_name, args.map_dir)
         logger.info(f"Winner is {players[nth_player]} (player {nth_player})")
