@@ -3,29 +3,37 @@
 import argparse
 import glob
 import logging
+import os
+import platform
 import signal
 import time
-from os import path
-from os.path import exists
+from os.path import exists, expanduser
 
 import coloredlogs
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
 from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_containers
-from .game import GameType, find_winner
+from .game import GameType, find_winner, create_data_dirs
 from .map import check_map_exists, download_sscait_maps
 from .player import HumanPlayer, PlayerRace, bot_regex
 from .utils import random_string
 from .vnc import check_vnc_exists
 
+logger = logging.getLogger(__name__)
+
 # Default bot dirs
-here = path.abspath(path.dirname(__file__))
-SC_LOG_DIR = f"{here}/logs"
-SC_BWAPI_DATA_BWTA_DIR = f"{here}/bwapi-data/BWTA"
-SC_BWAPI_DATA_BWTA2_DIR = f"{here}/bwapi-data/BWTA2"
-SC_BOT_DIR = f"{here}/bots"
-SC_MAP_DIR = f"{here}/maps"
+system = platform.system()
+if system == "Windows":
+    base_dir = os.getenv('APPDATA') + "/scbw"
+else:
+    base_dir = expanduser("~") + "/.scbw"
+
+SC_LOG_DIR = f"{base_dir}/logs"
+SC_BWAPI_DATA_BWTA_DIR = f"{base_dir}/bwapi-data/BWTA"
+SC_BWAPI_DATA_BWTA2_DIR = f"{base_dir}/bwapi-data/BWTA2"
+SC_BOT_DIR = f"{base_dir}/bots"
+SC_MAP_DIR = f"{base_dir}/maps"
 
 SC_IMAGE = "ggaic/starcraft:play"
 
@@ -114,18 +122,25 @@ parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
 parser.add_argument('--opt', type=str,
                     help="Specify custom docker run options")
 
+
 # todo: add support for multi-PC play.
 # We need to think about how to setup docker IPs,
 # maybe we will need to specify manually routing tables? :/
-
-logger = logging.getLogger(__name__)
-
 
 def main():
     args = parser.parse_args()
     coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
 
+    # Check all startup requirements
     check_docker_requirements()
+    create_data_dirs(
+        args.bot_dir,
+        args.log_dir,
+        args.map_dir,
+        args.bwapi_data_bwta_dir,
+        args.bwapi_data_bwta2_dir,
+    )
+
     try:
         check_map_exists(args.map_dir + "/" + args.map)
     except Exception:
@@ -141,6 +156,7 @@ def main():
     if args.headless and args.show_all:
         raise Exception("Cannot show all screens in headless mode")
 
+    # Prepare players
     game_name = "GAME_" + args.game_name
 
     players = []
@@ -152,6 +168,7 @@ def main():
 
     opts = [] if not args.opt else args.opt.split(" ")
 
+    # Prepare game launching
     launch_params = dict(
         # game settings
         headless=args.headless,
@@ -196,7 +213,10 @@ def main():
     except KeyboardInterrupt:
         logger.info("Caught interrupt, shutting down containers")
         logger.info("This can take a moment, please wait.")
-        signal.signal(signal.SIGINT, signal.SIG_IGN)  # prevent another throw of exception
+
+        # prevent another throw of KeyboardInterrupt exception
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
         stop_containers(game_name)
         logger.info(f"Game cancelled.")
 
