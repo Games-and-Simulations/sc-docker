@@ -19,6 +19,8 @@ from .player import HumanPlayer, PlayerRace, bot_regex
 from .utils import random_string
 from .vnc import check_vnc_exists
 
+VERSION = "0.2a4"
+
 # Default bot dirs
 here = path.abspath(path.dirname(__file__))
 SC_LOG_DIR = f"{here}/logs"
@@ -27,7 +29,7 @@ SC_BWAPI_DATA_BWTA2_DIR = f"{here}/bwapi-data/BWTA2"
 SC_BOT_DIR = f"{here}/bots"
 SC_MAP_DIR = f"{here}/maps"
 
-SC_IMAGE = "ggaic/starcraft:play"
+SC_IMAGE = "ggaic/starcraft:play-" + VERSION
 
 parser = argparse.ArgumentParser(
     description='Launch StarCraft docker images for bot/human headless/headful play',
