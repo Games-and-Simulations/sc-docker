@@ -1,18 +1,10 @@
-FROM starcraft:java
-
-USER root
-WORKDIR $APP_DIR
-
-COPY entrypoints/play_* ./
-COPY entrypoints/hook_* ./
-RUN chown starcraft:users play_* && chmod 750 play_* \
-    && chown starcraft:users hook_* && chmod 750 hook_*
-COPY protocols /etc/protocols
-COPY requirements $APP_DIR/requirements
-COPY dlls $SC_DIR/
-
-RUN chown starcraft:users $APP_DIR/requirements/* && chmod 750 $APP_DIR/requirements/*
-RUN chown starcraft:users $SC_DIR/* && chmod 770 $SC_DIR/*
+FROM starcraft:bwapi
+MAINTAINER Michal Sustr <michal.sustr@aic.fel.cvut.cz>
 
 USER starcraft
+WORKDIR $APP_DIR
+
+COPY --chown=starcraft:users scripts/play_* ./
+COPY --chown=starcraft:users scripts/hook_* ./
+
 CMD ["/app/play_entrypoint.sh"]

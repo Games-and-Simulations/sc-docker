@@ -29,7 +29,7 @@ SC_BWAPI_DATA_BWTA2_DIR = f"{here}/bwapi-data/BWTA2"
 SC_BOT_DIR = f"{here}/bots"
 SC_MAP_DIR = f"{here}/maps"
 
-SC_IMAGE = "ggaic/starcraft:play-" + VERSION
+SC_IMAGE = "ggaic/starcraft:game-" + VERSION
 
 parser = argparse.ArgumentParser(
     description='Launch StarCraft docker images for bot/human headless/headful play',
@@ -189,7 +189,7 @@ def main():
         for log_file in log_files:
             logger.info(log_file)
 
-        nth_player = find_winner(game_name, args.map_dir)
+        nth_player = find_winner(game_name, args.map_dir, len(players))
         logger.info(f"Winner is {players[nth_player]} (player {nth_player})")
 
         # the only print!

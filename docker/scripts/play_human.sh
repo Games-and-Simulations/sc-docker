@@ -18,4 +18,4 @@ start_gui
 start_game "$@"
 sleep 10
 
-./play_detect_game_finished.sh "$REPLAY_FILE"
+play_detect_game_finished.sh "$REPLAY_FILE"

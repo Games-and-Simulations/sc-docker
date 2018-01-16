@@ -45,5 +45,8 @@ else
         echo "Game finished within timeout limit."
     else
         echo "Game timed out!"
+        exit 1
     fi
 fi
+
+exit 0
