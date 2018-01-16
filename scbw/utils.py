@@ -1,8 +1,11 @@
+import logging
 import os
-import urllib.request as request
 import zipfile
 from random import choice
 from tempfile import mkstemp
+import requests
+
+logger = logging.getLogger(__name__)
 
 
 def levenshtein_dist(s1, s2):
@@ -43,7 +46,12 @@ def download_extract_zip(url: str, extract_to: str):
 
 
 def download_file(url: str, as_file: str):
-    opener = request.FancyURLopener()
-    # python is sending some python User-Agent that Cloudflare doesn't like
-    opener.version = 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0'
-    opener.retrieve(url, as_file)
+    headers = {
+        # python is sending some python User-Agent that Cloudflare doesn't like
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0'
+    }
+    response = requests.get(url, allow_redirects=True, headers=headers)
+    logger.debug(f"downloading from {url} save as {as_file}")
+
+    with open(as_file, 'wb') as f:
+        f.write(response.content)
