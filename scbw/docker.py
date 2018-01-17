@@ -1,12 +1,11 @@
 import logging
 import os
 import subprocess
+import sys
 import time
 from distutils.dir_util import copy_tree
-from os.path import abspath, dirname, exists
+from os.path import exists
 from typing import List, Optional
-
-import sys
 
 from .game import GameType
 from .player import BotPlayer, Player
@@ -99,10 +98,11 @@ def create_local_image():
         # pull java parent image if not found locally
         if not bool(subprocess.check_output(["docker", "images", "-q", "starcraft:java"])):
             logger.info("pulling image starcraft:java, this may take a while...")
-            if subprocess.call(['docker', 'pull', 'ggaic/starcraft:java'], stdout=DEVNULL) != 0:
+            if subprocess.call(['docker', 'pull', 'ggaic/starcraft:java'],
+                               stdout=sys.stderr.buffer) != 0:
                 raise Exception
             if subprocess.call(['docker', 'tag', 'ggaic/starcraft:java', 'starcraft:java'],
-                               stdout=DEVNULL) != 0:
+                               stdout=sys.stderr.buffer) != 0:
                 raise Exception
 
         # download starcraft.zip
@@ -116,7 +116,7 @@ def create_local_image():
         if subprocess.call(['docker', 'build',
                             '-f', 'game.dockerfile',
                             '-t', "starcraft:game", '.'],
-                           cwd=base_dir, stdout=DEVNULL) != 0:
+                           cwd=base_dir, stdout=sys.stderr.buffer) != 0:
             raise Exception
 
         logger.info("successfully built image starcraft:game")
@@ -265,7 +265,7 @@ def running_containers(name_prefix):
 
 def stop_containers(name_prefix: str):
     containers = running_containers(name_prefix)
-    subprocess.call(['docker', 'stop'] + containers, stdout=DEVNULL)
+    subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
 
 
 def launch_game(players, launch_params, show_all, read_overwrite):
