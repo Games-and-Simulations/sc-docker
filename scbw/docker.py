@@ -22,13 +22,17 @@ except ImportError:
     DEVNULL = open(os.devnull, 'wb')
 
 
+class DockerException(Exception):
+    pass
+
+
 def check_docker_version():
     logger.info("checking docker version")
     try:
         out = subprocess.check_output(["docker", "version", "--format", "'{{.Server.APIVersion}}'"])
-    except Exception as e:
-        raise Exception("An error occurred while trying to call `docker version`,"
-                        " did you install docker?")
+    except Exception:
+        raise DockerException("An error occurred while trying to call `docker version`,"
+                              " did you install docker?")
     logger.debug(f"Using docker API version {out}")
 
 
@@ -36,13 +40,13 @@ def check_docker_can_run():
     logger.info("checking docker can run")
     try:
         out = subprocess.check_output(["docker", "run", "hello-world"])
-    except Exception as e:
-        raise Exception(
+    except Exception:
+        raise DockerException(
             "An error occurred while trying to call `docker run hello-world`, "
-            "do you have suffiecient rights to run sudo?")
+            "do you have sufficient rights to run sudo?")
 
     if b"Hello" not in out:
-        raise Exception(
+        raise DockerException(
             f"Docker did not run properly - could'nt find 'Hello' in hello-world run, found {out}")
 
 
@@ -51,8 +55,8 @@ def check_docker_has_local_net() -> bool:
     try:
         out = subprocess.check_output(
             ["docker", "network", "ls", "-f", f"name={DOCKER_STARCRAFT_NETWORK}", "-q"])
-    except Exception as e:
-        raise Exception(
+    except Exception:
+        raise DockerException(
             f"An error occurred while trying to call `docker network ls -f name={DOCKER_STARCRAFT_NETWORK} -q`")
 
     logger.debug(f"docker network id: {out}")
@@ -64,8 +68,8 @@ def create_local_net():
         logger.info(f"creating docker local net {DOCKER_STARCRAFT_NETWORK}")
         out = subprocess.check_output(
             ["docker", "network", "create", "--subnet=172.18.0.0/16", DOCKER_STARCRAFT_NETWORK])
-    except Exception as e:
-        raise Exception(
+    except Exception:
+        raise DockerException(
             f"An error occurred while trying to call `docker network create --subnet=172.18.0.0/16 {DOCKER_STARCRAFT_NETWORK}`")
 
     logger.debug(f"docker network id: {out}")
@@ -76,8 +80,8 @@ def check_docker_has_local_image(image: str) -> bool:
         logger.info(f"checking if there is local image {image}")
         out = subprocess.check_output(["docker", "images", "-q", image])
 
-    except Exception as e:
-        raise Exception(
+    except Exception:
+        raise DockerException(
             f"An error occurred while trying to call `docker images -q {image}`")
 
     logger.debug(f"docker image id: {out}")
@@ -100,10 +104,12 @@ def create_local_image():
             logger.info("pulling image starcraft:java, this may take a while...")
             if subprocess.call(['docker', 'pull', 'ggaic/starcraft:java'],
                                stdout=sys.stderr.buffer) != 0:
-                raise Exception
+                raise DockerException(
+                    "an error occurred while calling `docker pull ggaic/starcraft:java`")
             if subprocess.call(['docker', 'tag', 'ggaic/starcraft:java', 'starcraft:java'],
                                stdout=sys.stderr.buffer) != 0:
-                raise Exception
+                raise DockerException(
+                    "an error occurred while calling `docker tag ggaic/starcraft:java starcraft:java`")
 
         # download starcraft.zip
         starcraft_zip_file = f"{base_dir}/starcraft.zip"
@@ -117,13 +123,12 @@ def create_local_image():
                             '-f', 'game.dockerfile',
                             '-t', "starcraft:game", '.'],
                            cwd=base_dir, stdout=sys.stderr.buffer) != 0:
-            raise Exception
+            raise DockerException()
 
         logger.info("successfully built image starcraft:game")
 
-    except Exception as e:
-        raise Exception(
-            f"An error occurred while trying to build local image")
+    except Exception:
+        raise DockerException(f"An error occurred while trying to build local image")
 
 
 def check_docker_requirements(image: str):
@@ -251,7 +256,7 @@ def launch_image(
     if code == 0:
         logger.info(f"launched {player} in container {game_name}_{nth_player}_{player.name}")
     else:
-        raise Exception(
+        raise DockerException(
             f"could not launch {player} in container {game_name}_{nth_player}_{player.name}")
 
 
@@ -279,7 +284,7 @@ def launch_game(players, launch_params, show_all, read_overwrite):
     time.sleep(2)
     containers = running_containers(launch_params['game_name'])
     if len(containers) != len(players):
-        raise Exception("Some containers exited prematurely, please check logs")
+        raise DockerException("Some containers exited prematurely, please check logs")
 
     if not launch_params['headless']:
         time.sleep(1)

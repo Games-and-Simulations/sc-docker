@@ -28,8 +28,8 @@ def find_replays(map_dir: str, game_name: str):
 def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
     replay_files = find_replays(map_dir, game_name)
     if len(replay_files) != num_players:
-        raise Exception(f"The game did not finish properly! "
-                        f"Did not find replay files from all players in '{map_dir}/replays/'.")
+        raise GameException(f"The game did not finish properly! "
+                            f"Did not find replay files from all players in '{map_dir}/replays/'.")
 
     replay_sizes = map(os.path.getsize, replay_files)
 
@@ -76,6 +76,10 @@ class GameResult:
         self.log_files = log_files
 
 
+class GameException(Exception):
+    pass
+
+
 def run_game(args: GameArgs) -> GameResult:
     # See CLI parser for required args
 
@@ -90,7 +94,7 @@ def run_game(args: GameArgs) -> GameResult:
     )
     try:
         check_map_exists(args.map_dir + "/" + args.map)
-    except Exception:
+    except GameException:
         if "sscai" in args.map and not exists(f"{args.map_dir}/sscai"):
             download_sscait_maps(args.map_dir)
             # todo: download BWTA
@@ -99,9 +103,9 @@ def run_game(args: GameArgs) -> GameResult:
         check_vnc_exists()
 
     if args.human and args.headless:
-        raise Exception("Cannot use human play in headless mode")
+        raise GameException("Cannot use human play in headless mode")
     if args.headless and args.show_all:
-        raise Exception("Cannot show all screens in headless mode")
+        raise GameException("Cannot show all screens in headless mode")
 
     # Prepare players
     game_name = "GAME_" + args.game_name
