@@ -104,6 +104,8 @@ parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
                          "This helps with local development.")
 parser.add_argument('--opt', type=str,
                     help="Specify custom docker run options")
+parser.add_argument('--disable_checks', action='store_true',
+                    help="Disable docker and other checks, useful for repeated launching.")
 
 
 # todo: add support for multi-PC play.
