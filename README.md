@@ -1,33 +1,31 @@
 # StarCraft I (BroodWar) docker images
 
-This repository contains fully working StarCraft
+This repository prepares a fully working StarCraft: Brood War
 game running in Wine inside of docker image.
 
-It can launch bots that use BWAPI client to communicate with the game.
+It can download and launch bots that use BWAPI to communicate with the game.
 
 ## About
-We are pleased to publish StarCraft I - BroodWar docker images!
+We are pleased to publish docker images for StarCraft: Brood War and BW bots!
 
 ![Starcraft playing on Linux](resources/linux_play.png)
 
-This means the end of complicated game setup for newcomers, or people
-who would like to simply play SC1 game against some bot.
+This means the end of complicated game setup for newcomers or people
+who simply want to play StarCraft against AI bots.
 
 You can develop your bots on your favorite platform instead of relying on Windows.
 
-We have more things cooking: It is a part of our ongoing effort to create environment for reinforcement learning bots
-(bots that improve through self-play).
+We have more things cooking: This is a part of our ongoing effort to create an easy-to-use environment for machine learning bots (bots that improve based on experience and self-play).
 
-This project is maintained by [Games and Simulations group](http://gas.fel.cvut.cz/)
-which is also behind [student starcraft AI tournament](http://sscaitournament.com).
+This project is maintained by [Games & Simulations Research Group](http://gas.fel.cvut.cz/)
+which is also behind [Student StarCraft AI tournament (SSCAIT)](http://sscaitournament.com).
 
+[<img src="https://github.com/Games-and-Simulations/sc-docker/raw/master/resources/patreon.png" alt="">](https://www.patreon.com/sscait)
 
-![Patreon](resources/patreon.png)
-
-If you'd like to [support us on Patreon](https://www.patreon.com/sscait), we would be very grateful!
+If you like what we're doing, [support us on Patreon](https://www.patreon.com/sscait). We will be very grateful!
 
 
-## Install
+## Installation
 
 See [installation instructions for Linux / Windows / Mac](INSTALL.md).
 
@@ -84,9 +82,9 @@ You can use [stable images with version postfix, which correspond to git tags](h
 
 Pull requests are welcome! There are still many things to do, especially from [todo list](TODO.md).
 
-## Citation
+## Citations
 
-If you use `sc-docker` in your (academic) work, please cite us:
+If you use `sc-docker` in your (academic) work, please cite [our Technical Report](https://arxiv.org/abs/1801.02193):
 
     @misc{sustr2018multi,
         Author = {Michal \v{S}ustr and Jan Mal\'{y} and Michal \v{C}ertick\'{y}},
