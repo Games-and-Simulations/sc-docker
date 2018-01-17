@@ -67,9 +67,15 @@ def download_file(url: str, as_file: str):
                          total=total_size / block_size, unit='MB', unit_scale=True):
             f.write(data)
 
+
 def get_data_dir() -> str:
     system = platform.system()
     if system == "Windows":
         return os.getenv('APPDATA') + "/scbw"
     else:
         return expanduser("~") + "/.scbw"
+
+
+def create_data_dirs(*dir_paths):
+    for dir_path in dir_paths:
+        os.makedirs(dir_path, mode=0o775, exist_ok=True)

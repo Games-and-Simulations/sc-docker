@@ -2,26 +2,18 @@
 Starcraft BW docker launcher.
 """
 
-# To use a consistent encoding
-from codecs import open
-from os import path
-
+from scbw import VERSION
 # Always prefer setuptools over distutils
 from setuptools import setup
-
-from scbw import VERSION
-
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
 
 setup(
     name='scbw',
     version=VERSION,
     description='Multi-platform Version of StarCraft: Brood War in a Docker Container',
-    long_description=long_description,
+    long_description="This repository contains fully working StarCraft game running in Wine "
+                     "inside of docker image. It can launch bots that use BWAPI client "
+                     "to communicate with the game. Please visit "
+                     "https://github.com/Games-and-Simulations/sc-docker for more information.",
     url='https://github.com/Games-and-Simulations/sc-docker',
     author='Michal Sustr',
     author_email='michal.sustr@aic.fel.cvut.cz',
@@ -55,7 +47,7 @@ setup(
     packages=['scbw'],
     entry_points={  # Optional
         'console_scripts': [
-            'scbw=scbw:main',
+            'scbw=scbw.cli:main',
         ],
     },
     python_requires='>=3.6',

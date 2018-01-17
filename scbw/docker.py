@@ -7,7 +7,7 @@ from distutils.dir_util import copy_tree
 from os.path import exists
 from typing import List, Optional
 
-from .game import GameType
+from .game_type import GameType
 from .player import BotPlayer, Player
 from .utils import download_file, get_data_dir
 from .vnc import launch_vnc_viewer
