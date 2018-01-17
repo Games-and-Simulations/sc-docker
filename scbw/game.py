@@ -22,20 +22,23 @@ logger = logging.getLogger(__name__)
 
 
 def find_replays(map_dir: str, game_name: str):
-    return glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.rep")
+    return glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.rep") + \
+           glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.REP")
 
 
 def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
     replay_files = find_replays(map_dir, game_name)
     if len(replay_files) != num_players:
-        raise GameException(f"The game did not finish properly! "
+        logger.info("Found replay files:")
+        logger.info(replay_files)
+        raise GameException(f"The game '{game_name}' did not finish properly! \n"
                             f"Did not find replay files from all players in '{map_dir}/replays/'.")
 
     replay_sizes = map(os.path.getsize, replay_files)
 
     winner_idx = np.argmax(replay_sizes)
     winner_file = replay_files[winner_idx]
-    nth_player = winner_file.replace(".rep", "").split("_")[-1]
+    nth_player = winner_file.replace(".rep", "").replace(".REP", "").split("_")[-1]
     return int(nth_player)
 
 
@@ -55,10 +58,10 @@ class GameArgs(Namespace):
     bwapi_data_bwta2_dir: str
     vnc_base_port: int
     show_all: bool
-    log_level: str
     read_overwrite: bool
     docker_image: str
     opt: str
+    disable_checks: bool
 
 
 class GameResult:
@@ -84,28 +87,29 @@ def run_game(args: GameArgs) -> GameResult:
     # See CLI parser for required args
 
     # Check all startup requirements
-    check_docker_requirements(args.docker_image)
-    create_data_dirs(
-        args.bot_dir,
-        args.log_dir,
-        args.map_dir,
-        args.bwapi_data_bwta_dir,
-        args.bwapi_data_bwta2_dir,
-    )
-    try:
-        check_map_exists(args.map_dir + "/" + args.map)
-    except GameException:
-        if "sscai" in args.map and not exists(f"{args.map_dir}/sscai"):
-            download_sscait_maps(args.map_dir)
-            # todo: download BWTA
+    if not args.disable_checks:
+        check_docker_requirements(args.docker_image)
+        create_data_dirs(
+            args.bot_dir,
+            args.log_dir,
+            args.map_dir,
+            args.bwapi_data_bwta_dir,
+            args.bwapi_data_bwta2_dir,
+        )
+        try:
+            check_map_exists(args.map_dir + "/" + args.map)
+        except GameException:
+            if "sscai" in args.map and not exists(f"{args.map_dir}/sscai"):
+                download_sscait_maps(args.map_dir)
+                # todo: download BWTA
 
-    if not args.headless:
-        check_vnc_exists()
+        if not args.headless:
+            check_vnc_exists()
 
-    if args.human and args.headless:
-        raise GameException("Cannot use human play in headless mode")
-    if args.headless and args.show_all:
-        raise GameException("Cannot show all screens in headless mode")
+        if args.human and args.headless:
+            raise GameException("Cannot use human play in headless mode")
+        if args.headless and args.show_all:
+            raise GameException("Cannot show all screens in headless mode")
 
     # Prepare players
     game_name = "GAME_" + args.game_name
@@ -163,3 +167,4 @@ def run_game(args: GameArgs) -> GameResult:
 
         stop_containers(game_name)
         logger.info(f"Game cancelled.")
+        raise
