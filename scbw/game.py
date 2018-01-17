@@ -20,8 +20,12 @@ class GameType(Enum):
     TEAM_CAPTURE_THE_FLAG = "TEAM_CAPTURE_THE_FLAG"
 
 
+def find_replays(map_dir: str, game_name: str):
+    return glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.rep")
+
+
 def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
-    replay_files = glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.rep")
+    replay_files = find_replays(map_dir, game_name)
     if len(replay_files) != num_players:
         raise Exception(f"The game did not finish properly! "
                         f"Did not find replay files from all players in '{map_dir}/replays/'.")
@@ -32,6 +36,7 @@ def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
     winner_file = replay_files[winner_idx]
     nth_player = winner_file.replace(".rep", "").split("_")[-1]
     return int(nth_player)
+
 
 def create_data_dirs(*dir_paths):
     for dir_path in dir_paths:

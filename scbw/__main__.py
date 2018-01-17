@@ -12,7 +12,7 @@ import coloredlogs
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
 from .docker import check_docker_requirements, BASE_VNC_PORT, launch_game, stop_containers
-from .game import GameType, find_winner, create_data_dirs
+from .game import GameType, find_winner, create_data_dirs, find_replays
 from .map import check_map_exists, download_sscait_maps
 from .player import HumanPlayer, PlayerRace, bot_regex
 from .utils import random_string, get_data_dir
@@ -198,10 +198,15 @@ def main():
         for log_file in log_files:
             logger.info(log_file)
 
+        replay_files = find_replays(args.map_dir, game_name)
+        logger.info("Replays are saved here:")
+        for replay_file in replay_files:
+            logger.info(replay_file)
+
         nth_player = find_winner(game_name, args.map_dir, len(players))
         logger.info(f"Winner is {players[nth_player]} (player {nth_player})")
 
-        # the only print!
+        # the only print! Everything else goes to stderr!
         print(nth_player)
 
     except KeyboardInterrupt:
