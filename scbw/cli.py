@@ -113,8 +113,8 @@ parser.add_argument('--opt', type=str,
 def main():
     args = parser.parse_args()
     coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
-
     game_result = run_game(args)
+
     logger.info(f"Game {game_result.game_name} finished in {game_result.game_time:.2f} seconds.")
     logger.info("Logs are saved here:")
     for log_file in game_result.log_files:

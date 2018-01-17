@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import time
+from argparse import Namespace
 from os.path import exists
 from typing import List
 
@@ -38,9 +39,31 @@ def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
     return int(nth_player)
 
 
+class GameArgs(Namespace):
+    bots: List[str]
+    human: bool
+    map: str
+    headless: bool
+    game_name: str
+    game_type: str
+    game_speed: int
+    timeout: int
+    bot_dir: str
+    log_dir: str
+    map_dir: str
+    bwapi_data_bwta_dir: str
+    bwapi_data_bwta2_dir: str
+    vnc_base_port: int
+    show_all: bool
+    log_level: str
+    read_overwrite: bool
+    docker_image: str
+    opt: str
+
+
 class GameResult:
     def __init__(self, game_name: str,
-                 game_time:float,
+                 game_time: float,
                  winner_player: int,
                  players: List[Player],
                  replay_files: List[str],
@@ -53,7 +76,7 @@ class GameResult:
         self.log_files = log_files
 
 
-def run_game(args) -> GameResult:
+def run_game(args: GameArgs) -> GameResult:
     # See CLI parser for required args
 
     # Check all startup requirements
