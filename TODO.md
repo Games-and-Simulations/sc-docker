@@ -1,5 +1,6 @@
 # TODOs:
 
+- docs about how to play against bot from normal starcraft
 - Add tournament dll to save frame times & scores
 - Play against in-game AI
 - Play on multiple computers

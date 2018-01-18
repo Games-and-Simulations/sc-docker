@@ -8,20 +8,18 @@ REPLAY_FILE="$1"
 
 while true
 do
-    echo "Checking game status ..."
+    echo "Checking game status ..." >> "$LOG_GAME"
 
     if ! pgrep -x "StarCraft.exe" > /dev/null
     then
-        echo "Game crashed!"
+        echo "Game crashed!" >> "$LOG_GAME"
         sleep 3
         exit 1
     fi
 
     if [ -f "$SC_DIR/$REPLAY_FILE" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
     then
-        echo "Game finished."
-
-        [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
+        echo "Game finished." >> "$LOG_GAME"
         sleep 3
         exit 0
     fi

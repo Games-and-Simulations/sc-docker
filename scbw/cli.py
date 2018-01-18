@@ -1,9 +1,11 @@
 import argparse
 import logging
+import sys
 
 import coloredlogs
 
 from .docker import BASE_VNC_PORT
+from .error import ScbwException
 from .game import run_game, GameType
 from .player import PlayerRace, bot_regex
 from .utils import random_string, get_data_dir
@@ -115,19 +117,27 @@ parser.add_argument('--disable_checks', action='store_true',
 def main():
     args = parser.parse_args()
     coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
-    game_result = run_game(args)
 
-    logger.info(f"Game {game_result.game_name} finished in {game_result.game_time:.2f} seconds.")
-    logger.info("Logs are saved here:")
-    for log_file in game_result.log_files:
-        logger.info(log_file)
+    try:
+        game_result = run_game(args)
 
-    logger.info("Replays are saved here:")
-    for replay_file in game_result.replay_files:
-        logger.info(replay_file)
+        logger.info(
+            f"Game {game_result.game_name} finished in {game_result.game_time:.2f} seconds.")
+        logger.info("Logs are saved here:")
+        for log_file in sorted(game_result.log_files):
+            logger.info(log_file)
 
-    logger.info(f"Winner is {game_result.players[game_result.winner_player]} "
-                f"(player {game_result.winner_player})")
+        logger.info("Replays are saved here:")
+        for replay_file in sorted(game_result.replay_files):
+            logger.info(replay_file)
 
-    # the only print! Everything else goes to stderr!
-    print(game_result.winner_player)
+        logger.info(f"Winner is {game_result.players[game_result.winner_player]} "
+                    f"(player {game_result.winner_player})")
+
+        # the only print! Everything else goes to stderr!
+        print(game_result.winner_player)
+    except ScbwException as e:
+        logger.exception(e)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        sys.exit(1)

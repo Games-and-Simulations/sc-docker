@@ -39,11 +39,27 @@ Testing and reporting in other settings is very welcome!
 
 ## Usage
 
+### Bots playing against each other
+
 Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action=botDetails&bot=PurpleWave) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
 
     $ scbw --bots "krasi0" "CherryPi" --show_all
 
 Create game on the server (VNC viewer on port 5900) and wait for bots to join the game.
+
+### Play against a bot
+
+    $ scbw --bots "PurpleWave" --human
+
+Select a map, specify your race, and wait for bot(s) to join the game :)
+
+You can put the RealVNC client to fullscreen and play comfortably.
+
+(Although you might want to change your screen resolution to 800x600)
+
+The GUI is going to be probably slower than normal game due to streaming via VNC.
+It is however possible to play the game from the host if you have Windows,
+but it is more complicated setup.
 
 See [more usage examples](USAGE.md).
 

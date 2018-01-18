@@ -8,6 +8,8 @@ else
 fi
 
 LOG_BASENAME="${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME}"
+LOG_GAME="${LOG_DIR}/${LOG_BASENAME}_game.log"
+LOG_BOT="${LOG_DIR}/${LOG_BASENAME}_bot.log"
 BOT_TYPE="${BOT_FILE##*.}"
 DATE=$(date +%Y-%m-%d)
 REPLAY_FILE="maps/replays/${DATE}_${GAME_NAME}_${NTH_PLAYER}.rep"
@@ -40,11 +42,12 @@ sleep 10
 
 if [ -z "${PLAY_TIMEOUT+set}" ]; then
     ./play_detect_game_finished.sh "$REPLAY_FILE"
+    echo "Game finished." >> "$LOG_GAME"
 else
     if timeout "${PLAY_TIMEOUT}s" ./play_detect_game_finished.sh "$REPLAY_FILE"; then
-        echo "Game finished within timeout limit."
+        echo "Game finished within timeout limit." >> "$LOG_GAME"
     else
-        echo "Game timed out!"
+        echo "Game timed out!" >> "$LOG_GAME"
         exit 1
     fi
 fi

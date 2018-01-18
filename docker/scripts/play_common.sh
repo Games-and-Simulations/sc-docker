@@ -63,7 +63,6 @@ function start_bot() {
     . hook_before_bot_start.sh
 
     # Launch the bot!
-    LOG_BOT="${LOG_DIR}/${LOG_BASENAME}_bot.log"
     echo "Starting bot ${BOT_FILE}, savings logs to $LOG_BOT"
     echo "------------------------------------------" >> "$LOG_BOT"
     echo "Started bot at" `date +%Y-%m-%dT%H:%M:%S%z` >> "$LOG_BOT"
@@ -92,11 +91,9 @@ function start_bot() {
 function start_game() {
     . hook_before_game_start.sh
 
-    # Launch the game!
-    LOG_GAME="${LOG_DIR}/${LOG_BASENAME}_game.log"
-
     [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
 
+    # Launch the game!
     echo "Starting game, savings logs to $LOG_GAME"
     echo "------------------------------------------" >> "$LOG_GAME"
     echo "Started game at" `date +%Y-%m-%dT%H:%M:%S%z` >> "$LOG_GAME"
