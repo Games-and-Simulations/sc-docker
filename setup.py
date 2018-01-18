@@ -45,8 +45,6 @@ setup(
                       'tqdm',
                       'requests',
                       'python-dateutil'],
-    extras_require={
-    },
     packages=['scbw'],
     entry_points={  # Optional
         'console_scripts': [
@@ -54,10 +52,5 @@ setup(
         ],
     },
     python_requires='>=3.6',
-
-    data_files=[(base_dir, ['scbw/local_docker/game.dockerfile',
-                            'scbw/local_docker/default.mpc',
-                            'scbw/local_docker/default.spc',
-                            ])
-                ]
+    include_package_data=True
 )

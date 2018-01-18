@@ -4,9 +4,10 @@ import subprocess
 import sys
 import time
 from distutils.dir_util import copy_tree
-from os.path import exists
+from os.path import exists, abspath, dirname
 from typing import List, Optional
 
+from .error import DockerException
 from .game_type import GameType
 from .player import BotPlayer, Player
 from .utils import download_file, get_data_dir
@@ -20,10 +21,6 @@ try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
-
-
-class DockerException(Exception):
-    pass
 
 
 def check_docker_version():
@@ -90,7 +87,14 @@ def check_docker_has_local_image(image: str) -> bool:
 
 def create_local_image():
     try:
+        # first copy all docker files we will need
+        # for building image to somewhere we can write
+        pkg_docker_dir = f'{abspath(dirname(__file__))}/local_docker'
         base_dir = get_data_dir() + "/docker"
+
+        logger.info(f"creating docker local image")
+        logger.info(f"copying files from {pkg_docker_dir} to {base_dir}")
+        copy_tree(pkg_docker_dir, base_dir)
 
         # pull java parent image if not found locally
         if not bool(subprocess.check_output(["docker", "images", "-q", "starcraft:java"])):

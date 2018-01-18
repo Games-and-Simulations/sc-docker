@@ -2,6 +2,8 @@ import logging
 import os
 from os.path import exists, abspath
 
+from .error import GameException
+
 from .utils import download_extract_zip
 
 SC_MAP_DIR = abspath("maps")
@@ -10,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def check_map_exists(map_file: str):
     if not exists(map_file):
-        raise Exception(f"Map {map_file} could not be found")
+        raise GameException(f"Map {map_file} could not be found")
 
 
 def download_sscait_maps(map_dir: str):

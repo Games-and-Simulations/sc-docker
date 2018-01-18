@@ -12,6 +12,7 @@ import numpy as np
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
 from .docker import check_docker_requirements, launch_game, stop_containers
+from .error import GameException
 from .game_type import GameType
 from .map import check_map_exists, download_sscait_maps
 from .player import HumanPlayer, Player
@@ -77,10 +78,6 @@ class GameResult:
         self.players = players
         self.replay_files = replay_files
         self.log_files = log_files
-
-
-class GameException(Exception):
-    pass
 
 
 def run_game(args: GameArgs) -> GameResult:

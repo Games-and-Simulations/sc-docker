@@ -1,0 +1,3 @@
+include scbw/local_docker/game.dockerfile
+include scbw/local_docker/default.mpc
+include scbw/local_docker/default.spc
