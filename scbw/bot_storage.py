@@ -29,7 +29,7 @@ class LocalBotStorage(BotStorage):
         if not exists(f_name):
             return None
 
-        logger.info(f"found bot in {f_name}")
+        logger.debug(f"found bot in {f_name}")
         bot = BotPlayer(name, self.bot_dir)
 
         return bot

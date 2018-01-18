@@ -159,8 +159,8 @@ def run_game(args: GameArgs) -> GameResult:
         return GameResult(game_name, game_time, winner_player, players, replay_files, log_files)
 
     except KeyboardInterrupt:
-        logger.info("Caught interrupt, shutting down containers")
-        logger.info("This can take a moment, please wait.")
+        logger.warning("Caught interrupt, shutting down containers")
+        logger.warning("This can take a moment, please wait.")
 
         # prevent another throw of KeyboardInterrupt exception
         signal.signal(signal.SIGINT, signal.SIG_IGN)
