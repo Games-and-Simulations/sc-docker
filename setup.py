@@ -4,7 +4,10 @@ Starcraft BW docker launcher.
 
 from scbw import VERSION
 # Always prefer setuptools over distutils
+from scbw.utils import get_data_dir
 from setuptools import setup
+
+base_dir = get_data_dir() + "/docker"
 
 setup(
     name='scbw',
@@ -52,9 +55,9 @@ setup(
     },
     python_requires='>=3.6',
 
-    data_files=[('scbw_local_docker', ['scbw/local_docker/game.dockerfile',
-                                       'scbw/local_docker/default.mpc',
-                                       'scbw/local_docker/default.spc',
-                                       ])
+    data_files=[(base_dir, ['scbw/local_docker/game.dockerfile',
+                            'scbw/local_docker/default.mpc',
+                            'scbw/local_docker/default.spc',
+                            ])
                 ]
 )

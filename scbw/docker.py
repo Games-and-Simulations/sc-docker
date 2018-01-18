@@ -90,14 +90,7 @@ def check_docker_has_local_image(image: str) -> bool:
 
 def create_local_image():
     try:
-        # first copy all docker files we will need
-        # for building image to somewhere we can write
-        pkg_docker_dir = f'{sys.prefix}/scbw_local_docker/'
         base_dir = get_data_dir() + "/docker"
-
-        logger.info(f"creating docker local image")
-        logger.info(f"copying files from {pkg_docker_dir} to {base_dir}")
-        copy_tree(pkg_docker_dir, base_dir)
 
         # pull java parent image if not found locally
         if not bool(subprocess.check_output(["docker", "images", "-q", "starcraft:java"])):
@@ -206,7 +199,7 @@ def launch_image(
 
     if isinstance(player, BotPlayer):
         bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
-        os.makedirs(bot_data_write_dir, mode=0o777)  # todo: proper mode
+        os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
         cmd += ["--volume", f"{bot_data_write_dir}:{BOT_DATA_WRITE_DIR}:rw"]
 
     env = ["-e", f"PLAYER_NAME={player.name}",
@@ -274,9 +267,6 @@ def stop_containers(name_prefix: str):
 
 
 def launch_game(players, launch_params, show_all, read_overwrite):
-    logger.info(f"Logs can be found in {launch_params['log_dir']}"
-                f"/GAME_{launch_params['game_name']}_*")
-
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 
