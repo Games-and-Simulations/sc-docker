@@ -48,7 +48,7 @@ setup(
     packages=['scbw'],
     entry_points={  # Optional
         'console_scripts': [
-            'scbw=scbw.cli:main',
+            'scbw.play=scbw.cli:main',
         ],
     },
     python_requires='>=3.6',
