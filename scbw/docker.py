@@ -128,6 +128,33 @@ def create_local_image():
         raise DockerException(f"An error occurred while trying to build local image")
 
 
+def remove_game_image():
+    containers = check_output("docker ps -a -q -f NAME=GAME", shell=True)
+    if containers:
+        call(f"docker stop {containers}", shell=True)
+        call(f"docker rm {containers}", shell=True)
+    call("docker pull ggaic/starcraft:java", shell=True)
+
+    has_image = check_output("docker images starcraft:game -q", shell=True)
+    if has_image:
+        call("docker rmi starcraft:game", shell=True)
+
+
+def check_output(*args, **kwargs):
+    try:
+        return subprocess.check_output(*args, **kwargs)
+    except subprocess.CalledProcessError:
+        print(f"Failed calling {args} {kwargs}")
+        sys.exit(1)
+
+
+def call(*args, **kwargs):
+    code = subprocess.call(*args, **kwargs)
+    if code != 0:
+        print(f"Failed calling {args} {kwargs}")
+        sys.exit(1)
+
+
 def check_docker_requirements(image: str):
     check_docker_version()
     check_docker_can_run()

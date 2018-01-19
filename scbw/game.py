@@ -85,7 +85,6 @@ def run_game(args: GameArgs) -> GameResult:
 
     # Check all startup requirements
     if not args.disable_checks:
-        check_docker_requirements(args.docker_image)
         create_data_dirs(
             args.bot_dir,
             args.log_dir,
