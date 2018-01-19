@@ -4,6 +4,7 @@ import sys
 
 import coloredlogs
 
+from .__init__ import VERSION
 from .docker import BASE_VNC_PORT
 from .error import ScbwException
 from .game import run_game, GameType
@@ -25,7 +26,7 @@ SC_IMAGE = "starcraft:game"
 parser = argparse.ArgumentParser(
     description='Launch StarCraft docker images for bot/human headless/headful play',
     formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('--bots', nargs="+", required=True, type=bot_regex,
+parser.add_argument('--bots', nargs="+", type=bot_regex,
                     metavar="BOT_NAME[:RACE]",
                     help='Specify the names of the bots that should play.\n'
                          f'Optional RACE can be one of {[race.value for race in PlayerRace]} \n'
@@ -109,6 +110,9 @@ parser.add_argument('--opt', type=str,
 parser.add_argument('--disable_checks', action='store_true',
                     help="Disable docker and other checks, useful for repeated launching.")
 
+parser.add_argument('-v', "--version", action='store_true', dest='show_version',
+                    help="Show current version")
+
 
 # todo: add support for multi-PC play.
 # We need to think about how to setup docker IPs,
@@ -116,7 +120,15 @@ parser.add_argument('--disable_checks', action='store_true',
 
 def main():
     args = parser.parse_args()
+    if args.show_version:
+        print(VERSION)
+        sys.exit(0)
+
     coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
+
+    # bots are always required, but not if showing version :)
+    if not args.bots:
+        parser.error('the following arguments are required: --bots')
 
     try:
         game_result = run_game(args)
