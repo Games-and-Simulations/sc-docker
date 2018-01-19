@@ -91,6 +91,16 @@ Test in power shell to check install was successful:
 
     docker run hello-world
 
+When docker prompt to share disk C, agree on that.
+
+<img src="resources/share_docker_folder_windows.png" alt="">
+
+Enter yor credentials:
+
+<img src="resources/share_docker_folder_permissions_windows.png" alt="">
+
+Sometimes popup for entering your credentials could appear after VNC window, so don't miss it.
+
 ### Python & pip
 
 Download and install Python 3.6 release from [Python releases for Windows](https://www.python.org/downloads/windows/)
