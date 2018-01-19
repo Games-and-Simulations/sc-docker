@@ -193,11 +193,14 @@ def launch_image(
            "--volume", f"{map_dir}:{MAP_DIR}:rw",
            "--volume", f"{bwapi_data_bwta_dir}:{BWAPI_DATA_BWTA_DIR}:rw",
            "--volume", f"{bwapi_data_bwta2_dir}:{BWAPI_DATA_BWTA2_DIR}:rw",
-
-           "--net", DOCKER_STARCRAFT_NETWORK]
+           ]
 
     if docker_opts:
         cmd += docker_opts
+
+    # allow for --net override in docker opts
+    if "--net" not in docker_opts:
+        cmd += ["--net", DOCKER_STARCRAFT_NETWORK]
 
     if not headless:
         cmd += ["-p", f"{vnc_base_port+nth_player}:5900"]

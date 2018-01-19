@@ -58,8 +58,9 @@ You can put the RealVNC client to fullscreen and play comfortably.
 (Although you might want to change your screen resolution to 800x600)
 
 The GUI is going to be probably slower than normal game due to streaming via VNC.
+
 It is however possible to play the game from the host if you have Windows,
-but it is more complicated setup.
+but it is [more complicated setup](USAGE.md#play-on-the-host).
 
 See [more usage examples](USAGE.md).
 

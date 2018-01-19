@@ -18,9 +18,32 @@ Simply add `--headless` option.
 
 ## Play against bot
 
-Play against a bot
-
     $ scbw.play --bots "PurpleWave" --human
+
+Select a map, specify your race, and wait for bot(s) to join the game :)
+
+You can put the RealVNC client to fullscreen and play comfortably.
+
+(Although you might want to change your screen resolution to 800x600)
+
+The GUI is going to be probably slower than normal game due to streaming via VNC.
+
+### Play on the host
+
+It is however possible to play the game on the host.
+
+You will need two computers connected via a LAN network, one Windows (server, human player)
+and one Linux (client, where the bot plays).
+
+Create the game as a human player, and then run
+
+    $ scbw.play --bots "PurpleWave" --opt "--net host"
+
+This will bind the StarCraft ports to the host machine instead of virtual
+network `sc_net`. (That's also why you need two computers).
+
+This client was tested on linux only however, there might be
+some problems on other OS (due to other OSes not having X server).
 
 ## Stop games that failed to finish
 
