@@ -5,7 +5,7 @@ import sys
 import time
 from distutils.dir_util import copy_tree
 from os.path import exists, abspath, dirname
-from typing import List, Optional
+from typing import List, Optional, Callable
 
 from .error import DockerException
 from .game_type import GameType
@@ -301,7 +301,8 @@ def stop_containers(name_prefix: str):
     subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
 
 
-def launch_game(players, launch_params, show_all, read_overwrite):
+def launch_game(players, launch_params, show_all, read_overwrite,
+                wait_callback: Optional[Callable] = None):
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 
@@ -327,6 +328,8 @@ def launch_game(players, launch_params, show_all, read_overwrite):
     logger.info("Waiting until game is finished...")
     while len(running_containers(launch_params['game_name'])) > 0:
         time.sleep(3)
+        if wait_callback is not None:
+            wait_callback()
 
     if read_overwrite:
         logger.info("Overwriting bot files")

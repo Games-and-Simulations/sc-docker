@@ -5,7 +5,7 @@ import signal
 import time
 from argparse import Namespace
 from os.path import exists
-from typing import List
+from typing import List, Optional, Callable
 
 import numpy as np
 
@@ -80,11 +80,12 @@ class GameResult:
         self.log_files = log_files
 
 
-def run_game(args: GameArgs) -> GameResult:
+def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameResult:
     # See CLI parser for required args
 
     # Check all startup requirements
     if not args.disable_checks:
+        check_docker_requirements(args.docker_image)
         create_data_dirs(
             args.bot_dir,
             args.log_dir,
@@ -146,7 +147,7 @@ def run_game(args: GameArgs) -> GameResult:
 
     try:
         time_start = time.time()
-        launch_game(players, launch_params, args.show_all, args.read_overwrite)
+        launch_game(players, launch_params, args.show_all, args.read_overwrite, wait_callback)
         game_time = time.time() - time_start
         log_files = glob.glob(f"{args.log_dir}/*{game_name}*.log")
         replay_files = find_replays(args.map_dir, game_name)
