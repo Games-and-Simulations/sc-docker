@@ -1,6 +1,31 @@
 #!/usr/bin/env bash
 
 
+function LOG() {
+    echo `date +%Y-%m-%dT%H:%M:%S` "$@"
+}
+
+# From https://stackoverflow.com/a/24413646
+#
+# Usage: run_with_timeout N cmd args...
+#    or: run_with_timeout cmd args...
+# In the second case, cmd cannot be a number and the timeout will be 10 seconds.
+#
+# Exit code 143 means it exited with timeout
+function run_with_timeout () {
+    local time=10
+    if [[ $1 =~ ^[0-9]+$ ]]; then time=$1; shift; fi
+    # Run in a subshell to avoid job control messages
+    ( "$@" &
+      child=$!
+      # Avoid default notification in non-interactive shell for SIGTERM
+      trap -- "" SIGTERM
+      ( sleep $time
+        kill $child 2> /dev/null ) &
+      wait $child
+    )
+}
+
 function fully_qualified_race_name() {
     SHORT="$1"
     if [ "$SHORT" == "T" ]; then
@@ -17,7 +42,7 @@ function fully_qualified_race_name() {
 function prepare_bwapi() {
     PLAYER_DLL="$1"
 
-    echo "Preparing bwapi.ini"
+    LOG "Preparing bwapi.ini"
     BWAPI_INI="$BWAPI_DATA_DIR/bwapi.ini"
 
     MAP=$(echo $MAP_NAME | sed "s:$MAP_DIR:maps:g")
@@ -50,11 +75,11 @@ function prepare_bwapi() {
 
 function start_gui() {
     # Launch the GUI!
-    echo "Starting X, savings logs to " "${LOG_DIR}/${LOG_BASENAME}_xvfb.log"
+    LOG "Starting X, savings logs to " "${LOG_DIR}/${LOG_BASENAME}_xvfb.log"
     Xvfb :0 -auth ~/.Xauthority -screen 0 640x480x24 >> "${LOG_DIR}/${LOG_BASENAME}_xvfb.log" 2>&1 &
     sleep 1
 
-    echo "Starting VNC server" ${LOG_DIR}/${LOG_BASENAME}_xvnc.log
+    LOG "Starting VNC server" ${LOG_DIR}/${LOG_BASENAME}_xvnc.log
     x11vnc -forever -nopw -display :0 >> "${LOG_DIR}/${LOG_BASENAME}_xvnc.log" 2>&1 &
     sleep 1
 }
@@ -63,9 +88,8 @@ function start_bot() {
     . hook_before_bot_start.sh
 
     # Launch the bot!
-    echo "Starting bot ${BOT_FILE}, savings logs to $LOG_BOT"
+    LOG "Starting bot ${BOT_FILE}" >> "$LOG_BOT"
     echo "------------------------------------------" >> "$LOG_BOT"
-    echo "Started bot at" `date +%Y-%m-%dT%H:%M:%S%z` >> "$LOG_BOT"
     {
         pushd $SC_DIR
 
@@ -94,9 +118,8 @@ function start_game() {
     [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
 
     # Launch the game!
-    echo "Starting game, savings logs to $LOG_GAME"
+    LOG "Starting game" >> "$LOG_GAME"
     echo "------------------------------------------" >> "$LOG_GAME"
-    echo "Started game at" `date +%Y-%m-%dT%H:%M:%S%z` >> "$LOG_GAME"
     launch_game "$@" >> "$LOG_GAME" 2>&1  &
 
     . hook_after_game_start.sh
@@ -110,26 +133,48 @@ function prepare_character() {
 function check_bot_requirements() {
     # Make sure the bot file exists
     if [ ! -d "$BOT_DIR/$BOT_NAME" ]; then
-        echo "Bot not found in '$BOT_DIR/$BOT_NAME'"
+        LOG "Bot not found in '$BOT_DIR/$BOT_NAME'"
         exit 1
     fi
 
     # Make sure the bot file exists
     if [ ! -f "$BOT_DIR/$BOT_NAME/AI/$BOT_FILE" ]; then
-        echo "Bot not found in '$BOT_DIR/$BOT_NAME/AI/$BOT_FILE'"
+        LOG "Bot not found in '$BOT_DIR/$BOT_NAME/AI/$BOT_FILE'"
         exit 1
     fi
 
     # Make sure the BWAPI file exists
     if [ ! -f "$BOT_DIR/$BOT_NAME/BWAPI.dll" ]; then
-        echo "Bot not found in '$BOT_DIR/$BOT_NAME/BWAPI.dll'"
+        LOG "Bot not found in '$BOT_DIR/$BOT_NAME/BWAPI.dll'"
         exit 1
     fi
 
     # Make sure that bot type is recognized
     if [ "$BOT_TYPE" != "jar" ] && [ "$BOT_TYPE" != "exe" ] && [ "$BOT_TYPE" != "dll" ]; then
-        echo "Bot type can be only one of 'jar', 'exe', 'dll' but the type supplied is '$BOT_TYPE'"
+        LOG "Bot type can be only one of 'jar', 'exe', 'dll' but the type supplied is '$BOT_TYPE'"
         exit 1
     fi
 }
 
+function detect_game_finished() {
+    while true
+    do
+        LOG "Checking game status ..." >> "$LOG_GAME"
+
+        if ! pgrep -x "StarCraft.exe" > /dev/null
+        then
+            LOG "Game exited!" >> "$LOG_GAME"
+            sleep 3
+            exit 0
+        fi
+
+        if [ -f "$SC_DIR/$REPLAY_FILE" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
+        then
+            LOG "Replays found." >> "$LOG_GAME"
+            sleep 3
+            exit 0
+        fi
+
+        sleep 3
+    done;
+}

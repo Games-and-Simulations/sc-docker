@@ -41,14 +41,16 @@ start_game "$@"
 sleep 10
 
 if [ -z "${PLAY_TIMEOUT+set}" ]; then
-    ./play_detect_game_finished.sh "$REPLAY_FILE"
-    echo "Game finished." >> "$LOG_GAME"
+    detect_game_finished
+    LOG "Game finished." >> "$LOG_GAME"
 else
-    if timeout "${PLAY_TIMEOUT}s" ./play_detect_game_finished.sh "$REPLAY_FILE"; then
-        echo "Game finished within timeout limit." >> "$LOG_GAME"
-    else
-        echo "Game timed out!" >> "$LOG_GAME"
+    run_with_timeout "${PLAY_TIMEOUT}" detect_game_finished
+    IS_TIMED_OUT=$?
+    if [ ${IS_TIMED_OUT} -eq 143 ]; then
+        LOG "Game timed out!" >> "$LOG_GAME"
         exit 1
+    else
+        LOG "Game finished within timeout limit." >> "$LOG_GAME"
     fi
 fi
 

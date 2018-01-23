@@ -6,14 +6,20 @@ USER starcraft
 WORKDIR $SC_DIR
 
 # Get Starcraft game from ICCUP
-COPY --chown=starcraft:users starcraft.zip $SC_DIR
-RUN cd "${SC_DIR}" \
-    && unzip starcraft.zip -d . \
-    && rm starcraft.zip \
-    && rm -rf $SC_DIR/characters/* $MAP_DIR/*
+COPY starcraft.zip /tmp/starcraft.zip
+COPY default* /tmp/
 
-# Copy default characters
-COPY --chown=starcraft:users default* $SC_DIR/characters/
+RUN unzip /tmp/starcraft.zip -d /tmp/starcraft \
+    && rm -rf /tmp/starcraft/characters/* /tmp/starcraft/maps/* \
+    && chown starcraft:users -R /tmp/starcraft \
+    && cp /tmp/default* /tmp/starcraft/characters \
+    && chown starcraft:users -R /tmp/starcraft/characters
+
+USER root
+RUN rm /tmp/starcraft.zip \
+    && mv /tmp/starcraft/* $SC_DIR/
+
+USER starcraft
 
 RUN mkdir -m 775 $BWAPI_DATA_DIR $BWAPI_DATA_BWTA_DIR $BWAPI_DATA_BWTA2_DIR
 RUN mkdir -m 755 $BOT_DIR $BOT_DATA_AI_DIR $BOT_DATA_READ_DIR

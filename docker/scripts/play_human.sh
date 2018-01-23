@@ -20,4 +20,4 @@ start_game "$@"
 sleep 10
 
 ./play_detect_game_finished.sh "$REPLAY_FILE"
-echo "Game finished." >> "$LOG_GAME"
+LOG "Game finished." >> "$LOG_GAME"
