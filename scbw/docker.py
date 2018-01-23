@@ -180,6 +180,13 @@ BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
 BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 
 
+def xoscdir(dir_name):
+    """
+    Cross OS compatible dir creation
+    """
+    return dir_name.replace("/", os.sep)
+
+
 def launch_image(
         # players info
         player: Player,
@@ -215,11 +222,11 @@ def launch_image(
 
            "--name", f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}",
 
-           "--volume", f"{log_dir}:{LOG_DIR}:rw",
-           "--volume", f"{bot_dir}:{BOT_DIR}:ro",
-           "--volume", f"{map_dir}:{MAP_DIR}:rw",
-           "--volume", f"{bwapi_data_bwta_dir}:{BWAPI_DATA_BWTA_DIR}:rw",
-           "--volume", f"{bwapi_data_bwta2_dir}:{BWAPI_DATA_BWTA2_DIR}:rw",
+           "--volume", f"{xoscdir(log_dir)}:{LOG_DIR}:rw",
+           "--volume", f"{xoscdir(bot_dir)}:{BOT_DIR}:ro",
+           "--volume", f"{xoscdir(map_dir)}:{MAP_DIR}:rw",
+           "--volume", f"{xoscdir(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
+           "--volume", f"{xoscdir(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw",
            ]
 
     if docker_opts:
@@ -235,7 +242,7 @@ def launch_image(
     if isinstance(player, BotPlayer):
         bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
-        cmd += ["--volume", f"{bot_data_write_dir}:{BOT_DATA_WRITE_DIR}:rw"]
+        cmd += ["--volume", f"{xoscdir(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
 
     env = ["-e", f"PLAYER_NAME={player.name}",
            "-e", f"PLAYER_RACE={player.race.value}",
