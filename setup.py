@@ -99,7 +99,7 @@ setup(
             'scbw.play=scbw.cli:main',
         ],
     },
-    python_requires='>=3.6',
+    python_requires='>=3.4',
     include_package_data=True,
     # cmdclass={
     #     'develop': PostDevelopCommand,

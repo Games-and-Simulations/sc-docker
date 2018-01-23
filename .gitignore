@@ -40,3 +40,4 @@ logs/*
 !logs/README.md
 
 *.egg-info/*
+release.sh
