@@ -41,3 +41,5 @@ logs/*
 
 *.egg-info/*
 release.sh
+py36to34.sh
+scripts/py36to34.py
