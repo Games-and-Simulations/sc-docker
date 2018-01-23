@@ -30,6 +30,10 @@ The GUI is going to be probably slower than normal game due to streaming via VNC
 
 ### Play on the host
 
+(more advanced)
+
+#### Two computers
+
 It is however possible to play the game on the host.
 
 You will need two computers connected via a LAN network, one Windows (server, human player)
@@ -45,11 +49,13 @@ network `sc_net`. (That's also why you need two computers).
 This client was tested on linux only however, there might be
 some problems on other OS (due to other OSes not having X server).
 
+#### One computer
+
 ## Stop games that failed to finish
 
-Stop all running games (docker containers):
+Stop all running games in docker containers (container names always begin with `GAME`)
 
-    $  docker stop $(docker ps -a -q)
+    $  docker stop $(docker ps -a -f NAME=GAME)
 
 ## Add your own bot
 
