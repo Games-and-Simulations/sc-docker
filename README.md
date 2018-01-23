@@ -41,7 +41,7 @@ Testing and reporting in other settings is very welcome!
 
 ### Bots playing against each other
 
-Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action=botDetails&bot=PurpleWave) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
+Launch headful play of [krasi0](http://sscaitournament.com/index.php?action=botDetails&bot=krasi0) and [CherryPi](https://sscaitournament.com/index.php?action=botDetails&bot=CherryPi) on default map.
 
     $ scbw.play --bots "krasi0" "CherryPi" --show_all
 
@@ -73,7 +73,7 @@ See [more usage examples](USAGE.md).
 - StarCraft 1.16.1 game from ICCUP (no need for special installs!)
 - BWAPI 4.1.2
 - BWTA 2.2
-- SSCAI maps pack
+- SSCAI maps pack with BWTA/BWTA2 caches
 - 32bit oracle Java 8 `1.8.0_152-b16`
 - bwheadless `v0.1`
 - wine `2.20.0~xenial`
