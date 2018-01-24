@@ -105,7 +105,6 @@ function start_bot() {
         # todo: run under "bot"
         if [ "$BOT_TYPE" == "jar" ]; then
             win_java32 \
-                -Djava.library.path="$APP_DIR/requirements" \
                 -jar "${BOT_EXECUTABLE}" \
                 >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
 
