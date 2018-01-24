@@ -114,6 +114,8 @@ function start_bot() {
                 >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
         fi
 
+        LOG "Bot exited." >> "$LOG_BOT"
+
         popd
     } &
 

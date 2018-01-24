@@ -48,6 +48,11 @@ else
     IS_TIMED_OUT=$?
     if [ ${IS_TIMED_OUT} -eq 143 ]; then
         LOG "Game timed out!" >> "$LOG_GAME"
+
+        # Log ps aux for more info
+        LOG "Running processes:"
+        ps aux >>  "$LOG_GAME"
+
         exit 1
     else
         LOG "Game finished within timeout limit." >> "$LOG_GAME"
