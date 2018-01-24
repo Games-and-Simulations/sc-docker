@@ -75,17 +75,17 @@ function prepare_bwapi() {
 
 function start_gui() {
     if [ -z "${LOG_GUI+set}" ]; then
-        LOG_XVFB="${LOG_DIR}/${LOG_BASENAME}_xvfb.log"
-        LOG_XVNC="${LOG_DIR}/${LOG_BASENAME}_xvnc.log"
-    else
         LOG_XVFB="/dev/null"
         LOG_XVNC="/dev/null"
+    else
+        LOG_XVFB="${LOG_DIR}/${LOG_BASENAME}_xvfb.log"
+        LOG_XVNC="${LOG_DIR}/${LOG_BASENAME}_xvnc.log"
     fi
 
 
     # Launch the GUI!
     LOG "Starting X, savings logs to " "$LOG_XVFB"
-    Xvfb :0 -auth ~/.Xauthority -screen 0 640x480x24 >> "LOG_XVFB" 2>&1 &
+    Xvfb :0 -auth ~/.Xauthority -screen 0 640x480x24 >> "$LOG_XVFB" 2>&1 &
     sleep 1
 
     LOG "Starting VNC server" "$LOG_XVNC"
