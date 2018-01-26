@@ -12,7 +12,7 @@ LOG_GAME="${LOG_DIR}/${LOG_BASENAME}_game.log"
 LOG_BOT="${LOG_DIR}/${LOG_BASENAME}_bot.log"
 BOT_TYPE="${BOT_FILE##*.}"
 DATE=$(date +%Y-%m-%d)
-REPLAY_FILE="maps/replays/${DATE}_${GAME_NAME}_${NTH_PLAYER}.rep"
+REPLAY_FILE="maps/replays/${GAME_NAME}_${NTH_PLAYER}.rep"
 
 . play_common.sh
 
