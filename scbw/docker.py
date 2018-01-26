@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import subprocess
 import sys
 import time
@@ -180,11 +181,15 @@ BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
 BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 
 
-def xoscdir(dir_name):
+def xoscmounts(host_mount):
     """
-    Cross OS compatible dir creation
+    Cross OS compatible mount dirs
     """
-    return dir_name.replace("/", os.sep)
+    callback_lower_drive_letter = lambda pat: pat.group(1).lower()
+    host_mount = re.sub(r"^([a-zA-Z])\:", callback_lower_drive_letter, host_mount)
+    host_mount = re.sub(r"^([a-z])", "//\\1", host_mount)
+    host_mount = re.sub(r"\\", "/", host_mount)
+    return host_mount
 
 
 def launch_image(
@@ -222,11 +227,11 @@ def launch_image(
 
            "--name", f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}",
 
-           "--volume", f"{xoscdir(log_dir)}:{LOG_DIR}:rw",
-           "--volume", f"{xoscdir(bot_dir)}:{BOT_DIR}:ro",
-           "--volume", f"{xoscdir(map_dir)}:{MAP_DIR}:rw",
-           "--volume", f"{xoscdir(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
-           "--volume", f"{xoscdir(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw",
+           "--volume", f"{xoscmounts(log_dir)}:{LOG_DIR}:rw",
+           "--volume", f"{xoscmounts(bot_dir)}:{BOT_DIR}:ro",
+           "--volume", f"{xoscmounts(map_dir)}:{MAP_DIR}:rw",
+           "--volume", f"{xoscmounts(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
+           "--volume", f"{xoscmounts(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw",
            ]
 
     if docker_opts:
@@ -242,7 +247,7 @@ def launch_image(
     if isinstance(player, BotPlayer):
         bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
-        cmd += ["--volume", f"{xoscdir(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
+        cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
 
     env = ["-e", f"PLAYER_NAME={player.name}",
            "-e", f"PLAYER_RACE={player.race.value}",
@@ -310,6 +315,10 @@ def stop_containers(name_prefix: str):
 
 def launch_game(players, launch_params, show_all, read_overwrite,
                 wait_callback: Optional[Callable] = None):
+
+    if len(players) == 0:
+        raise DockerException("At least one player must be specified")
+    
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 

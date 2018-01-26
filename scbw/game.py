@@ -101,6 +101,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
                 download_bwta_caches(args.bwapi_data_bwta_dir,
                                      args.bwapi_data_bwta2_dir)
                 os.makedirs(f"{args.map_dir}/replays", exist_ok=True)
+                os.makedirs(f"{args.map_dir}/BroodWar", exist_ok=True)
 
         if not args.headless:
             check_vnc_exists()
@@ -116,6 +117,8 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
     players = []
     if args.human:
         players.append(HumanPlayer())
+    if args.bots is None:
+        args.bots = []
 
     bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
     players += retrieve_bots(args.bots, bot_storages)
