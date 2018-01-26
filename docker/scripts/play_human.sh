@@ -19,5 +19,5 @@ start_gui
 start_game "$@"
 sleep 10
 
-./play_detect_game_finished.sh "$REPLAY_FILE"
+detect_game_finished
 LOG "Game finished." >> "$LOG_GAME"
