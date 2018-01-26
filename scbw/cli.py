@@ -127,8 +127,8 @@ def main():
     coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
 
     # bots are always required, but not if showing version :)
-    if not args.bots:
-        parser.error('the following arguments are required: --bots')
+    if not args.bots and not args.human:
+        parser.error('the following arguments are required: --bots or --human')
 
     try:
         game_result = run_game(args)
