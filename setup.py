@@ -4,6 +4,8 @@ Starcraft BW docker launcher.
 
 from os.path import exists
 
+import os
+
 from scbw import VERSION
 # Always prefer setuptools over distutils
 from setuptools import setup
@@ -15,30 +17,36 @@ base_dir = get_data_dir() + "/docker"
 
 
 def install_or_update():
-    from scbw.cli import SC_LOG_DIR, SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR, SC_BOT_DIR, \
-        SC_MAP_DIR
-    from scbw.docker import check_docker_version, check_docker_can_run, check_docker_has_local_net, \
-        create_local_net, create_local_image, remove_game_image
-    from scbw.map import download_sscait_maps
-    from scbw.utils import create_data_dirs
+    try:
+        with open('/tmp/install_test', "w") as f:
+            f.write(VERSION)
+    except Exception:
+        pass
 
-    check_docker_version()
-    check_docker_can_run()
-    check_docker_has_local_net() or create_local_net()
-
-    # remove old image in case of update
-    remove_game_image()
-    create_local_image()
-
-    create_data_dirs(
-        SC_LOG_DIR,
-        SC_BWAPI_DATA_BWTA_DIR,
-        SC_BWAPI_DATA_BWTA2_DIR,
-        SC_BOT_DIR,
-        SC_MAP_DIR,
-    )
-    if not exists(f"{SC_MAP_DIR}/sscai"):
-        download_sscait_maps(SC_MAP_DIR)
+    # from scbw.cli import SC_LOG_DIR, SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR, SC_BOT_DIR, \
+    #     SC_MAP_DIR
+    # from scbw.docker import check_docker_version, check_docker_can_run, check_docker_has_local_net, \
+    #     create_local_net, create_local_image, remove_game_image
+    # from scbw.map import download_sscait_maps
+    # from scbw.utils import create_data_dirs
+    #
+    # check_docker_version()
+    # check_docker_can_run()
+    # check_docker_has_local_net() or create_local_net()
+    #
+    # # remove old image in case of update
+    # remove_game_image()
+    # create_local_image()
+    #
+    # create_data_dirs(
+    #     SC_LOG_DIR,
+    #     SC_BWAPI_DATA_BWTA_DIR,
+    #     SC_BWAPI_DATA_BWTA2_DIR,
+    #     SC_BOT_DIR,
+    #     SC_MAP_DIR,
+    # )
+    # if not exists(f"{SC_MAP_DIR}/sscai"):
+    #     download_sscait_maps(SC_MAP_DIR)
 
 
 class PostDevelopCommand(develop):
@@ -103,8 +111,8 @@ setup(
     },
     python_requires='>=3.4',
     include_package_data=True,
-    # cmdclass={
-    #     'develop': PostDevelopCommand,
-    #     'install': PostInstallCommand,
-    # },
+    cmdclass={
+        'develop': PostDevelopCommand,
+        'install': PostInstallCommand,
+    },
 )
