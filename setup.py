@@ -2,19 +2,17 @@
 Starcraft BW docker launcher.
 """
 
-from os.path import exists
-
-import os
-
-from scbw import VERSION
 # Always prefer setuptools over distutils
 from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
+
+from scbw import VERSION
 from scbw.utils import get_data_dir
 
 base_dir = get_data_dir() + "/docker"
 
+import atexit
 
 def install_or_update():
     try:
@@ -53,15 +51,15 @@ class PostDevelopCommand(develop):
     """Post-installation for development mode."""
 
     def run(self):
+        atexit.register(install_or_update)
         develop.run(self)
-        install_or_update()
 
 
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
 
     def run(self):
-        install.run(self)
+        atexit.register(install_or_update)
         install_or_update()
 
 
