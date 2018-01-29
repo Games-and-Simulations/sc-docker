@@ -1,8 +1,6 @@
 import logging
 import os
-import platform
 import zipfile
-from os.path import expanduser
 from random import choice
 from tempfile import mkstemp
 
@@ -66,14 +64,6 @@ def download_file(url: str, as_file: str):
         for data in tqdm(response.iter_content(block_size),
                          total=total_size / block_size, unit='MB', unit_scale=True):
             f.write(data)
-
-
-def get_data_dir() -> str:
-    system = platform.system()
-    if system == "Windows":
-        return os.getenv('APPDATA') + "/scbw"
-    else:
-        return expanduser("~") + "/.scbw"
 
 
 def create_data_dirs(*dir_paths):

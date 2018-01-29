@@ -4,19 +4,16 @@ import os
 import signal
 import time
 from argparse import Namespace
-from os.path import exists
 from typing import List, Optional, Callable
 
 import numpy as np
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
-from .docker import check_docker_requirements, launch_game, stop_containers
+from .docker import launch_game, stop_containers
 from .error import GameException
 from .game_type import GameType
-from .map import check_map_exists, download_sscait_maps, download_bwta_caches
 from .player import HumanPlayer, Player
-from .utils import create_data_dirs
 from .vnc import check_vnc_exists
 
 logger = logging.getLogger(__name__)
@@ -62,7 +59,6 @@ class GameArgs(Namespace):
     read_overwrite: bool
     docker_image: str
     opt: str
-    disable_checks: bool
 
 
 class GameResult:
@@ -84,32 +80,12 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
     # See CLI parser for required args
 
     # Check all startup requirements
-    if not args.disable_checks:
-        check_docker_requirements(args.docker_image)
-        create_data_dirs(
-            args.bot_dir,
-            args.log_dir,
-            args.map_dir,
-            args.bwapi_data_bwta_dir,
-            args.bwapi_data_bwta2_dir,
-        )
-        try:
-            check_map_exists(args.map_dir + "/" + args.map)
-        except GameException:
-            if "sscai" in args.map and not exists(f"{args.map_dir}/sscai"):
-                download_sscait_maps(args.map_dir)
-                download_bwta_caches(args.bwapi_data_bwta_dir,
-                                     args.bwapi_data_bwta2_dir)
-                os.makedirs(f"{args.map_dir}/replays", exist_ok=True)
-                os.makedirs(f"{args.map_dir}/BroodWar", exist_ok=True)
-
-        if not args.headless:
-            check_vnc_exists()
-
-        if args.human and args.headless:
-            raise GameException("Cannot use human play in headless mode")
-        if args.headless and args.show_all:
-            raise GameException("Cannot show all screens in headless mode")
+    if not args.headless:
+        check_vnc_exists()
+    if args.human and args.headless:
+        raise GameException("Cannot use human play in headless mode")
+    if args.headless and args.show_all:
+        raise GameException("Cannot show all screens in headless mode")
 
     # Prepare players
     game_name = "GAME_" + args.game_name

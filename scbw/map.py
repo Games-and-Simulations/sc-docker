@@ -29,6 +29,8 @@ def download_bwta_caches(bwta_dir: str, bwta2_dir: str):
         tmp_dir)
 
     for file in os.listdir(tmp_dir + "/bwapi-data/BWTA"):
-        shutil.move(tmp_dir + "/bwapi-data/BWTA/" + file, bwta_dir)
+        if not exists(f"{bwta_dir}/{file}"):
+            shutil.move(tmp_dir + "/bwapi-data/BWTA/" + file, bwta_dir)
     for file in os.listdir(tmp_dir + "/bwapi-data/BWTA2"):
-        shutil.move(tmp_dir + "/bwapi-data/BWTA2/" + file, bwta2_dir)
+        if not exists(f"{bwta_dir}/{file}"):
+            shutil.move(tmp_dir + "/bwapi-data/BWTA2/" + file, bwta2_dir)

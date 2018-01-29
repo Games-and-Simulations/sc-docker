@@ -8,10 +8,11 @@ from distutils.dir_util import copy_tree
 from os.path import exists, abspath, dirname
 from typing import List, Optional, Callable
 
+from .defaults import *
 from .error import DockerException
 from .game_type import GameType
 from .player import BotPlayer, Player
-from .utils import download_file, get_data_dir
+from .utils import download_file
 from .vnc import launch_vnc_viewer
 
 logger = logging.getLogger(__name__)
@@ -86,28 +87,25 @@ def check_docker_has_local_image(image: str) -> bool:
     return bool(out)
 
 
-def create_local_image():
+def create_local_image(image: str):
     try:
         # first copy all docker files we will need
         # for building image to somewhere we can write
         pkg_docker_dir = f'{abspath(dirname(__file__))}/local_docker'
-        base_dir = get_data_dir() + "/docker"
+        base_dir = SCBW_BASE_DIR + "/docker"
 
         logger.info(f"creating docker local image")
         logger.info(f"copying files from {pkg_docker_dir} to {base_dir}")
         copy_tree(pkg_docker_dir, base_dir)
 
-        # pull java parent image if not found locally
-        if not bool(subprocess.check_output(["docker", "images", "-q", "starcraft:java"])):
-            logger.info("pulling image starcraft:java, this may take a while...")
-            if subprocess.call(['docker', 'pull', 'ggaic/starcraft:java'],
-                               stdout=sys.stderr.buffer) != 0:
-                raise DockerException(
-                    "an error occurred while calling `docker pull ggaic/starcraft:java`")
-            if subprocess.call(['docker', 'tag', 'ggaic/starcraft:java', 'starcraft:java'],
-                               stdout=sys.stderr.buffer) != 0:
-                raise DockerException(
-                    "an error occurred while calling `docker tag ggaic/starcraft:java starcraft:java`")
+        # pull java parent image
+        logger.info(f"pulling image {SC_PARENT_IMAGE}, this may take a while...")
+        if subprocess.call(['docker', 'pull', SC_PARENT_IMAGE], stdout=sys.stderr.buffer) != 0:
+            raise DockerException(
+                f"an error occurred while calling `docker pull {SC_PARENT_IMAGE}`")
+        if subprocess.call(['docker', 'tag', SC_PARENT_IMAGE, SC_JAVA_IMAGE], stdout=sys.stderr.buffer) != 0:
+            raise DockerException(
+                f"an error occurred while calling `docker tag {SC_PARENT_IMAGE} {SC_JAVA_IMAGE}`")
 
         # download starcraft.zip
         starcraft_zip_file = f"{base_dir}/starcraft.zip"
@@ -115,30 +113,29 @@ def create_local_image():
             logger.info(f"downloading starcraft.zip to {starcraft_zip_file}")
             download_file('http://files.theabyss.ru/sc/starcraft.zip', starcraft_zip_file)
 
-        # build starcraft:game
-        logger.info("building local image starcraft:game, this may take a while...")
+        # build
+        logger.info(f"building local image {image}, this may take a while...")
         if subprocess.call(['docker', 'build',
                             '-f', 'game.dockerfile',
-                            '-t', "starcraft:game", '.'],
+                            '-t', image, '.'],
                            cwd=base_dir, stdout=sys.stderr.buffer) != 0:
             raise DockerException()
 
-        logger.info("successfully built image starcraft:game")
+        logger.info(f"successfully built image {image}")
 
     except Exception:
         raise DockerException(f"An error occurred while trying to build local image")
 
 
-def remove_game_image():
+def remove_game_image(image_name):
     containers = check_output("docker ps -a -q -f NAME=GAME", shell=True)
     if containers:
         call(f"docker stop {containers}", shell=True)
         call(f"docker rm {containers}", shell=True)
-    call("docker pull ggaic/starcraft:java", shell=True)
 
-    has_image = check_output("docker images starcraft:game -q", shell=True)
+    has_image = check_output(f"docker images {image_name} -q", shell=True)
     if has_image:
-        call("docker rmi starcraft:game", shell=True)
+        call(f"docker rmi --force {image_name}", shell=True)
 
 
 def check_output(*args, **kwargs):
@@ -160,7 +157,7 @@ def check_docker_requirements(image: str):
     check_docker_version()
     check_docker_can_run()
     check_docker_has_local_net() or create_local_net()
-    check_docker_has_local_image(image) or create_local_image()
+    check_docker_has_local_image(image) or create_local_image(image)
 
 
 BASE_VNC_PORT = 5900
@@ -315,10 +312,9 @@ def stop_containers(name_prefix: str):
 
 def launch_game(players, launch_params, show_all, read_overwrite,
                 wait_callback: Optional[Callable] = None):
-
     if len(players) == 0:
         raise DockerException("At least one player must be specified")
-    
+
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 
