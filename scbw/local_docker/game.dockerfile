@@ -9,7 +9,7 @@ WORKDIR $SC_DIR
 COPY starcraft.zip /tmp/starcraft.zip
 COPY default* /tmp/
 
-RUN unzip /tmp/starcraft.zip -d /tmp/starcraft \
+RUN unzip -q /tmp/starcraft.zip -d /tmp/starcraft \
     && rm -rf /tmp/starcraft/characters/* /tmp/starcraft/maps/* \
     && chown starcraft:users -R /tmp/starcraft \
     && cp /tmp/default* /tmp/starcraft/characters \
