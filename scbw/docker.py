@@ -128,11 +128,6 @@ def create_local_image(image: str):
 
 
 def remove_game_image(image_name):
-    containers = check_output("docker ps -a -q -f NAME=GAME", shell=True)
-    if containers:
-        call(f"docker stop {containers}", shell=True)
-        call(f"docker rm {containers}", shell=True)
-
     has_image = check_output(f"docker images {image_name} -q", shell=True)
     if has_image:
         call(f"docker rmi --force {image_name}", shell=True)
