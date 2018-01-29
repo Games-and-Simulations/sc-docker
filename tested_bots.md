@@ -241,3 +241,13 @@ Has page fault when the player leaves the game:
     :: CherryPi: BWAPI 4.2.0.4842 RELEASE is now live using "BWEnv.dll".
     :: CherryPi: Enabled Flag UserInput
     wine: Unhandled page fault on read access to 0x00000000 at address 0x5ba6e07 (thread 0034), starting debugger...
+
+## Bots BWAPI
+
+These BWAPIs have been used by test bots:
+
+    4.2.0    2f6fb401c0dcf65925ee7ad34dc6414a
+    4.1.2    1364390d0aa085fba6ac11b7177797b0
+    4.0.1b   84f413409387ae80a4b4acc51fed3923
+    3.7.5    5e590ea55c2d3c66a36bf75537f8655a
+    3.7.4    6e940dc6acc76b6e459b39a9cdd466ae
