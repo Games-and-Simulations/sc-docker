@@ -59,6 +59,7 @@ Lazy version with a lot of sudo (based on [this](http://ubuntuhandbook.org/index
     sudo apt-get install -y python3.6
     curl https://bootstrap.pypa.io/get-pip.py | sudo python3.6
     sudo pip3.6 install scbw
+    scbw.play --install
 
 ### VNC
 
@@ -110,6 +111,7 @@ You might need to [add python / pip to PATH](https://stackoverflow.com/a/4855685
 Install `scbw` package in PowerShell:
 
     pip install scbw
+    scbw.play --install
 
 
 ### VNC
@@ -142,6 +144,7 @@ Download and install Python 3.6 release from [Python releases for Mac Os X](http
 Install `scbw` package:
 
     pip3.6 install scbw
+    scbw.play --install
 
 ### VNC
 - [download RealVNC](https://www.realvnc.com/en/connect/download/viewer/macos/)
