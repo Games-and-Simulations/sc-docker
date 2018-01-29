@@ -4,64 +4,8 @@ Starcraft BW docker launcher.
 
 # Always prefer setuptools over distutils
 from setuptools import setup
-from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 from scbw import VERSION
-from scbw.utils import get_data_dir
-
-base_dir = get_data_dir() + "/docker"
-
-import atexit
-
-def install_or_update():
-    try:
-        with open('/tmp/install_test', "w") as f:
-            f.write(VERSION)
-    except Exception:
-        pass
-
-    # from scbw.cli import SC_LOG_DIR, SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR, SC_BOT_DIR, \
-    #     SC_MAP_DIR
-    # from scbw.docker import check_docker_version, check_docker_can_run, check_docker_has_local_net, \
-    #     create_local_net, create_local_image, remove_game_image
-    # from scbw.map import download_sscait_maps
-    # from scbw.utils import create_data_dirs
-    #
-    # check_docker_version()
-    # check_docker_can_run()
-    # check_docker_has_local_net() or create_local_net()
-    #
-    # # remove old image in case of update
-    # remove_game_image()
-    # create_local_image()
-    #
-    # create_data_dirs(
-    #     SC_LOG_DIR,
-    #     SC_BWAPI_DATA_BWTA_DIR,
-    #     SC_BWAPI_DATA_BWTA2_DIR,
-    #     SC_BOT_DIR,
-    #     SC_MAP_DIR,
-    # )
-    # if not exists(f"{SC_MAP_DIR}/sscai"):
-    #     download_sscait_maps(SC_MAP_DIR)
-
-
-class PostDevelopCommand(develop):
-    """Post-installation for development mode."""
-
-    def run(self):
-        atexit.register(install_or_update)
-        develop.run(self)
-
-
-class PostInstallCommand(install):
-    """Post-installation for installation mode."""
-
-    def run(self):
-        atexit.register(install_or_update)
-        install_or_update()
-
 
 setup(
     name='scbw',
@@ -108,9 +52,5 @@ setup(
         ],
     },
     python_requires='>=3.4',
-    include_package_data=True,
-    cmdclass={
-        'develop': PostDevelopCommand,
-        'install': PostInstallCommand,
-    },
+    include_package_data=True
 )
