@@ -107,13 +107,14 @@ function start_bot() {
             win_java32 \
                 -jar "${BOT_EXECUTABLE}" \
                 >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
+            LOG "Bot exited." >> "$LOG_BOT"
 
         elif [ "$BOT_TYPE" == "exe" ]; then
             wine "${BOT_EXECUTABLE}" \
                 >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
-        fi
+            LOG "Bot exited." >> "$LOG_BOT"
 
-        LOG "Bot exited." >> "$LOG_BOT"
+        fi
 
         popd
     } &
@@ -130,6 +131,9 @@ function start_game() {
     # Launch the game!
     LOG "Starting game" >> "$LOG_GAME"
     echo "------------------------------------------" >> "$LOG_GAME"
+
+    cp $TM_DIR/420.dll $SC_DIR/tm.dll
+
     launch_game "$@" >> "$LOG_GAME" 2>&1  &
 
     . hook_after_game_start.sh

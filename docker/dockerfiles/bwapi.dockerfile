@@ -4,6 +4,7 @@ MAINTAINER Michal Sustr <michal.sustr@aic.fel.cvut.cz>
 ENV SC_DIR="$APP_DIR/sc"
 ENV BWTA_DIR="$APP_DIR/bwta"
 ENV BWAPI_DIR="$APP_DIR/bwapi"
+ENV TM_DIR="$APP_DIR/tm"
 ENV BOT_DIR="$APP_DIR/bots"
 ENV MAP_DIR="$SC_DIR/maps"
 ENV BWAPI_DATA_DIR="$SC_DIR/bwapi-data"
@@ -57,6 +58,8 @@ RUN curl -L https://github.com/tscmoo/bwheadless/releases/download/v0.1/bwheadle
 
 # Copy relevant BWAPI versions (cached)
 COPY --chown=starcraft:users bwapi $BWAPI_DIR
+COPY --chown=starcraft:users tm $TM_DIR
+
 COPY scripts/launch_game /usr/bin/launch_game
 
 #####################################################################
