@@ -10,6 +10,7 @@ fi
 LOG_BASENAME="${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME//[ ]/_}"
 LOG_GAME="${LOG_DIR}/${LOG_BASENAME}_game.log"
 LOG_BOT="${LOG_DIR}/${LOG_BASENAME}_bot.log"
+LOG_RESULTS="${LOG_DIR}/${GAME_NAME}_${NTH_PLAYER}_results.log"
 BOT_TYPE="${BOT_FILE##*.}"
 DATE=$(date +%Y-%m-%d)
 REPLAY_FILE="maps/replays/${GAME_NAME}_${NTH_PLAYER}.rep"
@@ -58,5 +59,7 @@ else
         LOG "Game finished within timeout limit." >> "$LOG_GAME"
     fi
 fi
+
+save_results
 
 exit 0

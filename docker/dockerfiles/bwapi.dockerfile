@@ -52,6 +52,9 @@ RUN mkdir "${SC_DIR}"
 # Copy dll files
 COPY --chown=starcraft:users dlls/* $WINEPREFIX/drive_c/windows/system32/
 
+# Install more dlls from winetricks. It requires X-server so let's run in bg for now :)
+RUN /bin/bash -c "Xvfb :0 -auth ~/.Xauthority -screen 0 640x480x24 & winetricks -q vcrun2015"
+
 # Download bwheadless
 RUN curl -L https://github.com/tscmoo/bwheadless/releases/download/v0.1/bwheadless.exe \
     -o "$SC_DIR/bwheadless.exe"

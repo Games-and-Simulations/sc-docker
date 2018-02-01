@@ -179,16 +179,20 @@ function detect_game_finished() {
         then
             LOG "Game exited!" >> "$LOG_GAME"
             sleep 3
-            exit 0
+            return 0
         fi
 
         if [ -f "$SC_DIR/$REPLAY_FILE" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
         then
             LOG "Replays found." >> "$LOG_GAME"
             sleep 3
-            exit 0
+            return 0
         fi
 
         sleep 3
     done;
+}
+
+function save_results() {
+    mv "$SC_DIR/game_result.json" "$LOG_RESULTS"
 }

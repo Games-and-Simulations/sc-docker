@@ -53,6 +53,7 @@ RUN set -x \
   && apt-get install -y --no-install-recommends \
     xvfb xauth x11vnc x11-utils x11-xserver-utils \
     curl unzip software-properties-common joe vim sudo wget curl tree screen tmux p7zip apt-transport-https winbind \
+    binutils cabextract unrar zenity \
   && curl -L https://dl.winehq.org/wine-builds/Release.key -o Release.key \
   && apt-key add Release.key \
   && apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ \

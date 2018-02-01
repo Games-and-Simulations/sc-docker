@@ -1,12 +1,9 @@
 import glob
 import logging
-import os
 import signal
 import time
 from argparse import Namespace
 from typing import List, Optional, Callable
-
-import numpy as np
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
@@ -14,30 +11,43 @@ from .docker import launch_game, stop_containers
 from .error import GameException
 from .game_type import GameType
 from .player import HumanPlayer, Player
+from .result import Result
 from .vnc import check_vnc_exists
 
 logger = logging.getLogger(__name__)
 
 
 def find_replays(map_dir: str, game_name: str):
-    return glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.rep") + \
-           glob.glob(f"{map_dir}/replays/*-*-*_{game_name}_*.REP")
+    return glob.glob(f"{map_dir}/replays/{game_name}_*.rep") + \
+           glob.glob(f"{map_dir}/replays/{game_name}_*.REP")
 
 
-def find_winner(game_name: str, map_dir: str, num_players: int) -> int:
-    replay_files = find_replays(map_dir, game_name)
-    if len(replay_files) != num_players:
-        logger.info("Found replay files:")
-        logger.info(replay_files)
+def find_results(log_dir: str, game_name: str):
+    return glob.glob(f"{log_dir}/{game_name}_*_results.log")
+
+
+def find_winner(game_name: str, log_dir: str, num_players: int) -> int:
+    result_files = find_results(log_dir, game_name)
+    if len(result_files) != num_players:
+        logger.info("Found result files:")
+        logger.info(result_files)
         raise GameException(f"The game '{game_name}' did not finish properly! \n"
-                            f"Did not find replay files from all players in '{map_dir}/replays/'.")
+                            f"Did not find result files from all players in '{log_dir}/{game_name}_*_results.log'.")
 
-    replay_sizes = map(os.path.getsize, replay_files)
+    nth_player = None
+    for nth_player, result_file in enumerate(sorted(result_files)):
+        result = Result.load_result(result_file)
+        if result.is_winner:
+            print(result_file)
+            print(result)
+            nth_player = int(result_file.replace("_results.log", "").split("_")[-1])
+            break
 
-    winner_idx = np.argmax(replay_sizes)
-    winner_file = replay_files[winner_idx]
-    nth_player = winner_file.replace(".rep", "").replace(".REP", "").split("_")[-1]
-    return int(nth_player)
+    if nth_player is None:
+        raise GameException(f"The game '{game_name}' did not finish properly! \n"
+                            f"Could not find any winner in '{log_dir}/{game_name}_*_results.log'.")
+
+    return nth_player
 
 
 class GameArgs(Namespace):
@@ -130,9 +140,9 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
         time_start = time.time()
         launch_game(players, launch_params, args.show_all, args.read_overwrite, wait_callback)
         game_time = time.time() - time_start
-        log_files = glob.glob(f"{args.log_dir}/*{game_name}*.log")
+        log_files = glob.glob(f"{args.log_dir}/{game_name}*.log")
         replay_files = find_replays(args.map_dir, game_name)
-        winner_player = find_winner(game_name, args.map_dir, len(players))
+        winner_player = find_winner(game_name, args.log_dir, len(players))
 
         return GameResult(game_name, game_time, winner_player, players, replay_files, log_files)
 

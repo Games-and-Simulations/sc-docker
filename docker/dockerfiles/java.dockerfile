@@ -10,7 +10,7 @@ WORKDIR $APP_DIR
 
 COPY --chown=starcraft:users jre_8_32bit_noinstall.zip jre.zip
 RUN set -x \
-    && unzip jre.zip \
+    && unzip -q jre.zip \
     && mv jre1.8.0_152/ $JAVA_DIR/ \
     && rm jre.zip
 
