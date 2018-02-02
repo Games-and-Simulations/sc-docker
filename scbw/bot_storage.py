@@ -86,7 +86,7 @@ class SscaitBotStorage(BotStorage):
 
     def get_bot_specs(self):
         response = requests.get("http://sscaitournament.com/api/bots.php")
-        return json.loads(response.content)
+        return json.loads(response.content.decode('utf-8'))
 
     def try_download(self, json_spec: Dict) -> Optional[BotJsonMeta]:
         bot_spec = BotPlayer.parse_meta(json_spec)
