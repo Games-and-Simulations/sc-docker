@@ -213,7 +213,6 @@ def launch_image(
         docker_opts: List[str]):
     #
     cmd = ["docker", "run",
-
            "-d",
            "--privileged",
 
@@ -225,6 +224,9 @@ def launch_image(
            "--volume", f"{xoscmounts(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
            "--volume", f"{xoscmounts(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw",
            ]
+
+    if player.meta.javaDebug:
+        cmd += ["-p", f"{str(player.meta.javaDebugPort)}:{str(player.meta.javaDebugPort)}"]
 
     if docker_opts:
         cmd += docker_opts
@@ -248,7 +250,10 @@ def launch_image(
            "-e", f"GAME_NAME={game_name}",
            "-e", f"MAP_NAME=/app/sc/maps/{map_name}",
            "-e", f"GAME_TYPE={game_type.value}",
-           "-e", f"SPEED_OVERRIDE={str(game_speed)}"]
+           "-e", f"SPEED_OVERRIDE={str(game_speed)}",
+           "-e", f"JAVA_DEBUG={player.meta.javaDebug}",
+           "-e", f"JAVA_DEBUG_PORT={player.meta.javaDebugPort}"]
+
     if isinstance(player, BotPlayer):
         env += ["-e", f"BOT_NAME={player.name}",
                 "-e", f"BOT_FILE={player.bot_basefilename}",

@@ -19,6 +19,8 @@ parser = argparse.ArgumentParser(
     description='Launch StarCraft docker images for bot/human headless/headful play',
     formatter_class=argparse.RawTextHelpFormatter)
 
+parser.add_argument('--java-debug-port', type=int, help="Directory where bots are stored, default:\n{SC_BOT_DIR}")
+
 parser.add_argument('--install', action='store_true',
                     help="Download all dependencies and data files.\n"
                          "Needed to run the first time after `pip install`.")

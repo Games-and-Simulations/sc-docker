@@ -158,6 +158,12 @@ class BotPlayer(Player):
         meta.bwapiDLL = json_spec['bwapiDLL']
         meta.botProfileURL = json_spec['botProfileURL']
 
+        if 'javaDebugPort' in json_spec:
+            meta.javaDebug = True
+            meta.javaDebugPort = json_spec['javaDebugPort']
+        else:
+            meta.javaDebug = False
+            meta.javaDebugPort = -1
         return meta
 
     def _find_bwapi_version(self):

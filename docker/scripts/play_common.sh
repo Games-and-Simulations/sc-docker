@@ -104,17 +104,23 @@ function start_bot() {
 
         # todo: run under "bot"
         if [ "$BOT_TYPE" == "jar" ]; then
-            win_java32 \
-                -jar "${BOT_EXECUTABLE}" \
-                >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
-            LOG "Bot exited." >> "$LOG_BOT"
+            if [ "$JAVA_DEBUG" ]; then
+                win_java32 \
+                    -Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=n \
+                    -jar "${BOT_EXECUTABLE}" \
+                    >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
+            else
+                win_java32 \
+                    -jar "${BOT_EXECUTABLE}" \
+                    >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
+            fi
 
         elif [ "$BOT_TYPE" == "exe" ]; then
             wine "${BOT_EXECUTABLE}" \
                 >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
-            LOG "Bot exited." >> "$LOG_BOT"
-
         fi
+
+        LOG "Bot exited." >> "$LOG_BOT"
 
         popd
     } &
