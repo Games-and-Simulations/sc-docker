@@ -2,13 +2,12 @@ import json
 import logging
 from typing import List
 
-from .error import GameException
 from .player import HumanPlayer, Player
 
 logger = logging.getLogger(__name__)
 
 
-class RawResult:
+class ScoreResult:
     def __init__(self,
                  is_winner: bool,
                  is_crashed: bool,
@@ -29,7 +28,7 @@ class RawResult:
         with open(result_file, "r") as f:
             v = json.load(f)
 
-        return RawResult(
+        return ScoreResult(
             v['is_winner'],
             v['is_crashed'],
             v['building_score'],
@@ -58,6 +57,8 @@ class GameResult:
         self.result_files = result_files
 
         self.is_realtime_outed = is_realtime_outed
+
+        self.score_results = []
 
         self._is_crashed = None
         self._is_gametime_outed = None
@@ -91,7 +92,8 @@ class GameResult:
             self._is_crashed = True
             return
 
-        results = {result_file: RawResult.load_result(result_file) for result_file in self.result_files}
+        results = {result_file: ScoreResult.load_result(result_file)
+                   for result_file in sorted(self.result_files)}
         if any(result.is_crashed for result in results.values()):
             logger.warning(f"Some of the players crashed in game '{self.game_name}'")
             self._is_crashed = True
@@ -120,6 +122,7 @@ class GameResult:
         self._is_crashed = False
         # todo: implement, maybe according to SSCAIT rules?
         self._is_gametime_outed = False
+        self.score_results = results
 
     # Bunch of getters
     @property
