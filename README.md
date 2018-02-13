@@ -67,18 +67,19 @@ See [more usage examples](USAGE.md).
 ## Known limitations
 
 - Headful mode needs to specify the map manually due to "Unable to distribute map" bug.
+- Works only for BWAPI 4.1.2, 4.2.0 (because I don't have TM compiled for those versions)
 
 ## Specification
 
 - StarCraft 1.16.1 game from ICCUP (no need for special installs!)
-- BWAPI 4.1.2
+- BWAPI 4.1.2, 4.2.0
 - BWTA 2.2
 - SSCAI maps pack with BWTA/BWTA2 caches
 - 32bit oracle Java 8 `1.8.0_152-b16`
 - bwheadless `v0.1`
 - wine `2.20.0~xenial`
 - base image `ubuntu:xenial`
-
+- uses special [tournament module (TM)](github.com/Games-and-Simulations/sc-tm)
 
 ## Dockerhub images
 

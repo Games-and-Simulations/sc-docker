@@ -68,5 +68,3 @@ You can see logs from the games in `logs/` directory.
 Build images locally:
 
     cd docker; ./build_images.sh
-
-Use `--docker_image=starcraft:play` for testing.

@@ -11,53 +11,40 @@ We tested bots from SSCAIT tournament. All of these should work:
     49.58      OpprimoBot
     49.60      Guillermo Agitaperas
     49.82      Laura Martin Gallardo
-    49.85      Gaoyuan Chen
     52.75      Kruecke
     52.81      KillAlll
     53.01      Lluvatar
     53.67      auxanic
     55.63      TyrProtoss
     62.03      Korean
-    63.28      Matej Istenik
-    65.16      ICELab
     65.52      HOLD Z
     68.07      Goliat
     69.69      Dave Churchill
     71.17      MorglozBot
     71.24      FTTankTER
-    71.50      Sijia Xu
     74.09      Neo Edmund Zerg
     75.09      Microwave
     86.85      Lukas Moravec
     87.04      Flash
     89.45      Bryan Weber
     95.34      Black Crow
-    99.08      MegaBot2017
     92.31      100382319
     104.95     Marine Hell
     107.40     Blonws31
-    111.07     Roman Danielis
-    113.91     NUS Bot
     126.60     Zia bot
     129.69     Andrey Kurdiumov
-    141.52     Andrew Smith
     144.75     Dawid Loranc
     144.86     Marian Devecka
     145.20     PurpleCheese
     169.04     WuliBot
     175.51     Hannes Bredberg
     179.65     ZurZurZur
-    185.17     Florian Richoux
     194.28     NiteKatT
     203.46     MadMixP
-    227.52     Carsten Nielsen
     246.95     Niels Justesen
     261.69     Iron bot
-    289.17     Tomas Vajda
     289.31     CherryPi
     360.64     McRave
-    390.86     Jakub Trancik
-    394.52     Martin Rooijackers
     403.29     Ecgberht
     619.33     Yuanheng Zhu
 
