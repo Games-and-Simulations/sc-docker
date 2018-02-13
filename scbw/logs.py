@@ -1,6 +1,5 @@
 import glob
-from typing import List
 
 
-def find_logs(log_dir: str, game_name: str) -> List[str]:
-    return glob.glob(f"{log_dir}/{game_name}*.log")
+def find_logs(log_dir, game_name):
+    return glob.glob(('%s/%s*.log' % (log_dir, game_name)))
