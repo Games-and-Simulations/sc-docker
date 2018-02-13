@@ -46,6 +46,7 @@ class GameArgs(Namespace):
     bwapi_data_bwta_dir: str
     bwapi_data_bwta2_dir: str
     vnc_base_port: int
+    vnc_host: str
     show_all: bool
     read_overwrite: bool
     docker_image: str
@@ -97,6 +98,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
 
         # vnc
         vnc_base_port=args.vnc_base_port,
+        vnc_host=args.vnc_host,
 
         # docker
         docker_image=args.docker_image,
