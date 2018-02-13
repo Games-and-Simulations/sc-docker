@@ -25,6 +25,8 @@ def levenshtein_dist(s1, s2):
         previous_row = current_row
     return previous_row[(-1)]
 
+def random_string(len=8):
+    return ''.join((choice('0123456789ABCDEF') for _ in range(len)))
 
 def random_string(len=8):
     return ''.join((choice('0123456789ABCDEF') for _ in range(len)))
