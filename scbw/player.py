@@ -10,6 +10,10 @@ from typing import Dict
 
 from dateutil.parser import parse as parse_iso_date
 
+from .bwapi import supported_versions, versions_md5s
+from .error import PlayerException
+from .utils import md5_file
+
 logger = logging.getLogger(__name__)
 
 SC_BOT_DIR = abspath("bots")
@@ -78,6 +82,7 @@ class BotPlayer(Player):
         self.race = self.meta.race
         self.bot_type = self.meta.botType
         self.bot_filename = self._find_bot_filename(self.meta.botType)
+        self.bwapi_version = self._find_bwapi_version()
 
     def _read_meta(self) -> BotJsonMeta:
         with open(f"{self.base_dir}/bot.json", "r") as f:
@@ -124,17 +129,17 @@ class BotPlayer(Player):
 
     def _check_structure(self):
         if not exists(f"{self.base_dir}"):
-            raise Exception(f"Bot cannot be found in {self.base_dir}")
+            raise PlayerException(f"Bot cannot be found in {self.base_dir}")
         if not exists(self.bot_json_file):
-            raise Exception(f"Bot JSON config cannot be found in {self.bot_json_file}")
+            raise PlayerException(f"Bot JSON config cannot be found in {self.bot_json_file}")
         if not exists(self.bwapi_dll_file):
-            raise Exception(f"BWAPI.dll cannot be found in {self.bwapi_dll_file}")
+            raise PlayerException(f"BWAPI.dll cannot be found in {self.bwapi_dll_file}")
         if not exists(f"{self.ai_dir}"):
-            raise Exception(f"AI folder cannot be found in {self.ai_dir}")
+            raise PlayerException(f"AI folder cannot be found in {self.ai_dir}")
         if not exists(f"{self.read_dir}"):
-            raise Exception(f"read folder cannot be found in {self.read_dir}")
+            raise PlayerException(f"read folder cannot be found in {self.read_dir}")
         if not exists(f"{self.write_dir}"):
-            raise Exception(f"write folder cannot be found in {self.write_dir}")
+            raise PlayerException(f"write folder cannot be found in {self.write_dir}")
 
     @staticmethod
     def parse_meta(json_spec: Dict):
@@ -155,6 +160,21 @@ class BotPlayer(Player):
 
         return meta
 
+    def _find_bwapi_version(self):
+        bwapi_md5_hash = md5_file(self.bwapi_dll_file)
+        if bwapi_md5_hash not in versions_md5s.values():
+            raise PlayerException(f"Bot uses unrecognized version of BWAPI, "
+                                  f"with md5 hash {bwapi_md5_hash} . Supported versions are: "
+                                  f"{', '.join(supported_versions)}")
+
+        version = [version for version, bwapi_hash in versions_md5s.items()
+                   if bwapi_hash == bwapi_md5_hash][0]
+        if version not in supported_versions:
+            raise PlayerException(f"Bot uses unsupported version of BWAPI: {version}. "
+                                  f"Supported versions are: "
+                                  f"{', '.join(supported_versions)}")
+        return version
+
 
 _races = "|".join([race.value for race in PlayerRace])
 _expr = re.compile("^[a-zA-Z0-9_][a-zA-Z0-9_. -]{0,40}"
@@ -166,3 +186,9 @@ def bot_regex(bot: str):
         raise argparse.ArgumentTypeError(
             f"Bot specification '{bot}' is not valid, should match {_expr.pattern}")
     return bot
+
+
+def check_bot_exists(bot: str, bot_dir: str):
+    # this will raise exception if bot doesn't exist
+    # or doesn't have proper structure
+    BotPlayer(bot, bot_dir)

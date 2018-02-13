@@ -8,10 +8,11 @@ from typing import List, Optional, Callable
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
 from .docker import launch_game, stop_containers
-from .error import GameException
+from .error import GameException, RealtimeOutedException
 from .game_type import GameType
-from .player import HumanPlayer, Player
-from .result import Result
+from .logs import find_logs
+from .player import HumanPlayer
+from .result import GameResult
 from .vnc import check_vnc_exists
 
 logger = logging.getLogger(__name__)
@@ -23,31 +24,11 @@ def find_replays(map_dir: str, game_name: str):
 
 
 def find_results(log_dir: str, game_name: str):
-    return glob.glob(f"{log_dir}/{game_name}_*_results.log")
+    return glob.glob(f"{log_dir}/{game_name}_*_results.json")
 
 
-def find_winner(game_name: str, log_dir: str, num_players: int) -> int:
-    result_files = find_results(log_dir, game_name)
-    if len(result_files) != num_players:
-        logger.info("Found result files:")
-        logger.info(result_files)
-        raise GameException(f"The game '{game_name}' did not finish properly! \n"
-                            f"Did not find result files from all players in '{log_dir}/{game_name}_*_results.log'.")
-
-    nth_player = None
-    for nth_player, result_file in enumerate(sorted(result_files)):
-        result = Result.load_result(result_file)
-        if result.is_winner:
-            print(result_file)
-            print(result)
-            nth_player = int(result_file.replace("_results.log", "").split("_")[-1])
-            break
-
-    if nth_player is None:
-        raise GameException(f"The game '{game_name}' did not finish properly! \n"
-                            f"Could not find any winner in '{log_dir}/{game_name}_*_results.log'.")
-
-    return nth_player
+def find_frames(log_dir: str, game_name: str):
+    return glob.glob(f"{log_dir}/{game_name}_*_frames.csv")
 
 
 class GameArgs(Namespace):
@@ -71,24 +52,7 @@ class GameArgs(Namespace):
     opt: str
 
 
-class GameResult:
-    def __init__(self, game_name: str,
-                 game_time: float,
-                 winner_player: int,
-                 players: List[Player],
-                 replay_files: List[str],
-                 log_files: List[str]):
-        self.game_name = game_name
-        self.game_time = game_time
-        self.winner_player = winner_player
-        self.players = players
-        self.replay_files = replay_files
-        self.log_files = log_files
-
-
 def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameResult:
-    # See CLI parser for required args
-
     # Check all startup requirements
     if not args.headless:
         check_vnc_exists()
@@ -97,15 +61,16 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
     if args.headless and args.show_all:
         raise GameException("Cannot show all screens in headless mode")
 
-    # Prepare players
+    # Each game is prefixed with "GAME_"
+    # this is needed for game filtering in docker ps
     game_name = "GAME_" + args.game_name
 
+    # Prepare players
     players = []
     if args.human:
         players.append(HumanPlayer())
     if args.bots is None:
         args.bots = []
-
     bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
     players += retrieve_bots(args.bots, bot_storages)
 
@@ -136,15 +101,15 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
         docker_opts=opts
     )
 
+    time_start = time.time()
+    is_realtime_outed = False
     try:
-        time_start = time.time()
-        launch_game(players, launch_params, args.show_all, args.read_overwrite, wait_callback)
-        game_time = time.time() - time_start
-        log_files = glob.glob(f"{args.log_dir}/{game_name}*.log")
-        replay_files = find_replays(args.map_dir, game_name)
-        winner_player = find_winner(game_name, args.log_dir, len(players))
+        launch_game(players, launch_params,
+                    args.show_all, args.read_overwrite,
+                    wait_callback)
 
-        return GameResult(game_name, game_time, winner_player, players, replay_files, log_files)
+    except RealtimeOutedException:
+        is_realtime_outed = True
 
     except KeyboardInterrupt:
         logger.warning("Caught interrupt, shutting down containers")
@@ -156,3 +121,16 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
         stop_containers(game_name)
         logger.info(f"Game cancelled.")
         raise
+
+    game_time = time.time() - time_start
+
+    log_files = find_logs(args.log_dir, game_name)
+    replay_files = find_replays(args.map_dir, game_name)
+    frame_files = find_frames(args.log_dir, game_name)
+    result_files = find_results(args.log_dir, game_name)
+
+    return GameResult(game_name, players, game_time,
+                      # game error states
+                      is_realtime_outed,
+                      # game files
+                      replay_files, log_files, frame_files, result_files)

@@ -152,18 +152,44 @@ def main():
         logger.info("Logs are saved here:")
         for log_file in sorted(game_result.log_files):
             logger.info(log_file)
+        logger.info("---")
 
         logger.info("Replays are saved here:")
         for replay_file in sorted(game_result.replay_files):
             logger.info(replay_file)
+        logger.info("---")
 
-        logger.info(f"Winner is {game_result.players[game_result.winner_player]} "
-                    f"(player {game_result.winner_player})")
+        logger.info("Frame information is saved here:")
+        for frame_file in sorted(game_result.frame_files):
+            logger.info(frame_file)
+        logger.info("---")
 
-        # the only print! Everything else goes to stderr!
-        print(game_result.winner_player)
+        logger.info("Game results are saved here:")
+        for frame_file in sorted(game_result.result_files):
+            logger.info(frame_file)
+        logger.info("---")
+
+        if game_result.is_valid:
+            logger.info(f"Winner is {game_result.winner_player} "
+                        f"(player {game_result.nth_winner_player})")
+
+            # the only print! Everything else goes to stderr!
+            print(game_result.nth_winner_player)
+            sys.exit(0)
+
+        if game_result.is_realtime_outed:
+            logger.error("Game has realtime outed!")
+            sys.exit(1)
+        if game_result.is_gametime_outed:
+            logger.error("Game has gametime outed!")
+            sys.exit(1)
+        if game_result.is_crashed:
+            logger.error("Game has crashed!")
+            sys.exit(1)
+
     except ScbwException as e:
         logger.exception(e)
         sys.exit(1)
+
     except KeyboardInterrupt:
         sys.exit(1)

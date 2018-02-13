@@ -6,10 +6,10 @@ import sys
 import time
 from distutils.dir_util import copy_tree
 from os.path import exists, abspath, dirname
-from typing import List, Optional, Callable
+from typing import List, Optional, Callable, Dict, Any
 
 from .defaults import *
-from .error import DockerException
+from .error import DockerException, GameException, RealtimeOutedException, ContainerException
 from .game_type import GameType
 from .player import BotPlayer, Player
 from .utils import download_file
@@ -103,7 +103,8 @@ def create_local_image(image: str):
         if subprocess.call(['docker', 'pull', SC_PARENT_IMAGE], stdout=sys.stderr.buffer) != 0:
             raise DockerException(
                 f"an error occurred while calling `docker pull {SC_PARENT_IMAGE}`")
-        if subprocess.call(['docker', 'tag', SC_PARENT_IMAGE, SC_JAVA_IMAGE], stdout=sys.stderr.buffer) != 0:
+        if subprocess.call(['docker', 'tag', SC_PARENT_IMAGE, SC_JAVA_IMAGE],
+                           stdout=sys.stderr.buffer) != 0:
             raise DockerException(
                 f"an error occurred while calling `docker tag {SC_PARENT_IMAGE} {SC_JAVA_IMAGE}`")
 
@@ -214,7 +215,6 @@ def launch_image(
     cmd = ["docker", "run",
 
            "-d",
-           "--rm",
            "--privileged",
 
            "--name", f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}",
@@ -251,9 +251,13 @@ def launch_image(
            "-e", f"SPEED_OVERRIDE={str(game_speed)}"]
     if isinstance(player, BotPlayer):
         env += ["-e", f"BOT_NAME={player.name}",
-                "-e", f"BOT_FILE={player.bot_basefilename}"]
+                "-e", f"BOT_FILE={player.bot_basefilename}",
+                "-e", f"BOT_BWAPI={player.bwapi_version}"]
     if timeout is not None:
         env += ["-e", f"PLAY_TIMEOUT={timeout}"]
+
+    env += ["-e", f"TM_LOG_RESULTS=../logs/{game_name}_{nth_player}_results.json"]
+    env += ["-e", f"TM_LOG_FRAMETIMES=../logs/{game_name}_{nth_player}_frames.csv"]
 
     cmd += env
 
@@ -305,10 +309,29 @@ def stop_containers(name_prefix: str):
     subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
 
 
-def launch_game(players, launch_params, show_all, read_overwrite,
+def container_exit_code(container: str) -> int:
+    out = subprocess.check_output(['docker', 'inspect', container,
+                                   "--format='{{.State.ExitCode}}'"])
+    return int(out.decode("utf-8").strip("\n\r\t '\""))
+
+
+def cleanup_containers(containers: List[str]):
+    subprocess.call(['docker', 'rm'] + containers)
+
+
+def launch_game(players: List[Player], launch_params: Dict[str, Any],
+                show_all: bool, read_overwrite: bool,
                 wait_callback: Optional[Callable] = None):
+    """
+    :raises DockerException, ContainerException, RealtimeOutedException
+    """
+    #
     if len(players) == 0:
-        raise DockerException("At least one player must be specified")
+        raise GameException("At least one player must be specified")
+
+    if len(players) != 2:
+        # todo:
+        raise GameException("Currently only 1v1 games are supported.")
 
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
@@ -337,6 +360,17 @@ def launch_game(players, launch_params, show_all, read_overwrite,
         time.sleep(3)
         if wait_callback is not None:
             wait_callback()
+
+    exit_codes = [container_exit_code(container) for container in containers]
+
+    # remove containers before throwing exception
+    logger.debug("Removing game containers")
+    cleanup_containers(containers)
+
+    if any(exit_code == 2 for exit_code in exit_codes):
+        raise RealtimeOutedException(f"Some of the game containers has realtime outed.")
+    if any(exit_code == 1 for exit_code in exit_codes):
+        raise ContainerException(f"Some of the game containers has finished with error exit code.")
 
     if read_overwrite:
         logger.info("Overwriting bot files")

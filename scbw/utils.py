@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import zipfile
@@ -69,3 +70,11 @@ def download_file(url: str, as_file: str):
 def create_data_dirs(*dir_paths):
     for dir_path in dir_paths:
         os.makedirs(dir_path, mode=0o775, exist_ok=True)
+
+
+def md5_file(fname: str):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()

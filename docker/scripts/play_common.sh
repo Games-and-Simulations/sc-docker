@@ -132,8 +132,6 @@ function start_game() {
     LOG "Starting game" >> "$LOG_GAME"
     echo "------------------------------------------" >> "$LOG_GAME"
 
-    cp $TM_DIR/420.dll $SC_DIR/tm.dll
-
     launch_game "$@" >> "$LOG_GAME" 2>&1  &
 
     . hook_after_game_start.sh
@@ -142,6 +140,10 @@ function start_game() {
 function prepare_character() {
     mv "$SC_DIR/characters/default.spc" "$SC_DIR/characters/${PLAYER_NAME}.spc"
     mv "$SC_DIR/characters/default.mpc" "$SC_DIR/characters/${PLAYER_NAME}.mpc"
+}
+
+function prepare_tm() {
+    cp ${TM_DIR}/${BOT_BWAPI}.dll $SC_DIR/tm.dll
 }
 
 function check_bot_requirements() {
@@ -191,8 +193,4 @@ function detect_game_finished() {
 
         sleep 3
     done;
-}
-
-function save_results() {
-    mv "$SC_DIR/game_result.json" "$LOG_RESULTS"
 }
