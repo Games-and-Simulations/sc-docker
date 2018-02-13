@@ -70,8 +70,7 @@ class GameResult:
         self._is_processed = False
 
     def _process_files(self):
-        # todo: this is still written assuming one human player only
-        # todo: and assumes 1v1 game
+        # this whole processing assumes 1v1 bot vs bot games
         if self._is_processed:
             return
 

@@ -329,10 +329,6 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
     if len(players) == 0:
         raise GameException("At least one player must be specified")
 
-    if len(players) != 2:
-        # todo:
-        raise GameException("Currently only 1v1 games are supported.")
-
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 

@@ -1,17 +1,17 @@
 import argparse
 import logging
 import sys
-
-import coloredlogs
 from os.path import exists
 
+import coloredlogs
+
 from .__init__ import VERSION
+from .defaults import *
 from .docker import BASE_VNC_PORT
 from .error import ScbwException
 from .game import run_game, GameType
 from .player import PlayerRace, bot_regex
 from .utils import random_string
-from .defaults import *
 
 logger = logging.getLogger(__name__)
 
@@ -146,9 +146,12 @@ def main():
 
     try:
         game_result = run_game(args)
+        if game_result is None:
+            logger.info("Game results are available only for 1v1 (bot vs bot) games.")
+            sys.exit(0)
 
-        logger.info(
-            f"Game {game_result.game_name} finished in {game_result.game_time:.2f} seconds.")
+        logger.info(f"Game {game_result.game_name} "
+                    f"finished in {game_result.game_time:.2f} seconds.")
         logger.info("Logs are saved here:")
         for log_file in sorted(game_result.log_files):
             logger.info(log_file)

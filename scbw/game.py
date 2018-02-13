@@ -52,7 +52,7 @@ class GameArgs(Namespace):
     opt: str
 
 
-def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameResult:
+def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Optional[GameResult]:
     # Check all startup requirements
     if not args.headless:
         check_vnc_exists()
@@ -73,6 +73,8 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
         args.bots = []
     bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
     players += retrieve_bots(args.bots, bot_storages)
+
+    is_bots_1v1_game = len(players) == 2 and not args.human
 
     opts = [] if not args.opt else args.opt.split(" ")
 
@@ -122,15 +124,18 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> GameRe
         logger.info(f"Game cancelled.")
         raise
 
-    game_time = time.time() - time_start
+    if is_bots_1v1_game:
+        game_time = time.time() - time_start
 
-    log_files = find_logs(args.log_dir, game_name)
-    replay_files = find_replays(args.map_dir, game_name)
-    frame_files = find_frames(args.log_dir, game_name)
-    result_files = find_results(args.log_dir, game_name)
+        log_files = find_logs(args.log_dir, game_name)
+        replay_files = find_replays(args.map_dir, game_name)
+        frame_files = find_frames(args.log_dir, game_name)
+        result_files = find_results(args.log_dir, game_name)
 
-    return GameResult(game_name, players, game_time,
-                      # game error states
-                      is_realtime_outed,
-                      # game files
-                      replay_files, log_files, frame_files, result_files)
+        return GameResult(game_name, players, game_time,
+                          # game error states
+                          is_realtime_outed,
+                          # game files
+                          replay_files, log_files, frame_files, result_files)
+
+    return None
