@@ -84,9 +84,8 @@ class SscaitBotStorage(BotStorage):
             bot_idx = max(min(self.MAX_MATCHING_SUGGESTIONS - 1, int(input())), 0)
             return closest_matching[bot_idx]
 
-    def get_bot_specs(self):
-        response = requests.get("http://sscaitournament.com/api/bots.php")
-        return json.loads(response.text)
+    def get_bot_specs(self) -> Dict:
+        return requests.get("http://sscaitournament.com/api/bots.php").json()
 
     def try_download(self, json_spec: Dict) -> Optional[BotJsonMeta]:
         bot_spec = BotPlayer.parse_meta(json_spec)
