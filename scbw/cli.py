@@ -86,9 +86,9 @@ parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT,
                     help="VNC lowest port number (for server).\n"
                          "Each consecutive n-th client (player)\n"
                          "has higher port number - vnc_base_port+n ")
-parser.add_argument('--vnc_host', type=str, default=VNC_HOST,
+parser.add_argument('--vnc_host', type=str, default='',
                     help="Address of the host on which VNC connections would be accessible\n"
-                         "default:\n{VNC_HOST}")
+                         "default:\n{VNC_HOST} or IP address of the docker-machine")
 
 # Settings
 parser.add_argument('--show_all', action="store_true",
