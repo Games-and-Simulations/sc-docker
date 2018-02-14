@@ -157,6 +157,7 @@ def check_docker_requirements(image: str):
 
 
 BASE_VNC_PORT = 5900
+VNC_HOST = "localhost"
 APP_DIR = "/app"
 LOG_DIR = f"{APP_DIR}/logs"
 SC_DIR = f"{APP_DIR}/sc"
@@ -207,6 +208,7 @@ def launch_image(
         bwapi_data_bwta2_dir: str,
 
         vnc_base_port: int,
+        vnc_host: int,
 
         # docker
         docker_image: str,
@@ -343,8 +345,9 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
 
         for i, player in enumerate(players if show_all else players[:1]):
             port = launch_params['vnc_base_port'] + i
-            logger.info(f"Launching vnc viewer for {player} on port {port}")
-            launch_vnc_viewer(port)
+            host = launch_params['vnc_host']
+            logger.info(f"Launching vnc viewer for {player} on address {host}:{port}")
+            launch_vnc_viewer(host, port)
 
         logger.info("\n"
                     "In headful mode, you must specify and start the game manually.\n"

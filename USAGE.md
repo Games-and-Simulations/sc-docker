@@ -12,6 +12,12 @@ Launch headful play of [PurpleWave](https://sscaitournament.com/index.php?action
 
     $ scbw.play --bots "PurpleWave" "CherryPi" --show_all
 
+**Note**: If you are running Docker Toolbox you may need run bots like that:
+
+    $ scbw.play --bots "PurpleWave" "CherryPi" --show_all --vnc_host 192.168.99.100
+
+where the 192.168.99.100 is address of your VM where docker machine is running.
+
 ## Headless play
 
 Simply add `--headless` option.
