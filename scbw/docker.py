@@ -316,7 +316,7 @@ def container_exit_code(container: str) -> int:
 
 
 def cleanup_containers(containers: List[str]):
-    subprocess.call(['docker', 'rm'] + containers)
+    subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
 
 
 def launch_game(players: List[Player], launch_params: Dict[str, Any],
