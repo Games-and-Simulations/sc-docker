@@ -214,6 +214,7 @@ def launch_image(
     #
     cmd = ["docker", "run",
            "-d",
+           "--rm",
            "--privileged",
 
            "--name", f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}",
