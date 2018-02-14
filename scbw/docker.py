@@ -133,10 +133,10 @@ def remove_game_image(image_name):
     if has_image:
         call(f"docker rmi --force {image_name}", shell=True)
 
-"""
- Checks that docker-machine is available on the computer
-"""
-def check_dockermachine():
+def check_dockermachine() -> bool:
+    """
+    Checks that docker-machine is available on the computer
+    """
     logger.debug("checking docker-machine presence")
     try:
         out = subprocess.check_output(['docker-machine', 'version'])
@@ -149,10 +149,13 @@ def check_dockermachine():
         logger.debug(f"Docker machine not present")
         return False
 
-"""
- Gets IP address of the default docker machine
-"""
-def dockermachine_ip() -> str:
+def dockermachine_ip() -> Optional[str]:
+    """
+    Gets IP address of the default docker machine
+    """
+    if not check_dockermachine():
+        return None
+
     out = subprocess.check_output(['docker-machine', 'ip'])
     return out.decode("utf-8").strip()
 
@@ -353,12 +356,10 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
         raise GameException("At least one player must be specified")
 
     if launch_params['vnc_host'] == "":
-        if check_dockermachine():
-            vnc_host = dockermachine_ip()
-            logger.debug(f"Detected docker machine host as {vnc_host}. This address would be used for VNC conenctions")
-            launch_params['vnc_host'] = vnc_host
-        else:
-            launch_params['vnc_host'] = "locahost"
+        vnc_host = dockermachine_ip() or "localhost"
+        launch_params['vnc_host'] = vnc_host
+
+    logger.debug(f"Detected docker host as {launch_params['vnc_host']}. This address would be used for VNC conenctions")
 
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
