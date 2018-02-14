@@ -118,6 +118,11 @@ function start_bot() {
         elif [ "$BOT_TYPE" == "exe" ]; then
             wine "${BOT_EXECUTABLE}" \
                 >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
+
+        elif [ "$BOT_TYPE" == "jython" ]; then
+            win_java32 \
+                -cp "${BOT_EXECUTABLE}" org.python.util.jython "$BOT_DIR/$BOT_NAME/AI/__run__.py"
+                >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
         fi
 
         LOG "Bot exited." >> "$LOG_BOT"
@@ -172,7 +177,7 @@ function check_bot_requirements() {
     fi
 
     # Make sure that bot type is recognized
-    if [ "$BOT_TYPE" != "jar" ] && [ "$BOT_TYPE" != "exe" ] && [ "$BOT_TYPE" != "dll" ]; then
+    if [ "$BOT_TYPE" != "jar" ] && [ "$BOT_TYPE" != "exe" ] && [ "$BOT_TYPE" != "dll" ] && [ "$BOT_TYPE" != "jython" ]; then
         LOG "Bot type can be only one of 'jar', 'exe', 'dll' but the type supplied is '$BOT_TYPE'"
         exit 1
     fi

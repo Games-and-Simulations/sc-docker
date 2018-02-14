@@ -42,6 +42,7 @@ class BotType(Enum):
     AI_MODULE = "dll"
     EXE = "exe"
     JAVA = "jar"
+    JYTHON = "jython"
 
 
 class BotJsonMeta:
