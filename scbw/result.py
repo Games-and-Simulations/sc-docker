@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import List
+from typing import List, Optional
 
 from .player import HumanPlayer, Player
 
@@ -115,7 +115,7 @@ class GameResult:
         nth_player = int(winner_result_file.replace("_results.json", "").split("_")[-1])
 
         self._nth_winner_player = nth_player
-        self._nth_loser_player = 1-nth_player
+        self._nth_loser_player = 1 - nth_player
         self._winner_player = self.players[self._nth_winner_player]
         self._loser_player = self.players[self._nth_loser_player]
         self._is_crashed = False
@@ -125,43 +125,38 @@ class GameResult:
 
     # Bunch of getters
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         self._process_files()
         return not self.is_crashed and \
                not self.is_gametime_outed and \
                not self.is_realtime_outed
 
     @property
-    def winner_player(self):
-        self._process_files()
-        return self._winner_player
-
-    @property
-    def is_crashed(self):
+    def is_crashed(self) -> bool:
         self._process_files()
         return self._is_crashed
 
     @property
-    def is_gametime_outed(self):
+    def is_gametime_outed(self) -> bool:
         self._process_files()
         return self._is_gametime_outed
 
     @property
-    def winner_player(self):
+    def winner_player(self) -> Optional[Player]:
         self._process_files()
         return self._winner_player
 
     @property
-    def nth_winner_player(self):
+    def nth_winner_player(self) -> Optional[int]:
         self._process_files()
         return self._nth_winner_player
 
     @property
-    def loser_player(self):
+    def loser_player(self) -> Optional[Player]:
         self._process_files()
         return self._loser_player
 
     @property
-    def nth_loser_player(self):
+    def nth_loser_player(self) -> Optional[int]:
         self._process_files()
         return self._nth_loser_player
