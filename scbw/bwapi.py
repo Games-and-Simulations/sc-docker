@@ -11,5 +11,6 @@ versions_md5s = {
 # Version is supported, if we have a functioning tournament module (TM) binary for it.
 supported_versions = [
     "4.2.0",
-    "4.1.2"
+    "4.1.2",
+    "3.7.5"
 ]
