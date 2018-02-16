@@ -272,8 +272,10 @@ def launch_image(
 
     if isinstance(player, BotPlayer):
         bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
+        bot_data_read_dir = f"{player.base_dir}/read/"
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
         cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
+        cmd += ["--volume", f"{xoscmounts(bot_data_read_dir)}:{BOT_DATA_READ_DIR}:rw"]
 
     env = dict(
         PLAYER_NAME=player.name,
