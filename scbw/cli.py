@@ -5,7 +5,6 @@ from os.path import exists
 
 import coloredlogs
 
-from .__init__ import VERSION
 from .defaults import *
 from .docker import BASE_VNC_PORT, VNC_HOST
 from .error import ScbwException
@@ -88,7 +87,7 @@ parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT,
                          "has higher port number - vnc_base_port+n ")
 parser.add_argument('--vnc_host', type=str, default='',
                     help="Address of the host on which VNC connections would be accessible\n"
-                         "default:\n{VNC_HOST} or IP address of the docker-machine")
+                         f"default:\n{VNC_HOST} or IP address of the docker-machine")
 
 # Settings
 parser.add_argument('--show_all', action="store_true",

@@ -7,7 +7,7 @@ from typing import List, Optional, Callable
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
-from .docker import launch_game, stop_containers
+from .docker import launch_game, stop_containers, dockermachine_ip
 from .error import GameException, RealtimeOutedException
 from .game_type import GameType
 from .logs import find_logs
@@ -78,6 +78,11 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     is_bots_1v1_game = len(players) == 2 and not args.human
 
     opts = [] if not args.opt else args.opt.split(" ")
+
+    if args.vnc_host == "":
+        args.vnc_host = dockermachine_ip() or "localhost"
+        logger.debug(f"Detected docker host as {args.vnc_host}. "
+                     f"This address would be used for VNC conenctions")
 
     # Prepare game launching
     launch_params = dict(
