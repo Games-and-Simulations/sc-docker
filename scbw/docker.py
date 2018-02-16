@@ -133,6 +133,31 @@ def remove_game_image(image_name):
     if has_image:
         call(f"docker rmi --force {image_name}", shell=True)
 
+def check_dockermachine() -> bool:
+    """
+    Checks that docker-machine is available on the computer
+    """
+    logger.debug("checking docker-machine presence")
+    try:
+        out = subprocess.check_output(['docker-machine', 'version'])
+        out = out.decode("utf-8")
+        out = out.replace('docker-machine.exe', '').replace('docker-machine', '')
+        out = out.strip()
+        logger.debug(f"Using docker machine version {out}")
+        return True
+    except Exception as e:
+        logger.debug(f"Docker machine not present")
+        return False
+
+def dockermachine_ip() -> Optional[str]:
+    """
+    Gets IP address of the default docker machine
+    """
+    if not check_dockermachine():
+        return None
+
+    out = subprocess.check_output(['docker-machine', 'ip'])
+    return out.decode("utf-8").strip()
 
 def check_output(*args, **kwargs):
     try:
@@ -157,6 +182,7 @@ def check_docker_requirements(image: str):
 
 
 BASE_VNC_PORT = 5900
+VNC_HOST = "localhost"
 APP_DIR = "/app"
 LOG_DIR = f"{APP_DIR}/logs"
 SC_DIR = f"{APP_DIR}/sc"
@@ -207,6 +233,7 @@ def launch_image(
         bwapi_data_bwta2_dir: str,
 
         vnc_base_port: int,
+        vnc_host: int,
 
         # docker
         docker_image: str,
@@ -314,7 +341,6 @@ def container_exit_code(container: str) -> int:
                                    "--format='{{.State.ExitCode}}'"])
     return int(out.decode("utf-8").strip("\n\r\t '\""))
 
-
 def cleanup_containers(containers: List[str]):
     subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
 
@@ -328,6 +354,12 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
     #
     if len(players) == 0:
         raise GameException("At least one player must be specified")
+
+    if launch_params['vnc_host'] == "":
+        vnc_host = dockermachine_ip() or "localhost"
+        launch_params['vnc_host'] = vnc_host
+
+    logger.debug(f"Detected docker host as {launch_params['vnc_host']}. This address would be used for VNC conenctions")
 
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
@@ -343,8 +375,9 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
 
         for i, player in enumerate(players if show_all else players[:1]):
             port = launch_params['vnc_base_port'] + i
-            logger.info(f"Launching vnc viewer for {player} on port {port}")
-            launch_vnc_viewer(port)
+            host = launch_params['vnc_host']
+            logger.info(f"Launching vnc viewer for {player} on address {host}:{port}")
+            launch_vnc_viewer(host, port)
 
         logger.info("\n"
                     "In headful mode, you must specify and start the game manually.\n"
