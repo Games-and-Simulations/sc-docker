@@ -98,6 +98,8 @@ parser.add_argument('--show_all', action="store_true",
 parser.add_argument('--log_level', type=str, default="INFO",
                     choices=['DEBUG', 'INFO', 'WARN', 'ERROR'],
                     help="Logging level.")
+parser.add_argument('--log_verbose', action="store_true",
+                    help="Add more information to logging, as time and PID.")
 parser.add_argument('--read_overwrite', action="store_true",
                     help="At the end of each game, copy the contents\n"
                          "of 'write' directory to the read directory\n"
@@ -126,7 +128,10 @@ def main():
         print(VERSION)
         sys.exit(0)
 
-    coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
+    coloredlogs.install(
+        level=args.log_level,
+        fmt="%(asctime)s %(levelname)s %(name)s[%(process)d] %(message)s" if args.log_verbose
+        else "%(levelname)s %(message)s")
 
     if args.install:
         from .install import install

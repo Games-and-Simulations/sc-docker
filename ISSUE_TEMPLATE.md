@@ -4,9 +4,9 @@
 
 ### steps to reproduce
 
-Please run the command issued with  `--log_level=DEBUG` parameter and log:
+Please run the command issued with  `--log_level=DEBUG --log_verbose` parameters and log:
 
-    scbw.play --bots krasi0 CherryPi --headless --log_level=DEBUG
+    scbw.play --bots krasi0 CherryPi --headless --log_level=DEBUG --log_verbose
     INFO checking docker version
     DEBUG Using docker API version b"'1.32'\n"
     INFO checking docker can run
