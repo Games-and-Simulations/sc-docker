@@ -39,7 +39,7 @@ if [ "$IS_HEADFUL" == "1" ]; then
     start_gui
 fi
 start_bot
-sleep 3
+sleep 1
 
 start_game "$@"
 sleep 10
