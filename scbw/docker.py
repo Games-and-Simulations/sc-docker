@@ -36,6 +36,8 @@ BOT_DATA_WRITE_DIR = f"{BWAPI_DATA_DIR}/write"
 BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
 BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 
+EXIT_CODE_REALTIME_OUTED = 2
+
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -278,8 +280,11 @@ def launch_image(
         MAP_NAME=f"/app/sc/maps/{map_name}",
         GAME_TYPE=game_type.value,
         SPEED_OVERRIDE=game_speed,
+
         TM_LOG_RESULTS=f"=../logs/{game_name}_{nth_player}_results.json",
         TM_LOG_FRAMETIMES=f"=../logs/{game_name}_{nth_player}_frames.csv",
+
+        EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED
     )
     if isinstance(player, BotPlayer):
         env['BOT_NAME'] = player.name
@@ -394,7 +399,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
     logger.debug("Removing game containers")
     cleanup_containers(containers)
 
-    if any(exit_code == 2 for exit_code in exit_codes):
+    if any(exit_code == EXIT_CODE_REALTIME_OUTED for exit_code in exit_codes):
         raise RealtimeOutedException(f"Some of the game containers has realtime outed.")
     if any(exit_code == 1 for exit_code in exit_codes):
         raise ContainerException(f"Some of the game containers has finished with error exit code.")

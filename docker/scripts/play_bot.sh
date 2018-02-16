@@ -51,15 +51,15 @@ else
     set -e
 
     if [ ${IS_TIMED_OUT} -eq 143 ]; then
-        LOG "Game timed out!" >> "$LOG_GAME"
+        LOG "Game realtime outed!" >> "$LOG_GAME"
 
         # Log ps aux for more info
         LOG "Running processes:"
         ps aux >>  "$LOG_GAME"
 
-        exit 2
+        exit EXIT_CODE_REALTIME_OUTED
     else
-        LOG "Game finished within timeout limit." >> "$LOG_GAME"
+        LOG "Game finished within realtimeout limit." >> "$LOG_GAME"
     fi
 fi
 
