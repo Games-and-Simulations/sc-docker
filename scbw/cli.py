@@ -162,6 +162,7 @@ def main():
 
         logger.info(f"Game {game_result.game_name} "
                     f"finished in {game_result.game_time:.2f} seconds.")
+        logger.info("---")
         logger.info("Logs are saved here:")
         for log_file in sorted(game_result.log_files):
             logger.info(log_file)

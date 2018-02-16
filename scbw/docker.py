@@ -327,7 +327,7 @@ def launch_image(
 
     cmd += entrypoint_opts
 
-    logger.debug(cmd)
+    logger.debug(" ".join(f"'{s}'" for s in cmd))
     code = subprocess.call(cmd, stdout=DEVNULL)
 
     if code == 0:
@@ -355,7 +355,7 @@ def stop_containers(containers: List[str]):
 
 
 def cleanup_containers(containers: List[str]):
-    subprocess.call(['docker', 'rm'] + containers, stdout=sys.stderr.buffer)
+    subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
 
 
 def container_exit_code(container: str) -> int:
@@ -377,7 +377,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 
-    logger.info("Checking if game has launched properly...")
+    logger.debug("Checking if game has launched properly...")
     time.sleep(2)
     containers = running_containers(launch_params['game_name'])
     if len(containers) != len(players):
@@ -397,7 +397,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
                     "Select the map, wait for bots to join the game "
                     "and then start the game.")
 
-    logger.info("Waiting until game is finished...")
+    logger.info(f"Waiting until game {launch_params['game_name']} is finished...")
     while len(running_containers(launch_params['game_name'])) > 0:
         logger.debug("Waiting.")
         time.sleep(3)

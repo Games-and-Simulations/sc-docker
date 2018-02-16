@@ -34,7 +34,10 @@ fi
 
 prepare_tm
 prepare_character
-start_gui
+
+if [ "$IS_HEADFUL" == "1" ]; then
+    start_gui
+fi
 start_bot
 sleep 3
 
@@ -45,7 +48,7 @@ if [ -z "${PLAY_TIMEOUT+set}" ]; then
     detect_game_finished
     LOG "Game finished." >> "$LOG_GAME"
 else
-    set +e  # this can return non-zero return code
+    set +e  # run_with_timeout can return non-zero return code
     run_with_timeout "${PLAY_TIMEOUT}" detect_game_finished
     IS_TIMED_OUT=$?
     set -e

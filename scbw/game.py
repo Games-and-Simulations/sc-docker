@@ -83,8 +83,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
 
     if args.vnc_host == "":
         args.vnc_host = dockermachine_ip() or "localhost"
-        logger.debug(f"Detected docker host as {args.vnc_host}. "
-                     f"This address would be used for VNC conenctions")
+        logger.debug(f"Using vnc host '{args.vnc_host}'")
 
     # Prepare game launching
     launch_params = dict(
