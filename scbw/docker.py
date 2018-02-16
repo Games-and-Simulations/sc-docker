@@ -18,6 +18,23 @@ from .vnc import launch_vnc_viewer
 logger = logging.getLogger(__name__)
 
 DOCKER_STARCRAFT_NETWORK = "sc_net"
+BASE_VNC_PORT = 5900
+VNC_HOST = "localhost"
+APP_DIR = "/app"
+LOG_DIR = f"{APP_DIR}/logs"
+SC_DIR = f"{APP_DIR}/sc"
+BWTA_DIR = f"{APP_DIR}/bwta"
+BWAPI_DIR = f"{APP_DIR}/bwapi"
+BOT_DIR = f"{APP_DIR}/bots"
+MAP_DIR = f"{SC_DIR}/maps"
+BWAPI_DATA_DIR = f"{SC_DIR}/bwapi-data"
+BWAPI_DATA_BWTA_DIR = f"{BWAPI_DATA_DIR}/BWTA"
+BWAPI_DATA_BWTA2_DIR = f"{BWAPI_DATA_DIR}/BWTA2"
+BOT_DATA_SAVE_DIR = f"{BWAPI_DATA_DIR}/save"
+BOT_DATA_READ_DIR = f"{BWAPI_DATA_DIR}/read"
+BOT_DATA_WRITE_DIR = f"{BWAPI_DATA_DIR}/write"
+BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
+BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 
 try:
     from subprocess import DEVNULL  # py3k
@@ -184,25 +201,6 @@ def check_docker_requirements(image: str):
     check_docker_has_local_image(image) or create_local_image(image)
 
 
-BASE_VNC_PORT = 5900
-VNC_HOST = "localhost"
-APP_DIR = "/app"
-LOG_DIR = f"{APP_DIR}/logs"
-SC_DIR = f"{APP_DIR}/sc"
-BWTA_DIR = f"{APP_DIR}/bwta"
-BWAPI_DIR = f"{APP_DIR}/bwapi"
-BOT_DIR = f"{APP_DIR}/bots"
-MAP_DIR = f"{SC_DIR}/maps"
-BWAPI_DATA_DIR = f"{SC_DIR}/bwapi-data"
-BWAPI_DATA_BWTA_DIR = f"{BWAPI_DATA_DIR}/BWTA"
-BWAPI_DATA_BWTA2_DIR = f"{BWAPI_DATA_DIR}/BWTA2"
-BOT_DATA_SAVE_DIR = f"{BWAPI_DATA_DIR}/save"
-BOT_DATA_READ_DIR = f"{BWAPI_DATA_DIR}/read"
-BOT_DATA_WRITE_DIR = f"{BWAPI_DATA_DIR}/write"
-BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
-BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
-
-
 def xoscmounts(host_mount):
     """
     Cross OS compatible mount dirs
@@ -328,27 +326,26 @@ def launch_image(
             f"could not launch {player} in container {game_name}_{nth_player}_{player.name}")
 
 
-def running_containers(name_prefix):
-    out = subprocess.check_output(f'docker ps -f "name={name_prefix}" -q', shell=True)
-    containers = [container.strip() for container in out.decode("utf-8").split("\n") if
-                  container != ""]
-    logger.debug(f"running containers: {containers}")
+def running_containers(name_filter):
+    out = subprocess.check_output(f'docker ps -f "name={name_filter}" -q', shell=True)
+    containers = [container.strip()
+                  for container in out.decode("utf-8").split("\n")
+                  if container != ""]
     return containers
 
 
-def stop_containers(name_prefix: str):
-    containers = running_containers(name_prefix)
+def stop_containers(containers: List[str]):
     subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
+
+
+def cleanup_containers(containers: List[str]):
+    subprocess.call(['docker', 'rm'] + containers, stdout=sys.stderr.buffer)
 
 
 def container_exit_code(container: str) -> int:
     out = subprocess.check_output(['docker', 'inspect', container,
                                    "--format='{{.State.ExitCode}}'"])
     return int(out.decode("utf-8").strip("\n\r\t '\""))
-
-
-def cleanup_containers(containers: List[str]):
-    subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
 
 
 def launch_game(players: List[Player], launch_params: Dict[str, Any],
@@ -386,6 +383,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
 
     logger.info("Waiting until game is finished...")
     while len(running_containers(launch_params['game_name'])) > 0:
+        logger.debug("Waiting.")
         time.sleep(3)
         if wait_callback is not None:
             wait_callback()

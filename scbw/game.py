@@ -7,7 +7,8 @@ from typing import List, Optional, Callable
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
-from .docker import launch_game, stop_containers, dockermachine_ip
+from .docker import launch_game, stop_containers, dockermachine_ip, cleanup_containers, \
+    running_containers
 from .error import GameException, RealtimeOutedException
 from .game_type import GameType
 from .logs import find_logs
@@ -127,7 +128,11 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         # prevent another throw of KeyboardInterrupt exception
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        stop_containers(game_name)
+        containers = running_containers(game_name)
+        stop_containers(containers)
+        logger.debug("Removing game containers")
+        cleanup_containers(containers)
+
         logger.info(f"Game cancelled.")
         raise
 
