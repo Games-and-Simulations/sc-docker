@@ -227,6 +227,7 @@ def launch_image(
         game_type: GameType,
         game_speed: int,
         timeout: Optional[int],
+        hide_names: bool,
 
         # mount dirs
         log_dir: str,
@@ -242,12 +243,15 @@ def launch_image(
         docker_image: str,
         docker_opts: List[str]):
     #
+
+    container_name = f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}"
+
     cmd = ["docker", "run",
 
            "-d",
            "--privileged",
 
-           "--name", f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}",
+           "--name", container_name,
 
            "--volume", f"{xoscmounts(log_dir)}:{LOG_DIR}:rw",
            "--volume", f"{xoscmounts(bot_dir)}:{BOT_DIR}:ro",
@@ -280,9 +284,11 @@ def launch_image(
         MAP_NAME=f"/app/sc/maps/{map_name}",
         GAME_TYPE=game_type.value,
         SPEED_OVERRIDE=game_speed,
+        HIDE_NAMES="1" if hide_names else "0",
 
-        TM_LOG_RESULTS=f"=../logs/{game_name}_{nth_player}_results.json",
-        TM_LOG_FRAMETIMES=f"=../logs/{game_name}_{nth_player}_frames.csv",
+        TM_LOG_RESULTS=f"../logs/{game_name}_{nth_player}_results.json",
+        TM_LOG_FRAMETIMES=f"../logs/{game_name}_{nth_player}_frames.csv",
+        TM_SPEED_OVERRIDE=game_speed,
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED
     )
@@ -294,7 +300,7 @@ def launch_image(
         env["PLAY_TIMEOUT"] = timeout
 
     for key, value in env.items():
-        cmd += ["-e", str(value)]
+        cmd += ["-e", f"{key}={value}"]
 
     cmd += [docker_image]
     if isinstance(player, BotPlayer):
@@ -325,10 +331,10 @@ def launch_image(
     code = subprocess.call(cmd, stdout=DEVNULL)
 
     if code == 0:
-        logger.info(f"launched {player} in container {game_name}_{nth_player}_{player.name}")
+        logger.info(f"launched {player} in container {container_name}")
     else:
         raise DockerException(
-            f"could not launch {player} in container {game_name}_{nth_player}_{player.name}")
+            f"could not launch {player} in container {container_name}")
 
 
 def running_containers(name_filter):

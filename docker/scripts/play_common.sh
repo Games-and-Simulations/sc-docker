@@ -49,7 +49,9 @@ function prepare_bwapi() {
     RACE=$(fully_qualified_race_name ${PLAYER_RACE})
 
     sed -i "s:^ai = NULL:ai = $PLAYER_DLL:g" "${BWAPI_INI}"
-    sed -i "s:^character_name = :character_name = $PLAYER_NAME:g" "${BWAPI_INI}"
+    if [ "$HIDE_NAMES" == "0" ]; then
+        sed -i "s:^character_name = :character_name = $PLAYER_NAME:g" "${BWAPI_INI}"
+    fi
     sed -i "s:^race = :race = $RACE:g" "${BWAPI_INI}"
     sed -i "s:^game_type = :game_type = $GAME_TYPE:g" "${BWAPI_INI}"
     sed -i "s:^save_replay = :save_replay = $REPLAY_FILE:g" "${BWAPI_INI}"
@@ -138,8 +140,10 @@ function start_game() {
 }
 
 function prepare_character() {
-    mv "$SC_DIR/characters/default.spc" "$SC_DIR/characters/${PLAYER_NAME}.spc"
-    mv "$SC_DIR/characters/default.mpc" "$SC_DIR/characters/${PLAYER_NAME}.mpc"
+    if [ "$HIDE_NAMES" == "0" ]; then
+        mv "$SC_DIR/characters/player.spc" "$SC_DIR/characters/${PLAYER_NAME}.spc"
+        mv "$SC_DIR/characters/player.mpc" "$SC_DIR/characters/${PLAYER_NAME}.mpc"
+    fi
 }
 
 function prepare_tm() {

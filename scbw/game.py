@@ -40,6 +40,7 @@ class GameArgs(Namespace):
     game_name: str
     game_type: str
     game_speed: int
+    hide_names: bool
     timeout: int
     bot_dir: str
     log_dir: str
@@ -94,6 +95,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
         timeout=args.timeout,
+        hide_names=args.hide_names,
 
         # mount dirs
         log_dir=args.log_dir,
