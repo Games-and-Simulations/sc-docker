@@ -98,10 +98,10 @@ class BotPlayer(Player):
         if len(candidate_files) == 1:
             return list(candidate_files)[0]
         elif len(candidate_files) > 1:
-            raise Exception(f"Too many files found as candidates "
-                            f"for bot launcher, searching for {expr}")
+            raise Exception(f"Too many files found as candidates for bot launcher, "
+                            f"launcher searched for files {expr}")
         else:
-            raise Exception(f"Cannot find bot launcher, searching for {expr}")
+            raise Exception(f"Cannot find bot binary, launcher searched for {expr}")
 
     @property
     def bot_basefilename(self) -> str:

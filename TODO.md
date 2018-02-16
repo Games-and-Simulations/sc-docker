@@ -1,9 +1,6 @@
 # TODOs:
 
-- https://github.com/Games-and-Simulations/sc-docker/issues/21 should be included in the docs, or at least a link to it.
 - https://github.com/Games-and-Simulations/sc-docker/issues/21 Automatically check host permissions.
-- https://github.com/Games-and-Simulations/sc-docker/issues/22 results on human games should be handled in new version
-- docs about how to play against bot from normal starcraft
 - Play against in-game AI
 - Play on multiple computers
 - Launch game, and bots can connect to it repeatedly (save time for repeated plays)
