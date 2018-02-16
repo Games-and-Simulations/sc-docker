@@ -331,7 +331,12 @@ def launch_image(
     code = subprocess.call(cmd, stdout=DEVNULL)
 
     if code == 0:
-        logger.info(f"launched {player} in container {container_name}")
+        container_id = subprocess \
+            .check_output(["docker", "ps", "-f", f"name={container_name}", "-q"]) \
+            .decode("utf-8").strip("'\"\n")
+        logger.info(f"launched {player}")
+        logger.debug(f"container name '{container_name}'")
+        logger.debug(f"container id '{container_id}'")
     else:
         raise DockerException(
             f"could not launch {player} in container {container_name}")
