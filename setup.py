@@ -44,7 +44,9 @@ setup(
                       'numpy',
                       'tqdm',
                       'requests',
-                      'python-dateutil'],
+                      'python-dateutil',
+                      'pandas',
+                      'matplotlib'],
     packages=['scbw'],
     entry_points={  # Optional
         'console_scripts': [

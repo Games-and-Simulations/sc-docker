@@ -1,7 +1,5 @@
-import matplotlib
 import matplotlib.pyplot as plt
 
-matplotlib.use('QT4Agg')
 import pandas as pd
 
 from .logs import find_frames
