@@ -127,6 +127,8 @@ function start_game() {
 
     [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
 
+    update_registry
+
     # Launch the game!
     LOG "Starting game" >> "$LOG_GAME"
     echo "------------------------------------------" >> "$LOG_GAME"
@@ -194,4 +196,10 @@ function detect_game_finished() {
 
         sleep 3
     done;
+}
+
+function update_registry() {
+    # disable splash screen
+    wine REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Blizzard Entertainment\Starcraft" /v intro /t REG_DWORD /d 00000200
+    wine REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Blizzard Entertainment\Starcraft" /v introX /t REG_DWORD /d 00000000
 }
