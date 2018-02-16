@@ -378,14 +378,12 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 
     logger.debug("Checking if game has launched properly...")
-    time.sleep(2)
+    time.sleep(1)
     containers = running_containers(launch_params['game_name'])
     if len(containers) != len(players):
         raise DockerException("Some containers exited prematurely, please check logs")
 
     if not launch_params['headless']:
-        time.sleep(1)
-
         for i, player in enumerate(players if show_all else players[:1]):
             port = launch_params['vnc_base_port'] + i
             host = launch_params['vnc_host']
@@ -398,8 +396,12 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
                     "and then start the game.")
 
     logger.info(f"Waiting until game {launch_params['game_name']} is finished...")
-    while len(running_containers(launch_params['game_name'])) > 0:
-        logger.debug("Waiting.")
+    while True:
+        containers = running_containers(launch_params['game_name'])
+        if len(containers) == 0:
+            break
+
+        logger.debug(f"Waiting. {containers}")
         time.sleep(3)
         if wait_callback is not None:
             wait_callback()
