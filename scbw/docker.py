@@ -173,12 +173,19 @@ def check_dockermachine() -> bool:
 def dockermachine_ip() -> Optional[str]:
     """
     Gets IP address of the default docker machine
+    Returns None if no docker-machine executable
+    in the PATH and if there no Docker machine
+    with name default present
     """
     if not check_dockermachine():
         return None
 
-    out = subprocess.check_output(['docker-machine', 'ip'])
-    return out.decode("utf-8").strip()
+    try:
+        out = subprocess.check_output(['docker-machine', 'ip'])
+        return out.decode("utf-8").strip()
+    except Exception as e:
+        logger.debug(f"Docker machine not present")
+        return None
 
 
 def check_output(*args, **kwargs):
