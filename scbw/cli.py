@@ -111,8 +111,10 @@ parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
                          "This helps with local development.")
 parser.add_argument('--opt', type=str,
                     help="Specify custom docker run options")
-parser.add_argument('--disable_checks', action='store_true',
-                    help="Disable docker and other checks, useful for repeated launching.")
+parser.add_argument('--plot_realtime', action='store_true',
+                    help="Allow realtime plotting of frame information.\n"
+                         "At the end of the game, this plot will be saved\n"
+                         "to file {LOG_DIR}/{GAME_NAME}_frameplot.png")
 
 parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")

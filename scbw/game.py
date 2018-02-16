@@ -1,4 +1,4 @@
-import glob
+import logging
 import logging
 import signal
 import time
@@ -11,25 +11,13 @@ from .docker import launch_game, stop_containers, dockermachine_ip, cleanup_cont
     running_containers
 from .error import GameException, RealtimeOutedException
 from .game_type import GameType
-from .logs import find_logs
+from .logs import find_logs, find_frames, find_replays, find_results
 from .player import HumanPlayer
+from .plot import RealtimeFramePlotter
 from .result import GameResult
 from .vnc import check_vnc_exists
 
 logger = logging.getLogger(__name__)
-
-
-def find_replays(map_dir: str, game_name: str):
-    return glob.glob(f"{map_dir}/replays/{game_name}_*.rep") + \
-           glob.glob(f"{map_dir}/replays/{game_name}_*.REP")
-
-
-def find_results(log_dir: str, game_name: str):
-    return glob.glob(f"{log_dir}/{game_name}_*_results.json")
-
-
-def find_frames(log_dir: str, game_name: str):
-    return glob.glob(f"{log_dir}/{game_name}_*_frames.csv")
 
 
 class GameArgs(Namespace):
@@ -50,6 +38,7 @@ class GameArgs(Namespace):
     vnc_base_port: int
     vnc_host: str
     show_all: bool
+    plot_realtime: bool
     read_overwrite: bool
     docker_image: str
     opt: str
@@ -85,6 +74,16 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         args.vnc_host = dockermachine_ip() or "localhost"
         logger.debug(f"Using vnc host '{args.vnc_host}'")
 
+    if args.plot_realtime:
+        plot_realtime = RealtimeFramePlotter(args.log_dir, game_name, players)
+
+        def _wait_callback():
+            plot_realtime.redraw()
+            if wait_callback is not None:
+                wait_callback()
+    else:
+        _wait_callback = wait_callback
+
     # Prepare game launching
     launch_params = dict(
         # game settings
@@ -117,7 +116,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     try:
         launch_game(players, launch_params,
                     args.show_all, args.read_overwrite,
-                    wait_callback)
+                    _wait_callback)
 
     except RealtimeOutedException:
         is_realtime_outed = True
@@ -136,6 +135,9 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
 
         logger.info(f"Game cancelled.")
         raise
+
+    if args.plot_realtime:
+        plot_realtime.save(f"{args.log_dir}/{game_name}_frameplot.png")
 
     if is_bots_1v1_game:
         game_time = time.time() - time_start
