@@ -49,9 +49,6 @@ function prepare_bwapi() {
     RACE=$(fully_qualified_race_name ${PLAYER_RACE})
 
     sed -i "s:^ai = NULL:ai = $PLAYER_DLL:g" "${BWAPI_INI}"
-    if [ "$HIDE_NAMES" == "0" ]; then
-        sed -i "s:^character_name = :character_name = $PLAYER_NAME:g" "${BWAPI_INI}"
-    fi
     sed -i "s:^race = :race = $RACE:g" "${BWAPI_INI}"
     sed -i "s:^game_type = :game_type = $GAME_TYPE:g" "${BWAPI_INI}"
     sed -i "s:^save_replay = :save_replay = $REPLAY_FILE:g" "${BWAPI_INI}"
