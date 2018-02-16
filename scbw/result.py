@@ -2,7 +2,7 @@ import json
 import logging
 from typing import List, Optional
 
-from .player import HumanPlayer, Player
+from .player import Player
 
 logger = logging.getLogger(__name__)
 
@@ -80,13 +80,10 @@ class GameResult:
             return
 
         num_players = len(self.players)
-        num_human = sum(isinstance(player, HumanPlayer) for player in self.players)
 
-        # human games do not log results (they do not use tournament module)
-        if len(self.result_files) != num_players - num_human:
+        if len(self.result_files) != num_players:
             logger.warning(f"Not all result files have been recorded for game '{self.game_name}'")
-            logger.warning(f"Expected {num_players - num_human} result files, "
-                           f"got {len(self.result_files)}")
+            logger.warning(f"Expected {num_players} result files, got {len(self.result_files)}")
             logger.warning("Assuming a crash happened.")
             self._is_crashed = True
             return

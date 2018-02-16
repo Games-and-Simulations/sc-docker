@@ -11,7 +11,7 @@ from typing import List, Optional, Callable, Dict, Any
 from .defaults import *
 from .error import DockerException, GameException, RealtimeOutedException, ContainerException
 from .game_type import GameType
-from .player import BotPlayer, Player
+from .player import BotPlayer, Player, HumanPlayer
 from .utils import download_file
 from .vnc import launch_vnc_viewer
 
@@ -289,6 +289,7 @@ def launch_image(
         TM_LOG_RESULTS=f"../logs/{game_name}_{nth_player}_results.json",
         TM_LOG_FRAMETIMES=f"../logs/{game_name}_{nth_player}_frames.csv",
         TM_SPEED_OVERRIDE=game_speed,
+        TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) else "0",
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED
     )
@@ -351,11 +352,13 @@ def running_containers(name_filter):
 
 
 def stop_containers(containers: List[str]):
-    subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
+    if len(containers):
+        subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
 
 
 def cleanup_containers(containers: List[str]):
-    subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
+    if len(containers):
+        subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
 
 
 def container_exit_code(container: str) -> int:
@@ -379,8 +382,8 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
 
     logger.debug("Checking if game has launched properly...")
     time.sleep(1)
-    containers = running_containers(launch_params['game_name'])
-    if len(containers) != len(players):
+    start_containers = running_containers(launch_params['game_name'])
+    if len(start_containers) != len(players):
         raise DockerException("Some containers exited prematurely, please check logs")
 
     if not launch_params['headless']:
@@ -410,7 +413,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
 
     # remove containers before throwing exception
     logger.debug("Removing game containers")
-    cleanup_containers(containers)
+    cleanup_containers(start_containers)
 
     if any(exit_code == EXIT_CODE_REALTIME_OUTED for exit_code in exit_codes):
         raise RealtimeOutedException(f"Some of the game containers has realtime outed.")

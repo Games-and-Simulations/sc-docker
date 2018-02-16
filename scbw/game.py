@@ -66,7 +66,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
     players += retrieve_bots(args.bots, bot_storages)
 
-    is_bots_1v1_game = len(players) == 2 and not args.human
+    is_1v1_game = len(players) == 2
 
     opts = [] if not args.opt else args.opt.split(" ")
 
@@ -139,7 +139,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     if args.plot_realtime:
         plot_realtime.save(f"{args.log_dir}/{game_name}_frameplot.png")
 
-    if is_bots_1v1_game:
+    if is_1v1_game:
         game_time = time.time() - time_start
 
         log_files = find_logs(args.log_dir, game_name)
