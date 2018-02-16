@@ -51,7 +51,7 @@ function prepare_bwapi() {
     sed -i "s:^ai = NULL:ai = $PLAYER_DLL:g" "${BWAPI_INI}"
     sed -i "s:^race = :race = $RACE:g" "${BWAPI_INI}"
     sed -i "s:^game_type = :game_type = $GAME_TYPE:g" "${BWAPI_INI}"
-    sed -i "s:^save_replay = :save_replay = $REPLAY_FILE:g" "${BWAPI_INI}"
+    sed -i "s:^save_replay = :save_replay = maps/replays/$REPLAY_FILE:g" "${BWAPI_INI}"
     sed -i "s:^wait_for_min_players = :wait_for_min_players = $NUM_PLAYERS:g" "${BWAPI_INI}"
     sed -i "s:^speed_override = :speed_override = $SPEED_OVERRIDE:g" "${BWAPI_INI}"
 
@@ -187,7 +187,9 @@ function detect_game_finished() {
             return 0
         fi
 
-        if [ -f "$SC_DIR/$REPLAY_FILE" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
+        # Sometimes replay files are saved with .rep, or with .REP
+        # note that ^^ works only in bash :)
+        if [ -f "$SC_DIR/maps/replays/$REPLAY_FILE" ] || [ -f "$SC_DIR/maps/replays/${REPLAY_FILE^^}" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
         then
             LOG "Replays found." >> "$LOG_GAME"
             sleep 3
