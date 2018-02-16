@@ -271,25 +271,27 @@ def launch_image(
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
         cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
 
-    env = ["-e", f"PLAYER_NAME={player.name}",
-           "-e", f"PLAYER_RACE={player.race.value}",
-           "-e", f"NTH_PLAYER={str(nth_player)}",
-           "-e", f"NUM_PLAYERS={str(num_players)}",
-           "-e", f"GAME_NAME={game_name}",
-           "-e", f"MAP_NAME=/app/sc/maps/{map_name}",
-           "-e", f"GAME_TYPE={game_type.value}",
-           "-e", f"SPEED_OVERRIDE={str(game_speed)}"]
+    env = dict(
+        PLAYER_NAME=player.name,
+        PLAYER_RACE=player.race.value,
+        NTH_PLAYER=nth_player,
+        NUM_PLAYERS=num_players,
+        GAME_NAME=game_name,
+        MAP_NAME=f"/app/sc/maps/{map_name}",
+        GAME_TYPE=game_type.value,
+        SPEED_OVERRIDE=game_speed,
+        TM_LOG_RESULTS=f"=../logs/{game_name}_{nth_player}_results.json",
+        TM_LOG_FRAMETIMES=f"=../logs/{game_name}_{nth_player}_frames.csv",
+    )
     if isinstance(player, BotPlayer):
-        env += ["-e", f"BOT_NAME={player.name}",
-                "-e", f"BOT_FILE={player.bot_basefilename}",
-                "-e", f"BOT_BWAPI={player.bwapi_version}"]
+        env['BOT_NAME'] = player.name
+        env['BOT_FILE'] = player.bot_basefilename
+        env['BOT_BWAPI'] = player.bwapi_version
     if timeout is not None:
-        env += ["-e", f"PLAY_TIMEOUT={timeout}"]
+        env["PLAY_TIMEOUT"] = timeout
 
-    env += ["-e", f"TM_LOG_RESULTS=../logs/{game_name}_{nth_player}_results.json"]
-    env += ["-e", f"TM_LOG_FRAMETIMES=../logs/{game_name}_{nth_player}_frames.csv"]
-
-    cmd += env
+    for key, value in env.items():
+        cmd += ["-e", str(value)]
 
     cmd += [docker_image]
     if isinstance(player, BotPlayer):
