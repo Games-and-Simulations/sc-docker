@@ -1,19 +1,19 @@
 import glob
-from typing import List
 
 
-def find_logs(log_dir: str, game_name: str) -> List[str]:
-    return glob.glob(f"{log_dir}/{game_name}*.log")
+def find_logs(log_dir, game_name):
+    return glob.glob(('%s/%s*.log' % (log_dir, game_name)))
 
 
-def find_replays(map_dir: str, game_name: str):
-    return glob.glob(f"{map_dir}/replays/{game_name}_*.rep") + \
-           glob.glob(f"{map_dir}/replays/{game_name}_*.REP")
+def find_replays(map_dir, game_name):
+    return (glob.glob(
+        ('%s/replays/%s_*.rep' % (map_dir, game_name))) + glob.glob(
+            ('%s/replays/%s_*.REP' % (map_dir, game_name))))
 
 
-def find_results(log_dir: str, game_name: str):
-    return glob.glob(f"{log_dir}/{game_name}_*_results.json")
+def find_results(log_dir, game_name):
+    return glob.glob(('%s/%s_*_results.json' % (log_dir, game_name)))
 
 
-def find_frames(log_dir: str, game_name: str):
-    return glob.glob(f"{log_dir}/{game_name}_*_frames.csv")
+def find_frames(log_dir, game_name):
+    return glob.glob(('%s/%s_*_frames.csv' % (log_dir, game_name)))
