@@ -114,6 +114,8 @@ If you update images, you can rebuild them locally:
 
     $ cd docker; ./build_images.sh
 
+(or you can use power shell script `docker/build_images.ps1`)
+
 To install develeopment version of the package, use
 
     $ pip install -e .
