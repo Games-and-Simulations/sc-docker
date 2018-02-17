@@ -271,11 +271,11 @@ def launch_image(
         cmd += ["-p", f"{vnc_base_port+nth_player}:5900"]
 
     if isinstance(player, BotPlayer):
+        # Only mount write directory, read and AI
+        # are copied from the bot directory in proper places in bwapi-data
         bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
-        bot_data_read_dir = f"{player.base_dir}/read/"
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
         cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
-        cmd += ["--volume", f"{xoscmounts(bot_data_read_dir)}:{BOT_DATA_READ_DIR}:rw"]
 
     env = dict(
         PLAYER_NAME=player.name,
