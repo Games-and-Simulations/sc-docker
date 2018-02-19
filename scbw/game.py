@@ -111,7 +111,6 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         # docker
         docker_image=args.docker_image,
         docker_opts=opts,
-        #java_debug_port=args.java_debug_port,
     )
 
     time_start = time.time()
