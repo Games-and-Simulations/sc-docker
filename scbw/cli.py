@@ -5,9 +5,8 @@ from os.path import exists
 
 import coloredlogs
 
-from .__init__ import VERSION
 from .defaults import *
-from .docker import BASE_VNC_PORT
+from .docker import BASE_VNC_PORT, VNC_HOST
 from .error import ScbwException
 from .game import run_game, GameType
 from .player import PlayerRace, bot_regex
@@ -66,6 +65,9 @@ parser.add_argument("--game_speed", type=int, default=0,
 parser.add_argument("--timeout", type=int, default=None,
                     help="Kill docker container after timeout seconds.\n"
                          "If not set, run without timeout.")
+parser.add_argument("--hide_names", action="store_true",
+                    help="Hide player names, each player will be called only 'player'.\n"
+                         "By default, show player names (as their bot name)")
 
 # Volumes
 parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR,
@@ -88,6 +90,9 @@ parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT,
                     help="VNC lowest port number (for server).\n"
                          "Each consecutive n-th client (player)\n"
                          "has higher port number - vnc_base_port+n ")
+parser.add_argument('--vnc_host', type=str, default='',
+                    help="Address of the host on which VNC connections would be accessible\n"
+                         f"default:\n{VNC_HOST} or IP address of the docker-machine")
 
 # Settings
 parser.add_argument('--show_all', action="store_true",
@@ -95,6 +100,8 @@ parser.add_argument('--show_all', action="store_true",
 parser.add_argument('--log_level', type=str, default="INFO",
                     choices=['DEBUG', 'INFO', 'WARN', 'ERROR'],
                     help="Logging level.")
+parser.add_argument('--log_verbose', action="store_true",
+                    help="Add more information to logging, as time and PID.")
 parser.add_argument('--read_overwrite', action="store_true",
                     help="At the end of each game, copy the contents\n"
                          "of 'write' directory to the read directory\n"
@@ -106,8 +113,10 @@ parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
                          "This helps with local development.")
 parser.add_argument('--opt', type=str,
                     help="Specify custom docker run options")
-parser.add_argument('--disable_checks', action='store_true',
-                    help="Disable docker and other checks, useful for repeated launching.")
+parser.add_argument('--plot_realtime', action='store_true',
+                    help="Allow realtime plotting of frame information.\n"
+                         "At the end of the game, this plot will be saved\n"
+                         "to file {LOG_DIR}/{GAME_NAME}_frameplot.png")
 
 parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")
@@ -123,7 +132,10 @@ def main():
         print(VERSION)
         sys.exit(0)
 
-    coloredlogs.install(level=args.log_level, fmt="%(levelname)s %(message)s")
+    coloredlogs.install(
+        level=args.log_level,
+        fmt="%(asctime)s %(levelname)s %(name)s[%(process)d] %(message)s" if args.log_verbose
+        else "%(levelname)s %(message)s")
 
     if args.install:
         from .install import install
@@ -154,6 +166,7 @@ def main():
 
         logger.info(f"Game {game_result.game_name} "
                     f"finished in {game_result.game_time:.2f} seconds.")
+        logger.info("---")
         logger.info("Logs are saved here:")
         for log_file in sorted(game_result.log_files):
             logger.info(log_file)

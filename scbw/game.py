@@ -1,4 +1,3 @@
-import glob
 import logging
 import signal
 import time
@@ -7,28 +6,17 @@ from typing import List, Optional, Callable
 
 from .bot_factory import retrieve_bots
 from .bot_storage import LocalBotStorage, SscaitBotStorage
-from .docker import launch_game, stop_containers
+from .docker import launch_game, stop_containers, dockermachine_ip, cleanup_containers, \
+    running_containers
 from .error import GameException, RealtimeOutedException
 from .game_type import GameType
-from .logs import find_logs
+from .logs import find_logs, find_frames, find_replays, find_results
 from .player import HumanPlayer
+from .plot import RealtimeFramePlotter
 from .result import GameResult
 from .vnc import check_vnc_exists
 
 logger = logging.getLogger(__name__)
-
-
-def find_replays(map_dir: str, game_name: str):
-    return glob.glob(f"{map_dir}/replays/{game_name}_*.rep") + \
-           glob.glob(f"{map_dir}/replays/{game_name}_*.REP")
-
-
-def find_results(log_dir: str, game_name: str):
-    return glob.glob(f"{log_dir}/{game_name}_*_results.json")
-
-
-def find_frames(log_dir: str, game_name: str):
-    return glob.glob(f"{log_dir}/{game_name}_*_frames.csv")
 
 
 class GameArgs(Namespace):
@@ -39,6 +27,7 @@ class GameArgs(Namespace):
     game_name: str
     game_type: str
     game_speed: int
+    hide_names: bool
     timeout: int
     bot_dir: str
     log_dir: str
@@ -46,7 +35,9 @@ class GameArgs(Namespace):
     bwapi_data_bwta_dir: str
     bwapi_data_bwta2_dir: str
     vnc_base_port: int
+    vnc_host: str
     show_all: bool
+    plot_realtime: bool
     read_overwrite: bool
     docker_image: str
     opt: str
@@ -74,9 +65,26 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
     players += retrieve_bots(args.bots, bot_storages)
 
-    is_bots_1v1_game = len(players) == 2 and not args.human
+    is_1v1_game = len(players) == 2
 
     opts = [] if not args.opt else args.opt.split(" ")
+
+    if args.vnc_host == "":
+        args.vnc_host = dockermachine_ip() or "localhost"
+        logger.debug(f"Using vnc host '{args.vnc_host}'")
+
+    # make sure we always have a sleeping wait callback!
+    if wait_callback is None:
+        wait_callback = lambda: time.sleep(3)
+
+    if args.plot_realtime:
+        plot_realtime = RealtimeFramePlotter(args.log_dir, game_name, players)
+
+        def _wait_callback():
+            plot_realtime.redraw()
+            wait_callback()
+    else:
+        _wait_callback = wait_callback
 
     # Prepare game launching
     launch_params = dict(
@@ -87,6 +95,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
         timeout=args.timeout,
+        hide_names=args.hide_names,
 
         # mount dirs
         log_dir=args.log_dir,
@@ -97,6 +106,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
 
         # vnc
         vnc_base_port=args.vnc_base_port,
+        vnc_host=args.vnc_host,
 
         # docker
         docker_image=args.docker_image,
@@ -109,7 +119,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     try:
         launch_game(players, launch_params,
                     args.show_all, args.read_overwrite,
-                    wait_callback)
+                    _wait_callback)
 
     except RealtimeOutedException:
         is_realtime_outed = True
@@ -121,11 +131,18 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         # prevent another throw of KeyboardInterrupt exception
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        stop_containers(game_name)
+        containers = running_containers(game_name)
+        stop_containers(containers)
+        logger.debug("Removing game containers")
+        cleanup_containers(containers)
+
         logger.info(f"Game cancelled.")
         raise
 
-    if is_bots_1v1_game:
+    if args.plot_realtime:
+        plot_realtime.save(f"{args.log_dir}/{game_name}_frameplot.png")
+
+    if is_1v1_game:
         game_time = time.time() - time_start
 
         log_files = find_logs(args.log_dir, game_name)

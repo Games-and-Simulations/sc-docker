@@ -11,13 +11,32 @@ from typing import List, Optional, Callable, Dict, Any
 from .defaults import *
 from .error import DockerException, GameException, RealtimeOutedException, ContainerException
 from .game_type import GameType
-from .player import BotPlayer, Player
+from .player import BotPlayer, Player, HumanPlayer
 from .utils import download_file
 from .vnc import launch_vnc_viewer
 
 logger = logging.getLogger(__name__)
 
 DOCKER_STARCRAFT_NETWORK = "sc_net"
+BASE_VNC_PORT = 5900
+VNC_HOST = "localhost"
+APP_DIR = "/app"
+LOG_DIR = f"{APP_DIR}/logs"
+SC_DIR = f"{APP_DIR}/sc"
+BWTA_DIR = f"{APP_DIR}/bwta"
+BWAPI_DIR = f"{APP_DIR}/bwapi"
+BOT_DIR = f"{APP_DIR}/bot"
+MAP_DIR = f"{SC_DIR}/maps"
+BWAPI_DATA_DIR = f"{SC_DIR}/bwapi-data"
+BWAPI_DATA_BWTA_DIR = f"{BWAPI_DATA_DIR}/BWTA"
+BWAPI_DATA_BWTA2_DIR = f"{BWAPI_DATA_DIR}/BWTA2"
+BOT_DATA_SAVE_DIR = f"{BWAPI_DATA_DIR}/save"
+BOT_DATA_READ_DIR = f"{BWAPI_DATA_DIR}/read"
+BOT_DATA_WRITE_DIR = f"{BWAPI_DATA_DIR}/write"
+BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
+BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
+
+EXIT_CODE_REALTIME_OUTED = 2
 
 try:
     from subprocess import DEVNULL  # py3k
@@ -134,6 +153,41 @@ def remove_game_image(image_name):
         call(f"docker rmi --force {image_name}", shell=True)
 
 
+def check_dockermachine() -> bool:
+    """
+    Checks that docker-machine is available on the computer
+    """
+    logger.debug("checking docker-machine presence")
+    try:
+        out = subprocess.check_output(['docker-machine', 'version'])
+        out = out.decode("utf-8")
+        out = out.replace('docker-machine.exe', '').replace('docker-machine', '')
+        out = out.strip()
+        logger.debug(f"Using docker machine version {out}")
+        return True
+    except Exception as e:
+        logger.debug(f"Docker machine not present")
+        return False
+
+
+def dockermachine_ip() -> Optional[str]:
+    """
+    Gets IP address of the default docker machine
+    Returns None if no docker-machine executable
+    in the PATH and if there no Docker machine
+    with name default present
+    """
+    if not check_dockermachine():
+        return None
+
+    try:
+        out = subprocess.check_output(['docker-machine', 'ip'])
+        return out.decode("utf-8").strip()
+    except Exception as e:
+        logger.debug(f"Docker machine not present")
+        return None
+
+
 def check_output(*args, **kwargs):
     try:
         return subprocess.check_output(*args, **kwargs)
@@ -154,24 +208,6 @@ def check_docker_requirements(image: str):
     check_docker_can_run()
     check_docker_has_local_net() or create_local_net()
     check_docker_has_local_image(image) or create_local_image(image)
-
-
-BASE_VNC_PORT = 5900
-APP_DIR = "/app"
-LOG_DIR = f"{APP_DIR}/logs"
-SC_DIR = f"{APP_DIR}/sc"
-BWTA_DIR = f"{APP_DIR}/bwta"
-BWAPI_DIR = f"{APP_DIR}/bwapi"
-BOT_DIR = f"{APP_DIR}/bots"
-MAP_DIR = f"{SC_DIR}/maps"
-BWAPI_DATA_DIR = f"{SC_DIR}/bwapi-data"
-BWAPI_DATA_BWTA_DIR = f"{BWAPI_DATA_DIR}/BWTA"
-BWAPI_DATA_BWTA2_DIR = f"{BWAPI_DATA_DIR}/BWTA2"
-BOT_DATA_SAVE_DIR = f"{BWAPI_DATA_DIR}/save"
-BOT_DATA_READ_DIR = f"{BWAPI_DATA_DIR}/read"
-BOT_DATA_WRITE_DIR = f"{BWAPI_DATA_DIR}/write"
-BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
-BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 
 
 def xoscmounts(host_mount):
@@ -198,6 +234,7 @@ def launch_image(
         game_type: GameType,
         game_speed: int,
         timeout: Optional[int],
+        hide_names: bool,
 
         # mount dirs
         log_dir: str,
@@ -207,27 +244,27 @@ def launch_image(
         bwapi_data_bwta2_dir: str,
 
         vnc_base_port: int,
+        vnc_host: int,
 
         # docker
         docker_image: str,
         docker_opts: List[str]):
     #
+
+    container_name = f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}"
+
     cmd = ["docker", "run",
+
            "-d",
-           "--rm",
            "--privileged",
 
-           "--name", f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}",
+           "--name", container_name,
 
            "--volume", f"{xoscmounts(log_dir)}:{LOG_DIR}:rw",
-           "--volume", f"{xoscmounts(bot_dir)}:{BOT_DIR}:ro",
            "--volume", f"{xoscmounts(map_dir)}:{MAP_DIR}:rw",
            "--volume", f"{xoscmounts(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
            "--volume", f"{xoscmounts(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw",
            ]
-
-    if player.meta.javaDebug:
-        cmd += ["-p", f"{str(player.meta.javaDebugPort)}:{str(player.meta.javaDebugPort)}"]
 
     if docker_opts:
         cmd += docker_opts
@@ -240,32 +277,46 @@ def launch_image(
         cmd += ["-p", f"{vnc_base_port+nth_player}:5900"]
 
     if isinstance(player, BotPlayer):
-        bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
+        # Only mount write directory, read and AI
+        # are copied from the bot directory in proper places in bwapi-data
+        bot_data_write_dir = f"{player.bot_dir}/write/{game_name}_{nth_player}"
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
         cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
+        cmd += ["--volume", f"{xoscmounts(player.bot_dir)}:{BOT_DIR}:ro"]
 
-    env = ["-e", f"PLAYER_NAME={player.name}",
-           "-e", f"PLAYER_RACE={player.race.value}",
-           "-e", f"NTH_PLAYER={str(nth_player)}",
-           "-e", f"NUM_PLAYERS={str(num_players)}",
-           "-e", f"GAME_NAME={game_name}",
-           "-e", f"MAP_NAME=/app/sc/maps/{map_name}",
-           "-e", f"GAME_TYPE={game_type.value}",
-           "-e", f"SPEED_OVERRIDE={str(game_speed)}",
-           "-e", f"JAVA_DEBUG={player.meta.javaDebug}",
-           "-e", f"JAVA_DEBUG_PORT={player.meta.javaDebugPort}"]
+        if player.meta.javaDebug:
+            cmd += ["-p", f"{player.meta.javaDebugPort}:{player.meta.javaDebugPort}"]
 
+
+env = dict(
+        PLAYER_NAME=player.name,
+        PLAYER_RACE=player.race.value,
+        NTH_PLAYER=nth_player,
+        NUM_PLAYERS=num_players,
+        GAME_NAME=game_name,
+        MAP_NAME=f"/app/sc/maps/{map_name}",
+        GAME_TYPE=game_type.value,
+        SPEED_OVERRIDE=game_speed,
+        HIDE_NAMES="1" if hide_names else "0",
+
+        TM_LOG_RESULTS=f"../logs/{game_name}_{nth_player}_results.json",
+        TM_LOG_FRAMETIMES=f"../logs/{game_name}_{nth_player}_frames.csv",
+        TM_SPEED_OVERRIDE=game_speed,
+        TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) else "0",
+
+        EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED,
+
+        JAVA_DEBUG=player.meta.javaDebug,
+        JAVA_DEBUG_PORT=player.meta.javaDebugPort,
+    )
     if isinstance(player, BotPlayer):
-        env += ["-e", f"BOT_NAME={player.name}",
-                "-e", f"BOT_FILE={player.bot_basefilename}",
-                "-e", f"BOT_BWAPI={player.bwapi_version}"]
+        env['BOT_FILE'] = player.bot_basefilename
+        env['BOT_BWAPI'] = player.bwapi_version
     if timeout is not None:
-        env += ["-e", f"PLAY_TIMEOUT={timeout}"]
+        env["PLAY_TIMEOUT"] = timeout
 
-    env += ["-e", f"TM_LOG_RESULTS=../logs/{game_name}_{nth_player}_results.json"]
-    env += ["-e", f"TM_LOG_FRAMETIMES=../logs/{game_name}_{nth_player}_frames.csv"]
-
-    cmd += env
+    for key, value in env.items():
+        cmd += ["-e", f"{key}={value}"]
 
     cmd += [docker_image]
     if isinstance(player, BotPlayer):
@@ -292,27 +343,37 @@ def launch_image(
 
     cmd += entrypoint_opts
 
-    logger.debug(cmd)
+    logger.debug(" ".join(f"'{s}'" for s in cmd))
     code = subprocess.call(cmd, stdout=DEVNULL)
 
     if code == 0:
-        logger.info(f"launched {player} in container {game_name}_{nth_player}_{player.name}")
+        container_id = subprocess \
+            .check_output(["docker", "ps", "-f", f"name={container_name}", "-q"]) \
+            .decode("utf-8").strip("'\"\n")
+        logger.info(f"launched {player}")
+        logger.debug(f"container name '{container_name}'")
+        logger.debug(f"container id '{container_id}'")
     else:
         raise DockerException(
-            f"could not launch {player} in container {game_name}_{nth_player}_{player.name}")
+            f"could not launch {player} in container {container_name}")
 
 
-def running_containers(name_prefix):
-    out = subprocess.check_output(f'docker ps -f "name={name_prefix}" -q', shell=True)
-    containers = [container.strip() for container in out.decode("utf-8").split("\n") if
-                  container != ""]
-    logger.debug(f"running containers: {containers}")
+def running_containers(name_filter):
+    out = subprocess.check_output(f'docker ps -f "name={name_filter}" -q', shell=True)
+    containers = [container.strip()
+                  for container in out.decode("utf-8").split("\n")
+                  if container != ""]
     return containers
 
 
-def stop_containers(name_prefix: str):
-    containers = running_containers(name_prefix)
-    subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
+def stop_containers(containers: List[str]):
+    if len(containers):
+        subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
+
+
+def cleanup_containers(containers: List[str]):
+    if len(containers):
+        subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
 
 
 def container_exit_code(container: str) -> int:
@@ -321,13 +382,9 @@ def container_exit_code(container: str) -> int:
     return int(out.decode("utf-8").strip("\n\r\t '\""))
 
 
-def cleanup_containers(containers: List[str]):
-    subprocess.call(['docker', 'rm'] + containers)
-
-
 def launch_game(players: List[Player], launch_params: Dict[str, Any],
                 show_all: bool, read_overwrite: bool,
-                wait_callback: Optional[Callable] = None):
+                wait_callback: Callable):
     """
     :raises DockerException, ContainerException, RealtimeOutedException
     """
@@ -338,38 +395,40 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 
-    logger.info("Checking if game has launched properly...")
-    time.sleep(2)
-    containers = running_containers(launch_params['game_name'])
-    if len(containers) != len(players):
+    logger.debug("Checking if game has launched properly...")
+    time.sleep(1)
+    start_containers = running_containers(launch_params['game_name'])
+    if len(start_containers) != len(players):
         raise DockerException("Some containers exited prematurely, please check logs")
 
     if not launch_params['headless']:
-        time.sleep(1)
-
         for i, player in enumerate(players if show_all else players[:1]):
             port = launch_params['vnc_base_port'] + i
-            logger.info(f"Launching vnc viewer for {player} on port {port}")
-            launch_vnc_viewer(port)
+            host = launch_params['vnc_host']
+            logger.info(f"Launching vnc viewer for {player} on address {host}:{port}")
+            launch_vnc_viewer(host, port)
 
         logger.info("\n"
                     "In headful mode, you must specify and start the game manually.\n"
                     "Select the map, wait for bots to join the game "
                     "and then start the game.")
 
-    logger.info("Waiting until game is finished...")
-    while len(running_containers(launch_params['game_name'])) > 0:
-        time.sleep(3)
-        if wait_callback is not None:
-            wait_callback()
+    logger.info(f"Waiting until game {launch_params['game_name']} is finished...")
+    while True:
+        containers = running_containers(launch_params['game_name'])
+        if len(containers) == 0:
+            break
+
+        logger.debug(f"Waiting. {containers}")
+        wait_callback()
 
     exit_codes = [container_exit_code(container) for container in containers]
 
     # remove containers before throwing exception
     logger.debug("Removing game containers")
-    cleanup_containers(containers)
+    cleanup_containers(start_containers)
 
-    if any(exit_code == 2 for exit_code in exit_codes):
+    if any(exit_code == EXIT_CODE_REALTIME_OUTED for exit_code in exit_codes):
         raise RealtimeOutedException(f"Some of the game containers has realtime outed.")
     if any(exit_code == 1 for exit_code in exit_codes):
         raise ContainerException(f"Some of the game containers has finished with error exit code.")

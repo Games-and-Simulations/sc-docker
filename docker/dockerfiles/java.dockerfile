@@ -8,10 +8,10 @@ ENV JAVA_DIR="$APP_DIR/java"
 USER starcraft
 WORKDIR $APP_DIR
 
-COPY --chown=starcraft:users jre_8_32bit_noinstall.zip jre.zip
+COPY --chown=starcraft:users jre-8u161-windows-i586.tar.gz jre.tar.gz
 RUN set -x \
-    && unzip jre.zip \
+    && tar -xzf jre.tar.gz \
     && mv jre1.8.0_161/ $JAVA_DIR/ \
-    && rm jre.zip
+    && rm jre.tar.gz
 
 COPY scripts/win_java32 /usr/bin/win_java32

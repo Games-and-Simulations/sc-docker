@@ -30,7 +30,7 @@ class LocalBotStorage(BotStorage):
             return None
 
         logger.debug(f"found bot in {f_name}")
-        bot = BotPlayer(name, self.bot_dir)
+        bot = BotPlayer(f_name)
 
         return bot
 
@@ -57,7 +57,7 @@ class SscaitBotStorage(BotStorage):
 
                 logger.info(f"Successfully downloaded {bot_spec.name} from SSCAIT server")
 
-            return BotPlayer(matching_name, self.bot_dir)
+            return BotPlayer(f"{self.bot_dir}/{matching_name}")
 
         except Exception as e:
             logger.exception(e)
@@ -84,9 +84,8 @@ class SscaitBotStorage(BotStorage):
             bot_idx = max(min(self.MAX_MATCHING_SUGGESTIONS - 1, int(input())), 0)
             return closest_matching[bot_idx]
 
-    def get_bot_specs(self):
-        response = requests.get("http://sscaitournament.com/api/bots.php")
-        return json.loads(response.text)
+    def get_bot_specs(self) -> Dict:
+        return requests.get("http://sscaitournament.com/api/bots.php").json()
 
     def try_download(self, json_spec: Dict) -> Optional[BotJsonMeta]:
         bot_spec = BotPlayer.parse_meta(json_spec)

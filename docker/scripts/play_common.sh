@@ -49,10 +49,9 @@ function prepare_bwapi() {
     RACE=$(fully_qualified_race_name ${PLAYER_RACE})
 
     sed -i "s:^ai = NULL:ai = $PLAYER_DLL:g" "${BWAPI_INI}"
-    sed -i "s:^character_name = :character_name = $PLAYER_NAME:g" "${BWAPI_INI}"
     sed -i "s:^race = :race = $RACE:g" "${BWAPI_INI}"
     sed -i "s:^game_type = :game_type = $GAME_TYPE:g" "${BWAPI_INI}"
-    sed -i "s:^save_replay = :save_replay = $REPLAY_FILE:g" "${BWAPI_INI}"
+    sed -i "s:^save_replay = :save_replay = maps/replays/$REPLAY_FILE:g" "${BWAPI_INI}"
     sed -i "s:^wait_for_min_players = :wait_for_min_players = $NUM_PLAYERS:g" "${BWAPI_INI}"
     sed -i "s:^speed_override = :speed_override = $SPEED_OVERRIDE:g" "${BWAPI_INI}"
 
@@ -139,6 +138,8 @@ function start_game() {
 
     [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
 
+    update_registry
+
     # Launch the game!
     LOG "Starting game" >> "$LOG_GAME"
     echo "------------------------------------------" >> "$LOG_GAME"
@@ -149,8 +150,10 @@ function start_game() {
 }
 
 function prepare_character() {
-    mv "$SC_DIR/characters/default.spc" "$SC_DIR/characters/${PLAYER_NAME}.spc"
-    mv "$SC_DIR/characters/default.mpc" "$SC_DIR/characters/${PLAYER_NAME}.mpc"
+    if [ "$HIDE_NAMES" == "0" ]; then
+        mv "$SC_DIR/characters/player.spc" "$SC_DIR/characters/${PLAYER_NAME}.spc"
+        mv "$SC_DIR/characters/player.mpc" "$SC_DIR/characters/${PLAYER_NAME}.mpc"
+    fi
 }
 
 function prepare_tm() {
@@ -159,20 +162,14 @@ function prepare_tm() {
 
 function check_bot_requirements() {
     # Make sure the bot file exists
-    if [ ! -d "$BOT_DIR/$BOT_NAME" ]; then
-        LOG "Bot not found in '$BOT_DIR/$BOT_NAME'"
-        exit 1
-    fi
-
-    # Make sure the bot file exists
-    if [ ! -f "$BOT_DIR/$BOT_NAME/AI/$BOT_FILE" ]; then
-        LOG "Bot not found in '$BOT_DIR/$BOT_NAME/AI/$BOT_FILE'"
+    if [ ! -f "$BOT_DIR/AI/$BOT_FILE" ]; then
+        LOG "Bot not found in '$BOT_DIR/AI/$BOT_FILE'"
         exit 1
     fi
 
     # Make sure the BWAPI file exists
-    if [ ! -f "$BOT_DIR/$BOT_NAME/BWAPI.dll" ]; then
-        LOG "Bot not found in '$BOT_DIR/$BOT_NAME/BWAPI.dll'"
+    if [ ! -f "$BOT_DIR/BWAPI.dll" ]; then
+        LOG "Bot not found in '$BOT_DIR/BWAPI.dll'"
         exit 1
     fi
 
@@ -195,7 +192,9 @@ function detect_game_finished() {
             return 0
         fi
 
-        if [ -f "$SC_DIR/$REPLAY_FILE" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
+        # Sometimes replay files are saved with .rep, or with .REP
+        # note that ^^ works only in bash :)
+        if [ -f "$SC_DIR/maps/replays/$REPLAY_FILE" ] || [ -f "$SC_DIR/maps/replays/${REPLAY_FILE^^}" ] || [ -f "$MAP_DIR/replays/LastReplay.rep" ] ;
         then
             LOG "Replays found." >> "$LOG_GAME"
             sleep 3
@@ -204,4 +203,10 @@ function detect_game_finished() {
 
         sleep 3
     done;
+}
+
+function update_registry() {
+    # disable splash screen
+    wine REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Blizzard Entertainment\Starcraft" /v intro /t REG_DWORD /d 00000200
+    wine REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Blizzard Entertainment\Starcraft" /v introX /t REG_DWORD /d 00000000
 }

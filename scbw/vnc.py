@@ -13,6 +13,6 @@ def check_vnc_exists():
         raise Exception(f"vnc-viewer not found!")
 
 
-def launch_vnc_viewer(port: int):
+def launch_vnc_viewer(host: str, port: int):
     # launch in bg
-    os.spawnl(os.P_NOWAIT, shutil.which("vnc-viewer"), "vnc-viewer", f"localhost:{port}")
+    os.spawnl(os.P_NOWAIT, shutil.which("vnc-viewer"), "vnc-viewer", f"{host}:{port}")

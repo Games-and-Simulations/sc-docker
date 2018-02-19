@@ -1,18 +1,8 @@
 You should put your version of JRE here.
+Latest version of JRE could be found on [Oracle website](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
 
-You can put it under `jre_8_32bit_noinstall.zip`
+Please download Windows x86 version and place it in this folder.
 
-The way I've done it is to just zip
-windows 32bit oracle java 8 folder and it works.
+Image `java.dockerfile` uses the `jre-8u161-windows-i586.tar.gz` version.
 
-You'll need to change a line in ./dockerfiles/java.dockerfile
-where it says
-
-`&&mv jre1.8.0_<some version>`
-
-change that to
-
-`&&mv <name of your windows 32bit oracle java 8 folder>`
-
-
-The zip file isn't included in the repo because of potential license problems.
+I don't put the JRE directly in the repo because of potential license problems.
