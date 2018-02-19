@@ -67,6 +67,10 @@ function prepare_bwapi() {
         sed -i "s:^game = :game = ${GAME_NAME}:g" "${BWAPI_INI}"
     fi
 
+    if [ $JAVA_DEBUG -eq "1" ]; then
+        sed -i "s:^drop_players = ON:drop_players = OFF:g" "${BWAPI_INI}"
+    fi
+
     . hook_update_bwapi_ini.sh
 
     cat "$BWAPI_INI"
