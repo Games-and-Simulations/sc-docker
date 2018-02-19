@@ -284,11 +284,10 @@ def launch_image(
         cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
         cmd += ["--volume", f"{xoscmounts(player.bot_dir)}:{BOT_DIR}:ro"]
 
-        if player.meta.javaDebug:
+        if player.meta.javaDebugPort is not None:
             cmd += ["-p", f"{player.meta.javaDebugPort}:{player.meta.javaDebugPort}"]
 
-
-env = dict(
+    env = dict(
         PLAYER_NAME=player.name,
         PLAYER_RACE=player.race.value,
         NTH_PLAYER=nth_player,
@@ -306,7 +305,7 @@ env = dict(
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED,
 
-        JAVA_DEBUG=player.meta.javaDebug,
+        JAVA_DEBUG="1" if player.meta.javaDebugPort is not None else "0",
         JAVA_DEBUG_PORT=player.meta.javaDebugPort,
     )
     if isinstance(player, BotPlayer):
