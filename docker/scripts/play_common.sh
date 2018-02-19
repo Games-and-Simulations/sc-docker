@@ -101,18 +101,16 @@ function start_bot() {
     {
         pushd $SC_DIR
 
+        DEBUG_CMD=""
+        if [ "$JAVA_DEBUG" -eq "1" ]; then
+            DEBUG_CMD="-Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=n"
+        fi
+
         # todo: run under "bot"
         if [ "$BOT_TYPE" == "jar" ]; then
-            if [ "$JAVA_DEBUG" ]; then
-                win_java32 \
-                    -Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=n \
-                    -jar "${BOT_EXECUTABLE}" \
-                    >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
-            else
-                win_java32 \
-                    -jar "${BOT_EXECUTABLE}" \
-                    >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
-            fi
+            win_java32 \
+                -jar "${BOT_EXECUTABLE}" $DEBUG_CMD \
+                >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
 
         elif [ "$BOT_TYPE" == "exe" ]; then
             wine "${BOT_EXECUTABLE}" \
@@ -175,7 +173,7 @@ function check_bot_requirements() {
 
     # Make sure that bot type is recognized
     if [ "$BOT_TYPE" != "jar" ] && [ "$BOT_TYPE" != "exe" ] && [ "$BOT_TYPE" != "dll" ] && [ "$BOT_TYPE" != "jython" ]; then
-        LOG "Bot type can be only one of 'jar', 'exe', 'dll' but the type supplied is '$BOT_TYPE'"
+        LOG "Bot type can be only one of 'jar', 'exe', 'dll', 'jython' but the type supplied is '$BOT_TYPE'"
         exit 1
     fi
 }
