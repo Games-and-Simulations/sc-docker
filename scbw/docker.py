@@ -14,7 +14,6 @@ from .game_type import GameType
 from .player import BotPlayer, Player, HumanPlayer
 from .utils import download_file
 from .vnc import launch_vnc_viewer
-
 logger = logging.getLogger(__name__)
 
 DOCKER_STARCRAFT_NETWORK = "sc_net"
@@ -39,118 +38,124 @@ BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 EXIT_CODE_REALTIME_OUTED = 2
 
 try:
-    from subprocess import DEVNULL  # py3k
+    from subprocess import DEVNULL
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
 
 
 def check_docker_version():
-    logger.info("checking docker version")
+    logger.info('checking docker version')
     try:
-        out = subprocess.check_output(["docker", "version", "--format", "'{{.Server.APIVersion}}'"])
+        out = subprocess.check_output(
+            ['docker', 'version', '--format', "'{{.Server.APIVersion}}'"])
     except Exception:
-        raise DockerException("An error occurred while trying to call `docker version`,"
-                              " did you install docker?")
-    logger.debug(f"Using docker API version {out}")
+        raise DockerException(
+            'An error occurred while trying to call `docker version`, did you install docker?'
+        )
+    logger.debug(('Using docker API version %s' % (out, )))
 
 
 def check_docker_can_run():
-    logger.info("checking docker can run")
+    logger.info('checking docker can run')
     try:
-        out = subprocess.check_output(["docker", "run", "hello-world"])
+        out = subprocess.check_output(['docker', 'run', 'hello-world'])
     except Exception:
         raise DockerException(
-            "An error occurred while trying to call `docker run hello-world`, "
-            "do you have sufficient rights to run sudo?")
+            'An error occurred while trying to call `docker run hello-world`, do you have sufficient rights to run sudo?'
+        )
+    if (b'Hello' not in out):
+        raise DockerException((
+            "Docker did not run properly - could'nt find 'Hello' in hello-world run, found %s"
+            % (out, )))
 
-    if b"Hello" not in out:
-        raise DockerException(
-            f"Docker did not run properly - could'nt find 'Hello' in hello-world run, found {out}")
 
-
-def check_docker_has_local_net() -> bool:
-    logger.info(f"checking docker has network {DOCKER_STARCRAFT_NETWORK}")
+def check_docker_has_local_net():
+    logger.info(
+        ('checking docker has network %s' % (DOCKER_STARCRAFT_NETWORK, )))
     try:
-        out = subprocess.check_output(
-            ["docker", "network", "ls", "-f", f"name={DOCKER_STARCRAFT_NETWORK}", "-q"])
+        out = subprocess.check_output([
+            'docker', 'network', 'ls', '-f',
+            ('name=%s' % (DOCKER_STARCRAFT_NETWORK, )), '-q'
+        ])
     except Exception:
-        raise DockerException(
-            f"An error occurred while trying to call `docker network ls -f name={DOCKER_STARCRAFT_NETWORK} -q`")
-
-    logger.debug(f"docker network id: {out}")
+        raise DockerException((
+            'An error occurred while trying to call `docker network ls -f name=%s -q`'
+            % (DOCKER_STARCRAFT_NETWORK, )))
+    logger.debug(('docker network id: %s' % (out, )))
     return bool(out)
 
 
 def create_local_net():
     try:
-        logger.info(f"creating docker local net {DOCKER_STARCRAFT_NETWORK}")
-        out = subprocess.check_output(
-            ["docker", "network", "create", "--subnet=172.18.0.0/16", DOCKER_STARCRAFT_NETWORK])
+        logger.info(
+            ('creating docker local net %s' % (DOCKER_STARCRAFT_NETWORK, )))
+        out = subprocess.check_output([
+            'docker', 'network', 'create', '--subnet=172.18.0.0/16',
+            DOCKER_STARCRAFT_NETWORK
+        ])
     except Exception:
-        raise DockerException(
-            f"An error occurred while trying to call `docker network create --subnet=172.18.0.0/16 {DOCKER_STARCRAFT_NETWORK}`")
+        raise DockerException((
+            'An error occurred while trying to call `docker network create --subnet=172.18.0.0/16 %s`'
+            % (DOCKER_STARCRAFT_NETWORK, )))
+    logger.debug(('docker network id: %s' % (out, )))
 
-    logger.debug(f"docker network id: {out}")
 
-
-def check_docker_has_local_image(image: str) -> bool:
+def check_docker_has_local_image(image):
     try:
-        logger.info(f"checking if there is local image {image}")
-        out = subprocess.check_output(["docker", "images", "-q", image])
-
+        logger.info(('checking if there is local image %s' % (image, )))
+        out = subprocess.check_output(['docker', 'images', '-q', image])
     except Exception:
         raise DockerException(
-            f"An error occurred while trying to call `docker images -q {image}`")
-
-    logger.debug(f"docker image id: {out}")
+            ('An error occurred while trying to call `docker images -q %s`' %
+             (image, )))
+    logger.debug(('docker image id: %s' % (out, )))
     return bool(out)
 
 
-def create_local_image(image: str):
+def create_local_image(image):
     try:
-        # first copy all docker files we will need
-        # for building image to somewhere we can write
-        pkg_docker_dir = f'{abspath(dirname(__file__))}/local_docker'
-        base_dir = SCBW_BASE_DIR + "/docker"
-
-        logger.info(f"creating docker local image")
-        logger.info(f"copying files from {pkg_docker_dir} to {base_dir}")
+        pkg_docker_dir = ('%s/local_docker' % (abspath(dirname(__file__)), ))
+        base_dir = (SCBW_BASE_DIR + '/docker')
+        logger.info(('creating docker local image' % ()))
+        logger.info(('copying files from %s to %s' % (pkg_docker_dir,
+                                                      base_dir)))
         copy_tree(pkg_docker_dir, base_dir)
-
-        # pull java parent image
-        logger.info(f"pulling image {SC_PARENT_IMAGE}, this may take a while...")
-        if subprocess.call(['docker', 'pull', SC_PARENT_IMAGE], stdout=sys.stderr.buffer) != 0:
+        logger.info(('pulling image %s, this may take a while...' %
+                     (SC_PARENT_IMAGE, )))
+        if (subprocess.call(
+            ['docker', 'pull', SC_PARENT_IMAGE], stdout=sys.stderr.buffer) !=
+                0):
             raise DockerException(
                 f"an error occurred while calling `docker pull {SC_PARENT_IMAGE}`")
         if subprocess.call(['docker', 'tag', SC_PARENT_IMAGE, SC_JAVA_IMAGE],
                            stdout=sys.stderr.buffer) != 0:
             raise DockerException(
-                f"an error occurred while calling `docker tag {SC_PARENT_IMAGE} {SC_JAVA_IMAGE}`")
-
-        # download starcraft.zip
-        starcraft_zip_file = f"{base_dir}/starcraft.zip"
-        if not exists(starcraft_zip_file):
-            logger.info(f"downloading starcraft.zip to {starcraft_zip_file}")
-            download_file('http://files.theabyss.ru/sc/starcraft.zip', starcraft_zip_file)
-
-        # build
-        logger.info(f"building local image {image}, this may take a while...")
-        if subprocess.call(['docker', 'build',
-                            '-f', 'game.dockerfile',
-                            '-t', image, '.'],
-                           cwd=base_dir, stdout=sys.stderr.buffer) != 0:
+                ('an error occurred while calling `docker tag %s %s`' %
+                 (SC_PARENT_IMAGE, SC_JAVA_IMAGE)))
+        starcraft_zip_file = ('%s/starcraft.zip' % (base_dir, ))
+        if (not exists(starcraft_zip_file)):
+            logger.info(
+                ('downloading starcraft.zip to %s' % (starcraft_zip_file, )))
+            download_file('http://files.theabyss.ru/sc/starcraft.zip',
+                          starcraft_zip_file)
+        logger.info(
+            ('building local image %s, this may take a while...' % (image, )))
+        if (subprocess.call(
+            ['docker', 'build', '-f', 'game.dockerfile', '-t', image, '.'],
+                cwd=base_dir,
+                stdout=sys.stderr.buffer) != 0):
             raise DockerException()
-
-        logger.info(f"successfully built image {image}")
-
+        logger.info(('successfully built image %s' % (image, )))
     except Exception:
-        raise DockerException(f"An error occurred while trying to build local image")
+        raise DockerException(
+            ('An error occurred while trying to build local image' % ()))
 
 
 def remove_game_image(image_name):
-    has_image = check_output(f"docker images {image_name} -q", shell=True)
+    has_image = check_output(
+        ('docker images %s -q' % (image_name, )), shell=True)
     if has_image:
-        call(f"docker rmi --force {image_name}", shell=True)
+        call(('docker rmi --force %s' % (image_name, )), shell=True)
 
 
 def check_dockermachine() -> bool:
@@ -192,32 +197,33 @@ def check_output(*args, **kwargs):
     try:
         return subprocess.check_output(*args, **kwargs)
     except subprocess.CalledProcessError:
-        print(f"Failed calling {args} {kwargs}")
+        print(('Failed calling %s %s' % (args, kwargs)))
         sys.exit(1)
 
 
 def call(*args, **kwargs):
     code = subprocess.call(*args, **kwargs)
-    if code != 0:
-        print(f"Failed calling {args} {kwargs}")
+    if (code != 0):
+        print(('Failed calling %s %s' % (args, kwargs)))
         sys.exit(1)
 
 
-def check_docker_requirements(image: str):
+def check_docker_requirements(image):
     check_docker_version()
     check_docker_can_run()
-    check_docker_has_local_net() or create_local_net()
-    check_docker_has_local_image(image) or create_local_image(image)
+    (check_docker_has_local_net() or create_local_net())
+    (check_docker_has_local_image(image) or create_local_image(image))
 
 
 def xoscmounts(host_mount):
     """
     Cross OS compatible mount dirs
     """
-    callback_lower_drive_letter = lambda pat: pat.group(1).lower()
-    host_mount = re.sub(r"^([a-zA-Z])\:", callback_lower_drive_letter, host_mount)
-    host_mount = re.sub(r"^([a-z])", "//\\1", host_mount)
-    host_mount = re.sub(r"\\", "/", host_mount)
+    callback_lower_drive_letter = (lambda pat: pat.group(1).lower())
+    host_mount = re.sub('^([a-zA-Z])\\:', callback_lower_drive_letter,
+                        host_mount)
+    host_mount = re.sub('^([a-z])', '//\\1', host_mount)
+    host_mount = re.sub('\\\\', '/', host_mount)
     return host_mount
 
 
@@ -269,14 +275,10 @@ def launch_image(
 
     if docker_opts:
         cmd += docker_opts
-
-    # allow for --net override in docker opts
-    if "--net" not in docker_opts:
-        cmd += ["--net", DOCKER_STARCRAFT_NETWORK]
-
-    if not headless:
-        cmd += ["-p", f"{vnc_base_port+nth_player}:5900"]
-
+    if ('--net' not in docker_opts):
+        cmd += ['--net', DOCKER_STARCRAFT_NETWORK]
+    if (not headless):
+        cmd += ['-p', ('%s:5900' % ((vnc_base_port + nth_player), ))]
     if isinstance(player, BotPlayer):
         # Only mount write directory, read and AI
         # are copied from the bot directory in proper places in bwapi-data
@@ -314,27 +316,24 @@ def launch_image(
 
     cmd += [docker_image]
     if isinstance(player, BotPlayer):
-        cmd += ["/app/play_bot.sh"]
+        cmd += ['/app/play_bot.sh']
     else:
-        cmd += ["/app/play_human.sh"]
-
+        cmd += ['/app/play_human.sh']
     entrypoint_opts = []
-    is_server = nth_player == 0
-
-    if not headless:
-        entrypoint_opts += ["--headful"]
+    is_server = (nth_player == 0)
+    if (not headless):
+        entrypoint_opts += ['--headful']
     else:
-        entrypoint_opts += ["--game", game_name,
-                            "--name", player.name,
-                            "--race", player.race.value,
-                            "--lan"]
-
+        entrypoint_opts += [
+            '--game', game_name, '--name', player.name, '--race',
+            player.race.value, '--lan'
+        ]
         if is_server:
-            entrypoint_opts += ["--host",
-                                "--map", f"/app/sc/maps/{map_name}"]
+            entrypoint_opts += [
+                '--host', '--map', ('/app/sc/maps/%s' % (map_name, ))
+            ]
         else:
-            entrypoint_opts += ["--join"]
-
+            entrypoint_opts += ['--join']
     cmd += entrypoint_opts
 
     logger.debug(" ".join(f"'{s}'" for s in cmd))
@@ -428,9 +427,10 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
         raise ContainerException(f"Some of the game containers has finished with error exit code.")
 
     if read_overwrite:
-        logger.info("Overwriting bot files")
-        for nth_player, player in enumerate(players):
+        logger.info('Overwriting bot files')
+        for (nth_player, player) in enumerate(players):
             if isinstance(player, BotPlayer):
-                logger.debug(f"Overwriting files for {player}")
-                copy_tree(f"{player.write_dir}/{launch_params['game_name']}_{nth_player}",
-                          player.read_dir)
+                logger.debug(('Overwriting files for %s' % (player, )))
+                copy_tree(('%s/%s_%s' %
+                           (player.write_dir, launch_params['game_name'],
+                            nth_player)), player.read_dir)
