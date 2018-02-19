@@ -118,7 +118,7 @@ function start_bot() {
 
         elif [ "$BOT_TYPE" == "jython" ]; then
             win_java32 \
-                -cp "${BOT_EXECUTABLE}" org.python.util.jython "$BOT_DIR/$BOT_NAME/AI/__run__.py" \
+                -cp "${BOT_EXECUTABLE}" org.python.util.jython "$BOT_DATA_AI_DIR/__run__.py" \
                 >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
         fi
 
