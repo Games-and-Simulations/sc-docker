@@ -8,7 +8,7 @@ load 'libs/bats-assert/load'
     command -v scbw.play
 }
 
-@test "ExampleBot loses against CherryPi" {
+@test "ExampleBot loses against ZZZKBot" {
     TEST_DIR=/tmp/scbw_test
 
     # Delete lingering test dir
@@ -16,11 +16,11 @@ load 'libs/bats-assert/load'
 
     mkdir $TEST_DIR $TEST_DIR/bots $TEST_DIR/maps $TEST_DIR/maps/replays $TEST_DIR/log $TEST_DIR/bwta $TEST_DIR/bwta2
     cp -r ExampleBot $TEST_DIR/bots
-    cp -r CherryPi $TEST_DIR/bots
+    cp -r ZZZKBot $TEST_DIR/bots
     cp maps/\(2\)Benzene.scx $TEST_DIR/maps
 
     run scbw.play \
-        --bots ExampleBot CherryPi \
+        --bots ExampleBot ZZZKBot \
         --log_level=WARN \
         --game_speed=0 \
         --game_name="TEST" \
@@ -43,9 +43,9 @@ load 'libs/bats-assert/load'
     assert_output "1"
     run ls $TEST_DIR/log/GAME_TEST_0_results.json | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_1_CherryPi_bot.log | wc -l
+    run ls $TEST_DIR/log/GAME_TEST_1_ZZZKBot_bot.log | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_1_CherryPi_game.log | wc -l
+    run ls $TEST_DIR/log/GAME_TEST_1_ZZZKBot_game.log | wc -l
     assert_output "1"
     run ls $TEST_DIR/log/GAME_TEST_1_frames.csv | wc -l
     assert_output "1"
@@ -63,11 +63,11 @@ load 'libs/bats-assert/load'
     assert_output "1"
 
     # check write folder has contents
-    run ls $TEST_DIR/bots/CherryPi/write/GAME_TEST_1/openings_examplebot.json | wc -l
+    run ls $TEST_DIR/bots/ZZZKBot/write/GAME_TEST_1/ZZZKBot_v_1.5.0.0.0_Zerg_vs_ExampleBot_Terran.dat | wc -l
     assert_output "1"
 
     # check read folder has been updated
-    run ls $TEST_DIR/bots/CherryPi/read/openings_examplebot.json | wc -l
+    run ls $TEST_DIR/bots/ZZZKBot/read/ZZZKBot_v_1.5.0.0.0_Zerg_vs_ExampleBot_Terran.dat | wc -l
     assert_output "1"
 
     # Clean up.
