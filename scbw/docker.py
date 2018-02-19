@@ -305,12 +305,15 @@ def launch_image(
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED,
 
-        JAVA_DEBUG="1" if player.meta.javaDebugPort is not None else "0",
-        JAVA_DEBUG_PORT=player.meta.javaDebugPort,
+        JAVA_DEBUG="0"
     )
     if isinstance(player, BotPlayer):
         env['BOT_FILE'] = player.bot_basefilename
         env['BOT_BWAPI'] = player.bwapi_version
+        if player.meta.javaDebugPort is not None:
+            env['JAVA_DEBUG'] = "1"
+            env['JAVA_DEBUG_PORT'] = player.meta.javaDebugPort
+
     if timeout is not None:
         env["PLAY_TIMEOUT"] = timeout
 
