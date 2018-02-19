@@ -6,6 +6,7 @@ from random import choice
 from tempfile import mkstemp
 
 import requests
+import sys
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -62,7 +63,7 @@ def download_file(url: str, as_file: str):
     block_size = 1024 * 1024
 
     with open(as_file, 'wb') as f:
-        for data in tqdm(response.iter_content(block_size),
+        for data in tqdm(response.iter_content(block_size), file=sys.stderr,
                          total=total_size / block_size, unit='MB', unit_scale=True):
             f.write(data)
 
