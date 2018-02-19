@@ -64,6 +64,13 @@ Stop all running games in docker containers (container names always begin with `
 
     $  docker stop $(docker ps -a -f NAME=GAME)
 
+## (Re)install newer/specific version
+
+Just run
+
+    $ pip install scbw==XXX
+    $ scbw.play --install
+
 ## Development
 
 ### Add your own bot
