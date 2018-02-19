@@ -378,7 +378,7 @@ def container_exit_code(container: str) -> int:
 
 def launch_game(players: List[Player], launch_params: Dict[str, Any],
                 show_all: bool, read_overwrite: bool,
-                wait_callback: Optional[Callable] = None):
+                wait_callback: Callable):
     """
     :raises DockerException, ContainerException, RealtimeOutedException
     """
@@ -414,9 +414,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
             break
 
         logger.debug(f"Waiting. {containers}")
-        time.sleep(3)
-        if wait_callback is not None:
-            wait_callback()
+        wait_callback()
 
     exit_codes = [container_exit_code(container) for container in containers]
 

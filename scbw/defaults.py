@@ -23,7 +23,7 @@ def get_data_dir() -> str:
         return os.path.expanduser("~") + "/.scbw"
 
 
-VERSION = "0.2b7"
+VERSION = "0.2b8"
 
 SCBW_BASE_DIR = get_data_dir()
 SC_LOG_DIR = f"{SCBW_BASE_DIR}/logs"

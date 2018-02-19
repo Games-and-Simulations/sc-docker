@@ -1,5 +1,4 @@
 import logging
-import logging
 import signal
 import time
 from argparse import Namespace
@@ -81,6 +80,8 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
             plot_realtime.redraw()
             if wait_callback is not None:
                 wait_callback()
+            else:
+                time.sleep(3)
     else:
         _wait_callback = wait_callback
 
