@@ -52,11 +52,12 @@ class BotJsonMeta:
     botType: BotType
 
     # optional fields
-    description: Optional[str]
-    update: Optional[datetime]  # last updated
-    botBinary: Optional[str]  # link to website
-    bwapiDLL: Optional[str]  # link to website
-    botProfileURL: Optional[str]  # link to website
+    description: Optional[str] = None
+    update: Optional[datetime] = None  # last updated
+    botBinary: Optional[str] = None  # link to website
+    bwapiDLL: Optional[str] = None  # link to website
+    botProfileURL: Optional[str] = None  # link to website
+    javaDebugPort: Optional[int] = None  # optionally allow attaching debugger
 
 
 class BotPlayer(Player):
@@ -154,13 +155,8 @@ class BotPlayer(Player):
         meta.botBinary = json_spec['botBinary'] if 'botBinary' in json_spec else None
         meta.bwapiDLL = json_spec['bwapiDLL'] if 'bwapiDLL' in json_spec else None
         meta.botProfileURL = json_spec['botProfileURL'] if 'botProfileURL' in json_spec else None
+        meta.javaDebugPort = json_spec['javaDebugPort'] if 'javaDebugPort' in json_spec else None
 
-        if 'javaDebugPort' in json_spec:
-            meta.javaDebug = True
-            meta.javaDebugPort = json_spec['javaDebugPort']
-        else:
-            meta.javaDebug = False
-            meta.javaDebugPort = -1
         return meta
 
     def _find_bwapi_version(self):
