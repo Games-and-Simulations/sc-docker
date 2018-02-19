@@ -3,4 +3,6 @@ Latest version of JRE could be found on [Oracle website](http://www.oracle.com/t
 
 Please download Windows x86 version and place it in this folder.
 
-I don't put the zip directly in the repo because of potential license problems.
+Image `java.dockerfile` uses the `jre-8u161-windows-i586.tar.gz` version.
+
+I don't put the JRE directly in the repo because of potential license problems.
