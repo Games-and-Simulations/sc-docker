@@ -25,7 +25,7 @@ LOG_DIR = f"{APP_DIR}/logs"
 SC_DIR = f"{APP_DIR}/sc"
 BWTA_DIR = f"{APP_DIR}/bwta"
 BWAPI_DIR = f"{APP_DIR}/bwapi"
-BOT_DIR = f"{APP_DIR}/bots"
+BOT_DIR = f"{APP_DIR}/bot"
 MAP_DIR = f"{SC_DIR}/maps"
 BWAPI_DATA_DIR = f"{SC_DIR}/bwapi-data"
 BWAPI_DATA_BWTA_DIR = f"{BWAPI_DATA_DIR}/BWTA"
@@ -261,7 +261,6 @@ def launch_image(
            "--name", container_name,
 
            "--volume", f"{xoscmounts(log_dir)}:{LOG_DIR}:rw",
-           "--volume", f"{xoscmounts(bot_dir)}:{BOT_DIR}:ro",
            "--volume", f"{xoscmounts(map_dir)}:{MAP_DIR}:rw",
            "--volume", f"{xoscmounts(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
            "--volume", f"{xoscmounts(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw",
@@ -280,9 +279,10 @@ def launch_image(
     if isinstance(player, BotPlayer):
         # Only mount write directory, read and AI
         # are copied from the bot directory in proper places in bwapi-data
-        bot_data_write_dir = f"{player.base_dir}/write/{game_name}_{nth_player}"
+        bot_data_write_dir = f"{player.bot_dir}/write/{game_name}_{nth_player}"
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
         cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
+        cmd += ["--volume", f"{xoscmounts(player.bot_dir)}:{BOT_DIR}:ro"]
 
     env = dict(
         PLAYER_NAME=player.name,
@@ -303,7 +303,6 @@ def launch_image(
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED
     )
     if isinstance(player, BotPlayer):
-        env['BOT_NAME'] = player.name
         env['BOT_FILE'] = player.bot_basefilename
         env['BOT_BWAPI'] = player.bwapi_version
     if timeout is not None:

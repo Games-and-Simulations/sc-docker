@@ -19,10 +19,10 @@ REPLAY_FILE="${GAME_NAME}_${NTH_PLAYER}.rep"
 check_bot_requirements
 
 # Copy to BWAPI data dir
-cp -r "$BOT_DIR/$BOT_NAME/AI/." "$BOT_DATA_AI_DIR"
-cp -r "$BOT_DIR/$BOT_NAME/read/." "$BOT_DATA_READ_DIR"
+cp -r "$BOT_DIR/AI/." "$BOT_DATA_AI_DIR"
+cp -r "$BOT_DIR/read/." "$BOT_DATA_READ_DIR"
+cp "$BOT_DIR/BWAPI.dll" "$BWAPI_DATA_DIR"
 cp -r "$BWAPI_DIR/bot/." "$BWAPI_DATA_DIR"
-cp "$BOT_DIR/$BOT_NAME/BWAPI.dll" "$BWAPI_DATA_DIR"
 
 
 BOT_EXECUTABLE="$BWAPI_DATA_DIR/AI/$BOT_FILE"

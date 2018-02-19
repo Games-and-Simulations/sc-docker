@@ -30,7 +30,7 @@ class LocalBotStorage(BotStorage):
             return None
 
         logger.debug(f"found bot in {f_name}")
-        bot = BotPlayer(name, self.bot_dir)
+        bot = BotPlayer(f_name)
 
         return bot
 
@@ -57,7 +57,7 @@ class SscaitBotStorage(BotStorage):
 
                 logger.info(f"Successfully downloaded {bot_spec.name} from SSCAIT server")
 
-            return BotPlayer(matching_name, self.bot_dir)
+            return BotPlayer(f"{self.bot_dir}/{matching_name}")
 
         except Exception as e:
             logger.exception(e)

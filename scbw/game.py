@@ -73,15 +73,16 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         args.vnc_host = dockermachine_ip() or "localhost"
         logger.debug(f"Using vnc host '{args.vnc_host}'")
 
+    # make sure we always have a sleeping wait callback!
+    if wait_callback is None:
+        wait_callback = lambda: time.sleep(3)
+
     if args.plot_realtime:
         plot_realtime = RealtimeFramePlotter(args.log_dir, game_name, players)
 
         def _wait_callback():
             plot_realtime.redraw()
-            if wait_callback is not None:
-                wait_callback()
-            else:
-                time.sleep(3)
+            wait_callback()
     else:
         _wait_callback = wait_callback
 

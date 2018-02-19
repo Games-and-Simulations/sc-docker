@@ -151,20 +151,14 @@ function prepare_tm() {
 
 function check_bot_requirements() {
     # Make sure the bot file exists
-    if [ ! -d "$BOT_DIR/$BOT_NAME" ]; then
-        LOG "Bot not found in '$BOT_DIR/$BOT_NAME'"
-        exit 1
-    fi
-
-    # Make sure the bot file exists
-    if [ ! -f "$BOT_DIR/$BOT_NAME/AI/$BOT_FILE" ]; then
-        LOG "Bot not found in '$BOT_DIR/$BOT_NAME/AI/$BOT_FILE'"
+    if [ ! -f "$BOT_DIR/AI/$BOT_FILE" ]; then
+        LOG "Bot not found in '$BOT_DIR/AI/$BOT_FILE'"
         exit 1
     fi
 
     # Make sure the BWAPI file exists
-    if [ ! -f "$BOT_DIR/$BOT_NAME/BWAPI.dll" ]; then
-        LOG "Bot not found in '$BOT_DIR/$BOT_NAME/BWAPI.dll'"
+    if [ ! -f "$BOT_DIR/BWAPI.dll" ]; then
+        LOG "Bot not found in '$BOT_DIR/BWAPI.dll'"
         exit 1
     fi
 

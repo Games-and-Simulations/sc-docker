@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 from enum import Enum
 from os.path import exists, basename, abspath
-from typing import Dict
+from typing import Dict, Optional
 
 from dateutil.parser import parse as parse_iso_date
 
@@ -45,18 +45,17 @@ class BotType(Enum):
 
 
 class BotJsonMeta:
-    name: str = None
-    race: PlayerRace = None
-    description: str = None
-    botType: BotType = None
+    # required fields:
+    name: str
+    race: PlayerRace
+    botType: BotType
 
-    # last updated
-    update: datetime = None
-
-    # links to SSCAIT website
-    botBinary: str = None
-    bwapiDLL: str = None
-    botProfileURL: str = None
+    # optional fields
+    description: Optional[str]
+    update: Optional[datetime]  # last updated
+    botBinary: Optional[str]  # link to website
+    bwapiDLL: Optional[str]  # link to website
+    botProfileURL: Optional[str]  # link to website
 
 
 class BotPlayer(Player):
@@ -71,21 +70,19 @@ class BotPlayer(Player):
     At the time of creating instance it must have the file system structure satisfied.
     """
 
-    def __init__(self, name: str, bot_dir: str = SC_BOT_DIR):
-        self.name = name
-
+    def __init__(self, bot_dir: str):
         self.bot_dir = bot_dir
-        self.base_dir = bot_dir + "/" + self.name
 
         self._check_structure()
         self.meta = self._read_meta()
+        self.name = self.meta.name
         self.race = self.meta.race
         self.bot_type = self.meta.botType
         self.bot_filename = self._find_bot_filename(self.meta.botType)
         self.bwapi_version = self._find_bwapi_version()
 
     def _read_meta(self) -> BotJsonMeta:
-        with open(f"{self.base_dir}/bot.json", "r") as f:
+        with open(f"{self.bot_dir}/bot.json", "r") as f:
             json_spec = json.load(f)
 
         return self.parse_meta(json_spec)
@@ -109,27 +106,27 @@ class BotPlayer(Player):
 
     @property
     def bwapi_dll_file(self):
-        return f"{self.base_dir}/BWAPI.dll"
+        return f"{self.bot_dir}/BWAPI.dll"
 
     @property
     def bot_json_file(self):
-        return f"{self.base_dir}/bot.json"
+        return f"{self.bot_dir}/bot.json"
 
     @property
     def ai_dir(self):
-        return f"{self.base_dir}/AI"
+        return f"{self.bot_dir}/AI"
 
     @property
     def read_dir(self):
-        return f"{self.base_dir}/read"
+        return f"{self.bot_dir}/read"
 
     @property
     def write_dir(self):
-        return f"{self.base_dir}/write"
+        return f"{self.bot_dir}/write"
 
     def _check_structure(self):
-        if not exists(f"{self.base_dir}"):
-            raise PlayerException(f"Bot cannot be found in {self.base_dir}")
+        if not exists(f"{self.bot_dir}"):
+            raise PlayerException(f"Bot cannot be found in {self.bot_dir}")
         if not exists(self.bot_json_file):
             raise PlayerException(f"Bot JSON config cannot be found in {self.bot_json_file}")
         if not exists(self.bwapi_dll_file):
@@ -142,21 +139,20 @@ class BotPlayer(Player):
             raise PlayerException(f"write folder cannot be found in {self.write_dir}")
 
     @staticmethod
-    def parse_meta(json_spec: Dict):
+    def parse_meta(json_spec: Dict) -> BotJsonMeta:
         meta = BotJsonMeta()
         meta.name = json_spec['name']
         meta.race = PlayerRace[json_spec['race'].upper()]
-        meta.description = json_spec['description']
-
         bot_type = json_spec['botType']
         if bot_type == "JAVA_JNI" or bot_type == "JAVA_MIRROR":
             bot_type = "JAVA"
         meta.botType = BotType[bot_type]
 
-        meta.update = parse_iso_date(json_spec['update'])
-        meta.botBinary = json_spec['botBinary']
-        meta.bwapiDLL = json_spec['bwapiDLL']
-        meta.botProfileURL = json_spec['botProfileURL']
+        meta.description = json_spec['description'] if 'description' in json_spec else None
+        meta.update = parse_iso_date(json_spec['update']) if 'update' in json_spec else None
+        meta.botBinary = json_spec['botBinary'] if 'botBinary' in json_spec else None
+        meta.bwapiDLL = json_spec['bwapiDLL'] if 'bwapiDLL' in json_spec else None
+        meta.botProfileURL = json_spec['botProfileURL'] if 'botProfileURL' in json_spec else None
 
         return meta
 
@@ -191,4 +187,4 @@ def bot_regex(bot: str):
 def check_bot_exists(bot: str, bot_dir: str):
     # this will raise exception if bot doesn't exist
     # or doesn't have proper structure
-    BotPlayer(bot, bot_dir)
+    BotPlayer(f"{bot_dir}/{bot}")
