@@ -10,7 +10,6 @@ from .docker import launch_game, stop_containers, dockermachine_ip, cleanup_cont
     running_containers
 from .error import GameException, RealtimeOutedException
 from .game_type import GameType
-from .logs import find_logs, find_frames, find_replays, find_results
 from .player import HumanPlayer
 from .plot import RealtimeFramePlotter
 from .result import GameResult
@@ -144,15 +143,10 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     if is_1v1_game:
         game_time = time.time() - time_start
 
-        log_files = find_logs(args.log_dir, game_name)
-        replay_files = find_replays(args.map_dir, game_name)
-        frame_files = find_frames(args.log_dir, game_name)
-        result_files = find_results(args.log_dir, game_name)
-
         return GameResult(game_name, players, game_time,
                           # game error states
                           is_realtime_outed,
-                          # game files
-                          replay_files, log_files, frame_files, result_files)
+                          # dirs with results
+                          args.map_dir, args.log_dir)
 
     return None

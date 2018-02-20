@@ -2,6 +2,7 @@ import json
 import logging
 from typing import List, Optional
 
+from .logs import find_logs, find_frames, find_replays, find_results
 from .player import Player
 
 logger = logging.getLogger(__name__)
@@ -40,32 +41,35 @@ class ScoreResult:
 
 class GameResult:
     def __init__(self,
-                 game_name: str, players: List[Player],
+                 game_name: str,
+                 players: List[Player],
                  game_time: float,
-
                  is_realtime_outed: bool,
-
-                 replay_files: List[str], log_files: List[str],
-                 frame_files: List[str], result_files: List[str]):
+                 map_dir: str,
+                 log_dir: str):
+        #
         self.game_name = game_name
         self.game_time = game_time
         self.players = players
 
-        self.replay_files = replay_files
-        self.log_files = log_files
-        self.frame_files = frame_files
-        self.result_files = result_files
-
-        self.is_realtime_outed = is_realtime_outed
-
-        self.score_results = []
+        self.map_dir = map_dir
+        self.log_dir = log_dir
 
         self._is_crashed = None
         self._is_gametime_outed = None
+        self.is_realtime_outed = is_realtime_outed
+
         self._winner_player = None
         self._nth_winner_player = None
         self._loser_player = None
         self._nth_loser_player = None
+
+        self._log_files = None
+        self._replay_files = None
+        self._frame_files = None
+        self._result_files = None
+
+        self.score_results = []
 
         self._is_processed = False
 
@@ -119,6 +123,30 @@ class GameResult:
         # todo: implement, maybe according to SSCAIT rules?
         self._is_gametime_outed = False
         self.score_results = results
+
+    @property
+    def replay_files(self) -> List[str]:
+        if self._replay_files is None:
+            self._replay_files = find_replays(self.map_dir, self.game_name)
+        return self._replay_files
+
+    @property
+    def log_files(self) -> List[str]:
+        if self._log_files is None:
+            self._log_files = find_logs(self.log_dir, self.game_name)
+        return self._log_files
+
+    @property
+    def frame_files(self) -> List[str]:
+        if self._frame_files is None:
+            self._frame_files = find_frames(self.log_dir, self.game_name)
+        return self._frame_files
+
+    @property
+    def result_files(self) -> List[str]:
+        if self._result_files is None:
+            self._result_files = find_results(self.log_dir, self.game_name)
+        return self._result_files
 
     # Bunch of getters
     @property
