@@ -37,6 +37,7 @@ BOT_DATA_AI_DIR = f"{BWAPI_DATA_DIR}/AI"
 BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 
 EXIT_CODE_REALTIME_OUTED = 2
+MAX_TIME_RUNNING_SINGLE_CONTAINER = 20
 
 try:
     from subprocess import DEVNULL  # py3k
@@ -416,10 +417,23 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
                     "and then start the game.")
 
     logger.info(f"Waiting until game {launch_params['game_name']} is finished...")
+    running_time = time.time()
     while True:
         containers = running_containers(launch_params['game_name'])
-        if len(containers) == 0:
+
+        if len(containers) == 0:  # game finished
             break
+
+        if len(containers) >= 2:  # update the last time when there were multiple containers
+            running_time = time.time()
+        if len(containers) == 1 and time.time() - running_time > MAX_TIME_RUNNING_SINGLE_CONTAINER:
+            # One container has been running for too long,
+            # likely because of some crash.
+            # Let's stop this one as well before overall game timeout.
+            raise ContainerException("One lingering container has been found "
+                                     "after single container timeout "
+                                     f"({MAX_TIME_RUNNING_SINGLE_CONTAINER} sec), "
+                                     "the game probably crashed.")
 
         logger.debug(f"Waiting. {containers}")
         wait_callback()
