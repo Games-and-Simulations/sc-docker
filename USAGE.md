@@ -101,7 +101,7 @@ Use this structure:
 
     `race` can be one of {`Terran`, `Zerg`, `Protoss`, `Random`}.
 
-    `botType` can be one of {`JAVA_JNI`, `JAVA_MIRROR`, `AI_MODULE`, `EXE`}
+    `botType` can be one of {`JAVA_JNI`, `JAVA_MIRROR`, `AI_MODULE`, `EXE`, `JYTHON`}
 
 - **/BWAPI.dll** - your own version of BWAPI.dll. Must be in the list of supported BWAPIs, see file `bwapi.py`. You can quickly check if `$ md5sum BWAPI.dll` is some of these:
 
