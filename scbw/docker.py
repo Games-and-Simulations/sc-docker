@@ -399,6 +399,15 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
     if len(players) == 0:
         raise GameException("At least one player must be specified")
 
+    # todo: this is a quick fix, do it properly later
+    existing_files = chain(find_logs(launch_params['log_dir'], launch_params['game_name']),
+                           find_replays(launch_params['map_dir'], launch_params['game_name']),
+                           find_results(launch_params['log_dir'], launch_params['game_name']),
+                           find_frames(launch_params['log_dir'], launch_params['game_name']))
+    for file in existing_files:
+        logger.debug(f"Removing existing file {file}")
+        os.remove(file)
+
     for i, player in enumerate(players):
         launch_image(player, nth_player=i, num_players=len(players), **launch_params)
 
