@@ -213,3 +213,70 @@ function update_registry() {
     wine REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Blizzard Entertainment\Starcraft" /v intro /t REG_DWORD /d 00000200
     wine REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Blizzard Entertainment\Starcraft" /v introX /t REG_DWORD /d 00000000
 }
+
+function launch_multiplayer() {
+    # This a hacky way to go around "Unable to distribute map" bug
+    # that I couldn't debug. Basically sends appropriate keys to Starcraft to start the game.
+
+    # todo: game type
+    # todo: more testing
+
+    # Get to the root directory
+    xdotool key G
+    sleep 0.1
+    xdotool key Up
+    sleep 0.1
+    xdotool key Return
+    sleep 0.1
+
+    cd "$MAP_DIR"
+    MAP_RELATIVE="${MAP_NAME/$MAP_DIR\//}"
+    ADD_UP="" # If not in the root directory (as in the first loop), [Up One Level] is added
+    for path in ${MAP_RELATIVE//// }; do
+        FILES=$(echo "$(ls -p | grep -v / | sort )")
+
+        if [ -d "$path" ]; then
+            # If no files, then menu will start at the first directory
+            if [ -z "$FILES" ]; then
+                DIRS=$(echo -e "$(ls -d */ | sed 's/.$//')$ADD_UP" | sort)
+                POSITION=$(grep -n "$path" <(echo "$DIRS") | cut -d: -f1)
+                for i in `seq 2 $POSITION`;
+                do
+                    xdotool key Down
+                    sleep 0.1
+                done
+            else
+            # If there are files, cursor will start at the first file
+                DIRS=$(echo -e "$(ls -d */ | sed 's/.$//')$ADD_UP" | sort -r)
+                POSITION=$(grep -n "$path" <(echo "$DIRS") | cut -d: -f1)
+                for i in `seq 2 $POSITION`;
+                do
+                    xdotool key Up
+                    sleep 0.1
+                done
+            fi
+
+            echo "cd $path"
+            cd "$path"
+        else
+            POSITION=$(grep -n "$path" <(echo "$FILES") | cut -d: -f1)
+            for i in `seq 2 $POSITION`;
+            do
+                xdotool key Down
+                sleep 0.1
+            done
+        fi
+
+        xdotool key Return
+        sleep 0.1
+
+        ADD_UP="\nUp One Level"
+    done
+
+    xdotool key O
+    sleep 3
+
+    # Position of the start button
+    # (we have to click, because key press goes to chat)
+    xdotool mousemove 521 395 click 1
+}

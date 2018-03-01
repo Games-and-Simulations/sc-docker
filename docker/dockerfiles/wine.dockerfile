@@ -51,7 +51,7 @@ RUN set -x \
 RUN set -x \
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
-    xvfb xauth x11vnc x11-utils x11-xserver-utils \
+    xvfb xauth x11vnc x11-utils x11-xserver-utils xdotool \
     curl unzip software-properties-common joe vim sudo wget curl tree screen tmux p7zip apt-transport-https winbind \
     binutils cabextract unrar zenity \
   && curl -L https://dl.winehq.org/wine-builds/Release.key -o Release.key \

@@ -42,7 +42,11 @@ start_bot
 sleep 1
 
 start_game "$@"
-sleep 10
+sleep 3
+
+if [ $NTH_PLAYER == "0" ]; then # if is_server
+  launch_multiplayer
+fi
 
 if [ -z "${PLAY_TIMEOUT+set}" ]; then
     detect_game_finished
