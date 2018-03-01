@@ -95,6 +95,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         game_speed=args.game_speed,
         timeout=args.timeout,
         hide_names=args.hide_names,
+        drop_players=any(player.meta.javaDebugPort is not None for player in players),
 
         # mount dirs
         log_dir=args.log_dir,

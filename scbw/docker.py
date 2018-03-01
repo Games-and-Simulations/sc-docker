@@ -5,9 +5,11 @@ import subprocess
 import sys
 import time
 from distutils.dir_util import copy_tree
+from itertools import chain
 from os.path import exists, abspath, dirname
 from typing import List, Optional, Callable, Dict, Any
 
+from .logs import find_replays, find_logs, find_results, find_frames
 from .defaults import *
 from .error import DockerException, GameException, RealtimeOutedException, ContainerException
 from .game_type import GameType
@@ -236,6 +238,7 @@ def launch_image(
         game_speed: int,
         timeout: Optional[int],
         hide_names: bool,
+        drop_players: bool,
 
         # mount dirs
         log_dir: str,
@@ -298,6 +301,7 @@ def launch_image(
         GAME_TYPE=game_type.value,
         SPEED_OVERRIDE=game_speed,
         HIDE_NAMES="1" if hide_names else "0",
+        DROP_PLAYERS="1" if drop_players else "0",
 
         TM_LOG_RESULTS=f"../logs/{game_name}_{nth_player}_results.json",
         TM_LOG_FRAMETIMES=f"../logs/{game_name}_{nth_player}_frames.csv",
