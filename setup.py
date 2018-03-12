@@ -5,7 +5,8 @@ Starcraft BW docker launcher.
 # Always prefer setuptools over distutils
 from setuptools import setup
 
-from scbw import VERSION
+from scbw.defaults import VERSION
+
 
 setup(
     name='scbw',
@@ -46,7 +47,8 @@ setup(
                       'requests',
                       'python-dateutil',
                       'pandas',
-                      'matplotlib'],
+                      'matplotlib',
+                      'docker'],
     packages=['scbw'],
     entry_points={  # Optional
         'console_scripts': [
