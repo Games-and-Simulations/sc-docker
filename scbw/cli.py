@@ -4,6 +4,7 @@ import sys
 from os.path import exists
 
 import coloredlogs
+import docker
 
 from .defaults import *
 from .docker import BASE_VNC_PORT, VNC_HOST
@@ -120,6 +121,11 @@ parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")
 
 
+def _image_version_up_to_date():
+    client = docker.from_env()
+    return any(tag == SC_IMAGE for image in client.images.list('starcraft') for tag in image.tags)
+
+
 # todo: add support for multi-PC play.
 # We need to think about how to setup docker IPs,
 # maybe we will need to specify manually routing tables? :/
@@ -135,11 +141,12 @@ def main():
         fmt="%(asctime)s %(levelname)s %(name)s[%(process)d] %(message)s" if args.log_verbose
         else "%(levelname)s %(message)s")
 
-    if args.install:
+    if args.install or not _image_version_up_to_date():
         from .install import install
         try:
             install()
-            sys.exit(0)
+            if args.install:
+                sys.exit(0)
         except ScbwException as e:
             logger.exception(e)
             sys.exit(1)

@@ -16,11 +16,7 @@ logger = logging.getLogger(__name__)
 def install():
     if exists(SCBW_BASE_DIR):
         logger.warning(f"Path {SCBW_BASE_DIR} found, re-installing scbw package.")
-        logger.info("This will re-create the base game image, continue? [Y/n]")
-        do_continue = input()
-        if not do_continue == "y" and not do_continue == "Y" and not do_continue == "":
-            logger.warning("Reinstall aborted by user.")
-            sys.exit(1)
+        logger.warning("Re-creating the base game image...")
 
     check_docker_version()
     check_docker_can_run()
