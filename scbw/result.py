@@ -1,22 +1,28 @@
+from typing import List, Optional
 import json
 import logging
-from typing import List, Optional
 
-from .logs import find_logs, find_frames, find_replays, find_results
-from .player import Player
+from scbw.logs import find_frames, find_logs, find_replays, find_results
+from scbw.player import Player
+
+
 
 logger = logging.getLogger(__name__)
 
 
+
 class ScoreResult:
-    def __init__(self,
-                 is_winner: bool,
-                 is_crashed: bool,
-                 building_score: int,
-                 kill_score: int,
-                 razing_score: int,
-                 unit_score: int,
-                 ):
+
+
+    def __init__(
+        self,
+        is_winner: bool,
+        is_crashed: bool,
+        building_score: int,
+        kill_score: int,
+        razing_score: int,
+        unit_score: int,
+    ) -> None:
         self.is_winner = is_winner
         self.is_crashed = is_crashed
         self.building_score = building_score
@@ -24,8 +30,9 @@ class ScoreResult:
         self.razing_score = razing_score
         self.unit_score = unit_score
 
+
     @staticmethod
-    def load_result(result_file: str):
+    def load_result(result_file: str) -> 'ScoreResult':
         with open(result_file, "r") as f:
             v = json.load(f)
 
@@ -39,15 +46,19 @@ class ScoreResult:
         )
 
 
+
 class GameResult:
-    def __init__(self,
-                 game_name: str,
-                 players: List[Player],
-                 game_time: float,
-                 is_realtime_outed: bool,
-                 map_dir: str,
-                 log_dir: str):
-        #
+
+
+    def __init__(
+        self,
+        game_name: str,
+        players: List[Player],
+        game_time: float,
+        is_realtime_outed: bool,
+        map_dir: str,
+        log_dir: str
+    ) -> None:
         self.game_name = game_name
         self.game_time = game_time
         self.players = players
@@ -73,7 +84,8 @@ class GameResult:
 
         self._is_processed = False
 
-    def _process_files(self):
+
+    def _process_files(self) -> None:
         # this whole processing assumes 1v1 bot vs bot games
         if self._is_processed:
             return
@@ -124,11 +136,13 @@ class GameResult:
         self._is_gametime_outed = False
         self.score_results = results
 
+
     @property
     def replay_files(self) -> List[str]:
         if self._replay_files is None:
             self._replay_files = find_replays(self.map_dir, self.game_name)
         return self._replay_files
+
 
     @property
     def log_files(self) -> List[str]:
@@ -136,17 +150,20 @@ class GameResult:
             self._log_files = find_logs(self.log_dir, self.game_name)
         return self._log_files
 
+
     @property
     def frame_files(self) -> List[str]:
         if self._frame_files is None:
             self._frame_files = find_frames(self.log_dir, self.game_name)
         return self._frame_files
 
+
     @property
     def result_files(self) -> List[str]:
         if self._result_files is None:
             self._result_files = find_results(self.log_dir, self.game_name)
         return self._result_files
+
 
     # Bunch of getters
     @property
@@ -156,30 +173,36 @@ class GameResult:
                not self.is_gametime_outed and \
                not self.is_realtime_outed
 
+
     @property
     def is_crashed(self) -> bool:
         self._process_files()
         return self._is_crashed
+
 
     @property
     def is_gametime_outed(self) -> bool:
         self._process_files()
         return self._is_gametime_outed
 
+
     @property
     def winner_player(self) -> Optional[Player]:
         self._process_files()
         return self._winner_player
+
 
     @property
     def nth_winner_player(self) -> Optional[int]:
         self._process_files()
         return self._nth_winner_player
 
+
     @property
     def loser_player(self) -> Optional[Player]:
         self._process_files()
         return self._loser_player
+
 
     @property
     def nth_loser_player(self) -> Optional[int]:

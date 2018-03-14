@@ -1,7 +1,8 @@
-from enum import Enum
+import enum
 
 
-class GameType(Enum):
+
+class GameType(enum.Enum):
     TOP_VS_BOTTOM = "TOP_VS_BOTTOM"
     MELEE = "MELEE"
     FREE_FOR_ALL = "FREE_FOR_ALL"

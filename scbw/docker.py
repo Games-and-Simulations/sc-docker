@@ -1,21 +1,23 @@
+from typing import List, Optional, Callable, Dict, Any
+import distutils.dir_util
+import itertools
 import logging
 import os
+import os.path
 import re
 import subprocess
 import sys
 import time
-from distutils.dir_util import copy_tree
-from itertools import chain
-from os.path import exists, abspath, dirname
-from typing import List, Optional, Callable, Dict, Any
 
-from .logs import find_replays, find_logs, find_results, find_frames
-from .defaults import *
-from .error import DockerException, GameException, RealtimeOutedException, ContainerException
-from .game_type import GameType
-from .player import BotPlayer, Player, HumanPlayer
-from .utils import download_file
-from .vnc import launch_vnc_viewer
+from scbw.defaults import SCBW_BASE_DIR, SC_PARENT_IMAGE, SC_JAVA_IMAGE
+from scbw.error import ContainerException, DockerException, GameException, RealtimeOutedException
+from scbw.game_type import GameType
+from scbw.logs import find_frames, find_logs, find_replays, find_results
+from scbw.player import BotPlayer, HumanPlayer, Player
+from scbw.utils import download_file
+from scbw.vnc import launch_vnc_viewer
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,7 @@ BOT_DATA_LOGS_DIR = f"{BWAPI_DATA_DIR}/logs"
 EXIT_CODE_REALTIME_OUTED = 2
 MAX_TIME_RUNNING_SINGLE_CONTAINER = 20
 
+
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -52,8 +55,9 @@ def check_docker_version():
     try:
         out = subprocess.check_output(["docker", "version", "--format", "'{{.Server.APIVersion}}'"])
     except Exception:
-        raise DockerException("An error occurred while trying to call `docker version`,"
-                              " did you install docker?")
+        raise DockerException(
+            "An error occurred while trying to call `docker version`, did you install docker?"
+        )
     logger.debug(f"Using docker API version {out}")
 
 
@@ -64,21 +68,25 @@ def check_docker_can_run():
     except Exception:
         raise DockerException(
             "An error occurred while trying to call `docker run hello-world`, "
-            "do you have sufficient rights to run sudo?")
+            "do you have sufficient rights to run sudo?"
+        )
 
     if b"Hello" not in out:
         raise DockerException(
-            f"Docker did not run properly - could'nt find 'Hello' in hello-world run, found {out}")
+            f"Docker did not run properly - could'nt find 'Hello' in hello-world run, found {out}"
+        )
 
 
 def check_docker_has_local_net() -> bool:
     logger.info(f"checking docker has network {DOCKER_STARCRAFT_NETWORK}")
     try:
         out = subprocess.check_output(
-            ["docker", "network", "ls", "-f", f"name={DOCKER_STARCRAFT_NETWORK}", "-q"])
+            ["docker", "network", "ls", "-f", f"name={DOCKER_STARCRAFT_NETWORK}", "-q"]
+        )
     except Exception:
         raise DockerException(
-            f"An error occurred while trying to call `docker network ls -f name={DOCKER_STARCRAFT_NETWORK} -q`")
+            f"An error occurred while trying to call `docker network ls -f name={DOCKER_STARCRAFT_NETWORK} -q`"
+        )
 
     logger.debug(f"docker network id: {out}")
     return bool(out)
@@ -113,12 +121,12 @@ def create_local_image(image: str):
     try:
         # first copy all docker files we will need
         # for building image to somewhere we can write
-        pkg_docker_dir = f'{abspath(dirname(__file__))}/local_docker'
+        pkg_docker_dir = f'{os.path.abspath(os.path.dirname(__file__))}/local_docker'
         base_dir = SCBW_BASE_DIR + "/docker"
 
         logger.info(f"creating docker local image")
         logger.info(f"copying files from {pkg_docker_dir} to {base_dir}")
-        copy_tree(pkg_docker_dir, base_dir)
+        distutils.dir_util.copy_tree(pkg_docker_dir, base_dir)
 
         # pull java parent image
         logger.info(f"pulling image {SC_PARENT_IMAGE}, this may take a while...")
@@ -132,7 +140,7 @@ def create_local_image(image: str):
 
         # download starcraft.zip
         starcraft_zip_file = f"{base_dir}/starcraft.zip"
-        if not exists(starcraft_zip_file):
+        if not os.path.exists(starcraft_zip_file):
             logger.info(f"downloading starcraft.zip to {starcraft_zip_file}")
             download_file('http://files.theabyss.ru/sc/starcraft.zip', starcraft_zip_file)
 
@@ -362,7 +370,8 @@ def launch_image(
         logger.debug(f"container id '{container_id}'")
     else:
         raise DockerException(
-            f"could not launch {player} in container {container_name}")
+            f"could not launch {player} in container {container_name}"
+        )
 
 
 def running_containers(name_filter):
@@ -400,7 +409,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
         raise GameException("At least one player must be specified")
 
     # todo: this is a quick fix, do it properly later
-    existing_files = chain(find_logs(launch_params['log_dir'], launch_params['game_name']),
+    existing_files = itertools.chain(find_logs(launch_params['log_dir'], launch_params['game_name']),
                            find_replays(launch_params['map_dir'], launch_params['game_name']),
                            find_results(launch_params['log_dir'], launch_params['game_name']),
                            find_frames(launch_params['log_dir'], launch_params['game_name']))
@@ -467,5 +476,5 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
         for nth_player, player in enumerate(players):
             if isinstance(player, BotPlayer):
                 logger.debug(f"Overwriting files for {player}")
-                copy_tree(f"{player.write_dir}/{launch_params['game_name']}_{nth_player}",
+                distutils.dir_util.copy_tree(f"{player.write_dir}/{launch_params['game_name']}_{nth_player}",
                           player.read_dir)

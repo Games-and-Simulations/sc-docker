@@ -1,21 +1,24 @@
+from typing import List, Optional, Callable
 import logging
 import signal
 import time
 from argparse import Namespace
-from typing import List, Optional, Callable
 
-from .bot_factory import retrieve_bots
-from .bot_storage import LocalBotStorage, SscaitBotStorage
-from .docker import launch_game, stop_containers, dockermachine_ip, cleanup_containers, \
-    running_containers
-from .error import GameException, RealtimeOutedException
-from .game_type import GameType
-from .player import HumanPlayer
-from .plot import RealtimeFramePlotter
-from .result import GameResult
-from .vnc import check_vnc_exists
+from scbw.bot_factory import retrieve_bots
+from scbw.bot_storage import LocalBotStorage, SscaitBotStorage
+from scbw.docker import (
+    cleanup_containers, dockermachine_ip, launch_game,
+    running_containers, stop_containers
+)
+from scbw.error import GameException, RealtimeOutedException
+from scbw.game_type import GameType
+from scbw.player import HumanPlayer
+from scbw.plot import RealtimeFramePlotter
+from scbw.result import GameResult
+from scbw.vnc import check_vnc_exists
 
 logger = logging.getLogger(__name__)
+
 
 
 class GameArgs(Namespace):
@@ -42,7 +45,10 @@ class GameArgs(Namespace):
     opt: str
 
 
-def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Optional[GameResult]:
+def run_game(
+    args: GameArgs,
+    wait_callback: Optional[Callable] = None
+) -> Optional[GameResult]:
     # Check all startup requirements
     if not args.headless:
         check_vnc_exists()
@@ -61,7 +67,10 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         players.append(HumanPlayer())
     if args.bots is None:
         args.bots = []
-    bot_storages = (LocalBotStorage(args.bot_dir), SscaitBotStorage(args.bot_dir))
+    bot_storages = (
+        LocalBotStorage(args.bot_dir),
+        SscaitBotStorage(args.bot_dir)
+    )
     players += retrieve_bots(args.bots, bot_storages)
 
     is_1v1_game = len(players) == 2
@@ -116,13 +125,12 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     time_start = time.time()
     is_realtime_outed = False
     try:
-        launch_game(players, launch_params,
-                    args.show_all, args.read_overwrite,
-                    _wait_callback)
-
+        launch_game(
+            players, launch_params, args.show_all,
+            args.read_overwrite, _wait_callback
+        )
     except RealtimeOutedException:
         is_realtime_outed = True
-
     except KeyboardInterrupt:
         logger.warning("Caught interrupt, shutting down containers")
         logger.warning("This can take a moment, please wait.")
@@ -144,10 +152,12 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
     if is_1v1_game:
         game_time = time.time() - time_start
 
-        return GameResult(game_name, players, game_time,
-                          # game error states
-                          is_realtime_outed,
-                          # dirs with results
-                          args.map_dir, args.log_dir)
+        return GameResult(
+            game_name, players, game_time,
+            # game error states
+            is_realtime_outed,
+            # dirs with results
+            args.map_dir, args.log_dir
+        )
 
     return None
