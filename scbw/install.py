@@ -8,8 +8,8 @@ from scbw.defaults import (
     SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR
 )
 from scbw.docker_utils import (
-    check_docker_version, check_docker_can_run, check_docker_has_local_net,
-    create_local_net, remove_game_image, create_local_image
+    check_docker_can_run, ensure_docker_has_local_net,
+    remove_game_image, create_local_image
 )
 from scbw.map import download_bwta_caches, download_sscait_maps
 from scbw.utils import create_data_dirs
@@ -25,9 +25,8 @@ def install() -> None:
         logger.warning(f"Path {SCBW_BASE_DIR} found, re-installing scbw package.")
         logger.warning("Re-creating the base game image...")
 
-    check_docker_version()
     check_docker_can_run()
-    check_docker_has_local_net() or create_local_net()
+    ensure_docker_has_local_net()
 
     # remove old image in case of update
     remove_game_image(SC_IMAGE)
