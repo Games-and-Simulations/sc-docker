@@ -6,7 +6,7 @@ from argparse import Namespace
 
 from scbw.bot_factory import retrieve_bots
 from scbw.bot_storage import LocalBotStorage, SscaitBotStorage
-from scbw.docker import (
+from scbw.docker_utils import (
     cleanup_containers, dockermachine_ip, launch_game,
     running_containers, stop_containers
 )
@@ -16,6 +16,8 @@ from scbw.player import HumanPlayer
 from scbw.plot import RealtimeFramePlotter
 from scbw.result import GameResult
 from scbw.vnc import check_vnc_exists
+
+
 
 logger = logging.getLogger(__name__)
 

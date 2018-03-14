@@ -7,7 +7,7 @@ from scbw.defaults import (
     SCBW_BASE_DIR, SC_IMAGE, SC_LOG_DIR, SC_BOT_DIR, SC_MAP_DIR,
     SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR
 )
-from scbw.docker import (
+from scbw.docker_utils import (
     check_docker_version, check_docker_can_run, check_docker_has_local_net,
     create_local_net, remove_game_image, create_local_image
 )

@@ -10,7 +10,7 @@ from scbw.defaults import (
     SC_BOT_DIR, SC_LOG_DIR, SC_MAP_DIR, SCBW_BASE_DIR, SC_IMAGE,
     SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR, VERSION
 )
-from scbw.docker import BASE_VNC_PORT, VNC_HOST
+from scbw.docker_utils import BASE_VNC_PORT, VNC_HOST
 from scbw.error import ScbwException
 from scbw.game import run_game
 from scbw.game_type import GameType

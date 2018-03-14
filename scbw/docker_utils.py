@@ -9,6 +9,9 @@ import subprocess
 import sys
 import time
 
+import docker
+import docker.errors
+
 from scbw.defaults import SCBW_BASE_DIR, SC_PARENT_IMAGE, SC_JAVA_IMAGE
 from scbw.error import ContainerException, DockerException, GameException, RealtimeOutedException
 from scbw.game_type import GameType
@@ -20,6 +23,7 @@ from scbw.vnc import launch_vnc_viewer
 
 
 logger = logging.getLogger(__name__)
+docker_client = docker.from_env()
 
 DOCKER_STARCRAFT_NETWORK = "sc_net"
 BASE_VNC_PORT = 5900
@@ -51,14 +55,12 @@ except ImportError:
 
 
 def check_docker_version():
+    """
+    :raises docker.errors.APIError
+    """
     logger.info("checking docker version")
-    try:
-        out = subprocess.check_output(["docker", "version", "--format", "'{{.Server.APIVersion}}'"])
-    except Exception:
-        raise DockerException(
-            "An error occurred while trying to call `docker version`, did you install docker?"
-        )
-    logger.debug(f"Using docker API version {out}")
+    version = docker_client.version()['ApiVersion']
+    logger.debug(f"Using docker API version {version}")
 
 
 def check_docker_can_run():
