@@ -10,7 +10,7 @@ from .docker import launch_game, stop_containers, dockermachine_ip, cleanup_cont
     running_containers
 from .error import GameException, RealtimeOutedException
 from .game_type import GameType
-from .player import HumanPlayer
+from .player import HumanPlayer, BotPlayer
 from .plot import RealtimeFramePlotter
 from .result import GameResult
 from .vnc import check_vnc_exists
@@ -36,6 +36,7 @@ class GameArgs(Namespace):
     vnc_base_port: int
     vnc_host: str
     show_all: bool
+    allow_input: bool
     plot_realtime: bool
     read_overwrite: bool
     docker_image: str
@@ -95,7 +96,10 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         game_speed=args.game_speed,
         timeout=args.timeout,
         hide_names=args.hide_names,
-        drop_players=any(player.meta.javaDebugPort is not None for player in players),
+        drop_players=any(isinstance(player, BotPlayer)
+                         and player.meta.javaDebugPort is not None
+                         for player in players),
+        allow_input=args.allow_input,
 
         # mount dirs
         log_dir=args.log_dir,

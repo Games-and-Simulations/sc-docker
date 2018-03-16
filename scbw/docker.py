@@ -239,6 +239,7 @@ def launch_image(
         timeout: Optional[int],
         hide_names: bool,
         drop_players: bool,
+        allow_input: bool,
 
         # mount dirs
         log_dir: str,
@@ -306,7 +307,7 @@ def launch_image(
         TM_LOG_RESULTS=f"../logs/{game_name}_{nth_player}_results.json",
         TM_LOG_FRAMETIMES=f"../logs/{game_name}_{nth_player}_frames.csv",
         TM_SPEED_OVERRIDE=game_speed,
-        TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) else "0",
+        TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) or allow_input else "0",
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED,
 

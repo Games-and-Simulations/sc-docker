@@ -95,6 +95,8 @@ parser.add_argument('--vnc_host', type=str, default='',
 # Settings
 parser.add_argument('--show_all', action="store_true",
                     help="Launch VNC viewers for all containers, not just the server.")
+parser.add_argument('--allow_input', action="store_true",
+                    help="Allow controlling the game for running bots. Useful for debugging.")
 parser.add_argument('--log_level', type=str, default="INFO",
                     choices=['DEBUG', 'INFO', 'WARN', 'ERROR'],
                     help="Logging level.")
