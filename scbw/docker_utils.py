@@ -91,9 +91,9 @@ def ensure_local_net(
 
 def ensure_local_image(
     image: str,
-    parent_image: str = scbw.defaults.SC_PARENT_IMAGE,
-    java_image: str = scbw.defaults.SC_JAVA_IMAGE,
-    starcraft_base_dir: str = scbw.defaults.SCBW_BASE_DIR,
+    parent_image: str = SC_PARENT_IMAGE,
+    java_image: str = SC_JAVA_IMAGE,
+    starcraft_base_dir: str = SCBW_BASE_DIR,
     starcraft_binary_link: str = 'http://files.theabyss.ru/sc/starcraft.zip',
 ) -> None:
     """
@@ -118,11 +118,11 @@ def ensure_local_image(
     starcraft_zip_file = f"{base_dir}/starcraft.zip"
     if not os.path.exists(starcraft_zip_file):
         logger.info(f"Downloading starcraft.zip to {starcraft_zip_file}")
-        scbw.utils.download_file('http://files.theabyss.ru/sc/starcraft.zip', starcraft_zip_file)
+        download_file(starcraft_binary_link, starcraft_zip_file)
 
-    logger.info(f"Pulling image {scbw.defaults.SC_PARENT_IMAGE}, this may take a while...")
-    pulled_image = docker_client.images.pull(scbw.defaults.SC_PARENT_IMAGE)
-    pulled_image.tag(scbw.defaults.SC_JAVA_IMAGE)
+    logger.info(f"Pulling image {SC_PARENT_IMAGE}, this may take a while...")
+    pulled_image = docker_client.images.pull(SC_PARENT_IMAGE)
+    pulled_image.tag(SC_JAVA_IMAGE)
 
     logger.info(f"building local image {image}, this may take a while...")
     docker_client.images.build(path=base_dir, dockerfile='game.dockerfile', tag=image)
@@ -240,51 +240,16 @@ def launch_image(
 
     container_name = f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}"
 
-#    docker_client.containers.run(
-#        image
-#        name=container_name,
-#        detach=True,
-#        privileged=True,
-#        volumes=[
-#            f"{xoscmounts(log_dir)}:{LOG_DIR}:rw",
-#            f"{xoscmounts(map_dir)}:{MAP_DIR}:rw",
-#            f"{xoscmounts(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
-#            f"{xoscmounts(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw"
-#        ]
-#    )
-    cmd = ["docker", "run",
+    volumes={
+        xoscmounts(log_dir): {'bind': LOG_DIR, 'mode': 'rw'},
+        xoscmounts(map_dir): {'bind': MAP_DIR, 'mode': 'rw'},
+        xoscmounts(bwapi_data_bwta_dir): {'bind': BWAPI_DATA_BWTA_DIR, 'mode': 'rw'},
+        xoscmounts(bwapi_data_bwta2_dir): {'bind': BWAPI_DATA_BWTA2_DIR, 'mode': 'rw'},
+    }
 
-           "-d",
-           "--privileged",
-
-           "--name", container_name,
-
-           "--volume", f"{xoscmounts(log_dir)}:{LOG_DIR}:rw",
-           "--volume", f"{xoscmounts(map_dir)}:{MAP_DIR}:rw",
-           "--volume", f"{xoscmounts(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
-           "--volume", f"{xoscmounts(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw",
-           ]
-
-    if docker_opts:
-        cmd += docker_opts
-
-    # allow for --net override in docker opts
-    if "--net" not in docker_opts:
-        cmd += ["--net", DOCKER_STARCRAFT_NETWORK]
-
+    ports = {}
     if not headless:
-        cmd += ["-p", f"{vnc_base_port+nth_player}:5900"]
-
-    if isinstance(player, BotPlayer):
-        # Only mount write directory, read and AI
-        # are copied from the bot directory in proper places in bwapi-data
-        bot_data_write_dir = f"{player.bot_dir}/write/{game_name}_{nth_player}"
-        os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
-        cmd += ["--volume", f"{xoscmounts(bot_data_write_dir)}:{BOT_DATA_WRITE_DIR}:rw"]
-        cmd += ["--volume", f"{xoscmounts(player.bot_dir)}:{BOT_DIR}:ro"]
-
-        if player.meta.javaDebugPort is not None:
-            cmd += ["-p", f"{player.meta.javaDebugPort}:{player.meta.javaDebugPort}"]
+        ports.update({'5900/tcp': vnc_base_port+nth_player})
 
     env = dict(
         PLAYER_NAME=player.name,
@@ -307,55 +272,75 @@ def launch_image(
 
         JAVA_DEBUG="0"
     )
+
+    command = None
     if isinstance(player, BotPlayer):
+        # Only mount write directory, read and AI
+        # are copied from the bot directory in proper places in bwapi-data
+        bot_data_write_dir = f"{player.bot_dir}/write/{game_name}_{nth_player}"
+        os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
+        volumes.update({
+            xoscmounts(bot_data_write_dir): {'bind': BOT_DATA_WRITE_DIR, 'mode': 'rw'},
+            xoscmounts(player.bot_dir): {'bind': BOT_DIR, 'mode': 'ro'},
+        })
         env['BOT_FILE'] = player.bot_basefilename
         env['BOT_BWAPI'] = player.bwapi_version
+        command = ["/app/play_bot.sh"]
         if player.meta.javaDebugPort is not None:
+            ports.update({'player.meta.javaDebugPort/tcp': player.meta.javaDebugPort})
             env['JAVA_DEBUG'] = "1"
             env['JAVA_DEBUG_PORT'] = player.meta.javaDebugPort
-
-    if timeout is not None:
-        env["PLAY_TIMEOUT"] = timeout
-
-    for key, value in env.items():
-        cmd += ["-e", f"{key}={value}"]
-
-    cmd += [docker_image]
-    if isinstance(player, BotPlayer):
-        cmd += ["/app/play_bot.sh"]
     else:
-        cmd += ["/app/play_human.sh"]
+        command = ["/app/play_human.sh"]
 
-    entrypoint_opts = []
     is_server = nth_player == 0
 
-    if not headless:
-        entrypoint_opts += ["--headful"]
-    else:
-        entrypoint_opts += ["--game", game_name,
-                            "--name", player.name,
-                            "--race", player.race.value,
-                            "--lan"]
-
+    entrypoint_opts = ["--headful"]
+    if headless:
+        entrypoint_opts = [
+            "--game", game_name, "--name", player.name,
+            "--race", player.race.value, "--lan"
+        ]
         if is_server:
-            entrypoint_opts += ["--host",
-                                "--map", f"/app/sc/maps/{map_name}"]
+            entrypoint_opts += ["--host", "--map", f"/app/sc/maps/{map_name}"]
         else:
             entrypoint_opts += ["--join"]
+    command += entrypoint_opts
 
-    cmd += entrypoint_opts
-
-    logger.debug(" ".join(f"'{s}'" for s in cmd))
-    code = subprocess.call(cmd, stdout=DEVNULL)
-
-    if code == 0:
+    logger.debug(
+        f"""
+        docker_image = {docker_image}
+        command={command},
+        name={container_name},
+        detach={True},
+        environment={env},
+        privileged={True},
+        volumes={volumes},
+        network={DOCKER_STARCRAFT_NETWORK},
+        ports={ports}
+        """
+    )
+    container = None
+    try:
+        container = docker_client.containers.run(
+            docker_image,
+            command=command,
+            name=container_name,
+            detach=True,
+            environment=env,
+            privileged=True,
+            volumes=volumes,
+            network=DOCKER_STARCRAFT_NETWORK,
+            ports=ports
+        )
+    except docker.errors.APIError:
+        logger.error('An error occurred during container run')
+    if container:
         container_id = running_containers(container_name)
         logger.info(f"launched {player}")
         logger.debug(f"container name = '{container_name}', container id = '{container_id}'")
     else:
-        raise DockerException(
-            f"could not launch {player} in container {container_name}"
-        )
+        raise DockerException(f"could not launch {player} in container {container_name}")
 
 
 def running_containers(name_filter: str) -> List[str]:
@@ -381,7 +366,7 @@ def container_exit_code(container_id: str) -> Optional[int]:
 
 
 def launch_game(
-    players: List[scbw.player.Player],
+    players: List[Player],
     launch_params: Dict[str, Any],
     show_all: bool,
     read_overwrite: bool,
