@@ -68,15 +68,18 @@ def check_docker_can_run() -> None:
     logger.debug(f"Using docker API version {version}")
 
 
-def ensure_docker_has_local_net() -> None:
-    '''
+def ensure_local_net(
+    network: str = DOCKER_STARCRAFT_NETWORK,
+    subnet: str = '172.18.0.0/16'
+) -> None:
+    """
     Create docker local net if not found.
 
     :raises docker.errors.APIError
-    '''
-    logger.info(f"Checking whether docker has network {DOCKER_STARCRAFT_NETWORK}")
+    """
+    logger.info(f"Checking whether docker has network {network}")
     output = None
-    ipam_pool = docker.types.IPAMPool(subnet='172.18.0.0/16')
+    ipam_pool = docker.types.IPAMPool(subnet=subnet)
     ipam_config = docker.types.IPAMConfig(pool_configs=[ipam_pool])
     networks = docker_client.networks.list(names = DOCKER_STARCRAFT_NETWORK)
     output = networks[0].short_id if networks else None
@@ -86,26 +89,29 @@ def ensure_docker_has_local_net() -> None:
     logger.debug(f"Docker network id: {output}")
 
 
-def check_docker_has_local_image(image: str) -> bool:
+def ensure_local_image(
+    image: str,
+    parent_image: str = scbw.defaults.SC_PARENT_IMAGE,
+    java_image: str = scbw.defaults.SC_JAVA_IMAGE,
+    starcraft_base_dir: str = scbw.defaults.SCBW_BASE_DIR,
+    starcraft_binary_link: str = 'http://files.theabyss.ru/sc/starcraft.zip',
+) -> None:
     """
+    Check if `image` is present locally. If it is not, pull parent images and build.
+    This includes pulling starcraft binary.
+
     :raises docker.errors.ImageNotFound
     :raises docker.errors.APIError
     """
-    logger.info(f"checking if there is local image {image}")
-    image_id = docker_client.images.get(image).short_id
-    logger.debug(f"docker image id: {image_id}")
-    return bool(image_id)
-
-
-def create_local_image(image: str) -> None:
-    """
-    :raises distutils.errors.DistutilsFileError
-    :raises docker.errors.APIError
-    :raises docker.errors.BuildError
-    """
-    logger.info(f"Creating docker local image.")
+    logger.info(f"Checking if there is local image {image}")
+    output = None
+    output = docker_client.images.get(image).short_id
+    if output is not None:
+        logger.info('Image found locally.')
+        return
+    logger.info("Image not found locally, creating...")
     pkg_docker_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'local_docker')
-    base_dir = os.path.join(scbw.defaults.SCBW_BASE_DIR, 'docker')
+    base_dir = os.path.join(starcraft_base_dir, 'docker')
     logger.info(f"Copying files from {pkg_docker_dir} to {base_dir}.")
     distutils.dir_util.copy_tree(pkg_docker_dir, base_dir)
 
@@ -123,10 +129,16 @@ def create_local_image(image: str) -> None:
     logger.info(f"successfully built image {image}")
 
 
-def remove_game_image(image_name):
-    has_image = check_output(f"docker images {image_name} -q", shell=True)
-    if has_image:
-        call(f"docker rmi --force {image_name}", shell=True)
+def remove_game_image(image_name: str) -> None:
+    try:
+        docker_client.images.get(image_name)
+    except docker.errors.ImageNotFound:
+        pass
+    except docker.errors.APIError:
+        logger.error(f'There occurred an error trying to find image {image_name}')
+    else:
+        docker_client.images.remove(image_name, force=True)
+    logger.info(f'Docker image {image_name} removed.')
 
 
 def check_dockermachine() -> bool:
@@ -155,7 +167,6 @@ def dockermachine_ip() -> Optional[str]:
     """
     if not check_dockermachine():
         return None
-
     try:
         out = subprocess.check_output(['docker-machine', 'ip'])
         return out.decode("utf-8").strip()
@@ -164,7 +175,7 @@ def dockermachine_ip() -> Optional[str]:
         return None
 
 
-def check_output(*args, **kwargs):
+def check_output(*args, **kwargs) -> Optional[None]:
     try:
         return subprocess.check_output(*args, **kwargs)
     except subprocess.CalledProcessError:
@@ -172,18 +183,17 @@ def check_output(*args, **kwargs):
         sys.exit(1)
 
 
-def call(*args, **kwargs):
+def call(*args, **kwargs) -> None:
     code = subprocess.call(*args, **kwargs)
     if code != 0:
         print(f"Failed calling {args} {kwargs}")
         sys.exit(1)
 
 
-def check_docker_requirements(image: str):
-    check_docker_version()
+def check_docker_requirements(image: str) -> None:
     check_docker_can_run()
-    ensure_docker_has_local_net()
-    check_docker_has_local_image(image) or create_local_image(image)
+    ensure_local_net()
+    ensure_local_image(image)
 
 
 def xoscmounts(host_mount):
@@ -198,38 +208,50 @@ def xoscmounts(host_mount):
 
 
 def launch_image(
-        # players info
-        player: Player,
-        nth_player: int,
-        num_players: int,
+    # players info
+    player: Player,
+    nth_player: int,
+    num_players: int,
 
-        # game settings
-        headless: bool,
-        game_name: str,
-        map_name: str,
-        game_type: GameType,
-        game_speed: int,
-        timeout: Optional[int],
-        hide_names: bool,
-        drop_players: bool,
+    # game settings
+    headless: bool,
+    game_name: str,
+    map_name: str,
+    game_type: GameType,
+    game_speed: int,
+    timeout: Optional[int],
+    hide_names: bool,
+    drop_players: bool,
 
-        # mount dirs
-        log_dir: str,
-        bot_dir: str,
-        map_dir: str,
-        bwapi_data_bwta_dir: str,
-        bwapi_data_bwta2_dir: str,
+    # mount dirs
+    log_dir: str,
+    bot_dir: str,
+    map_dir: str,
+    bwapi_data_bwta_dir: str,
+    bwapi_data_bwta2_dir: str,
 
-        vnc_base_port: int,
-        vnc_host: int,
+    vnc_base_port: int,
+    vnc_host: int,
 
-        # docker
-        docker_image: str,
-        docker_opts: List[str]):
-    #
+    # docker
+    docker_image: str,
+    docker_opts: List[str]
+) -> None:
 
     container_name = f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}"
 
+#    docker_client.containers.run(
+#        image
+#        name=container_name,
+#        detach=True,
+#        privileged=True,
+#        volumes=[
+#            f"{xoscmounts(log_dir)}:{LOG_DIR}:rw",
+#            f"{xoscmounts(map_dir)}:{MAP_DIR}:rw",
+#            f"{xoscmounts(bwapi_data_bwta_dir)}:{BWAPI_DATA_BWTA_DIR}:rw",
+#            f"{xoscmounts(bwapi_data_bwta2_dir)}:{BWAPI_DATA_BWTA2_DIR}:rw"
+#        ]
+#    )
     cmd = ["docker", "run",
 
            "-d",
@@ -327,63 +349,63 @@ def launch_image(
     code = subprocess.call(cmd, stdout=DEVNULL)
 
     if code == 0:
-        container_id = subprocess \
-            .check_output(["docker", "ps", "-f", f"name={container_name}", "-q"]) \
-            .decode("utf-8").strip("'\"\n")
+        container_id = running_containers(container_name)
         logger.info(f"launched {player}")
-        logger.debug(f"container name '{container_name}'")
-        logger.debug(f"container id '{container_id}'")
+        logger.debug(f"container name = '{container_name}', container id = '{container_id}'")
     else:
         raise DockerException(
             f"could not launch {player} in container {container_name}"
         )
 
 
-def running_containers(name_filter):
-    out = subprocess.check_output(f'docker ps -f "name={name_filter}" -q', shell=True)
-    containers = [container.strip()
-                  for container in out.decode("utf-8").split("\n")
-                  if container != ""]
-    return containers
+def running_containers(name_filter: str) -> List[str]:
+    return [container.short_id for container in docker_client.containers.list(filters={'name': name_filter})]
 
 
-def stop_containers(containers: List[str]):
-    if len(containers):
-        subprocess.call(['docker', 'stop'] + containers, stdout=sys.stderr.buffer)
+def remove_game_containers(name_filter: str) -> None:
+    try:
+        for container in docker_client.containers.list(filters={'name': name_filter}):
+            container.stop()
+            container.remove()
+    except docker.errors.APIError:
+        logger.error('There occurred an error while trying to stop and remove containers')
 
 
-def cleanup_containers(containers: List[str]):
-    if len(containers):
-        subprocess.call(['docker', 'rm'] + containers, stdout=DEVNULL)
+def container_exit_code(container_id: str) -> Optional[int]:
+    """
+    :raises docker.errors.NotFound
+    :raises docker.errors.APIError
+    """
+    container = docker_client.containers.get(container_id)
+    return container.wait()['StatusCode']
 
 
-def container_exit_code(container: str) -> int:
-    out = subprocess.check_output(['docker', 'inspect', container,
-                                   "--format='{{.State.ExitCode}}'"])
-    return int(out.decode("utf-8").strip("\n\r\t '\""))
-
-
-def launch_game(players: List[Player], launch_params: Dict[str, Any],
-                show_all: bool, read_overwrite: bool,
-                wait_callback: Callable):
+def launch_game(
+    players: List[scbw.player.Player],
+    launch_params: Dict[str, Any],
+    show_all: bool,
+    read_overwrite: bool,
+    wait_callback: Callable
+) -> None:
     """
     :raises DockerException, ContainerException, RealtimeOutedException
     """
-    #
-    if len(players) == 0:
+    if not players:
         raise GameException("At least one player must be specified")
 
     # todo: this is a quick fix, do it properly later
-    existing_files = itertools.chain(find_logs(launch_params['log_dir'], launch_params['game_name']),
-                           find_replays(launch_params['map_dir'], launch_params['game_name']),
-                           find_results(launch_params['log_dir'], launch_params['game_name']),
-                           find_frames(launch_params['log_dir'], launch_params['game_name']))
-    for file in existing_files:
-        logger.debug(f"Removing existing file {file}")
-        os.remove(file)
+    existing_files = itertools.chain(
+        find_logs(launch_params['log_dir'], launch_params['game_name']),
+        find_replays(launch_params['map_dir'], launch_params['game_name']),
+        find_results(launch_params['log_dir'], launch_params['game_name']),
+        find_frames(launch_params['log_dir'], launch_params['game_name'])
+    )
+    for file_ in existing_files:
+        logger.debug(f"Removing existing file {file_}")
+        os.remove(file_)
 
-    for i, player in enumerate(players):
-        launch_image(player, nth_player=i, num_players=len(players), **launch_params)
+    for nth_player, player in enumerate(players):
+        launch_image(player, nth_player=nth_player, num_players=len(players), **launch_params)
 
     logger.debug("Checking if game has launched properly...")
     time.sleep(1)
@@ -392,44 +414,40 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
         raise DockerException("Some containers exited prematurely, please check logs")
 
     if not launch_params['headless']:
-        for i, player in enumerate(players if show_all else players[:1]):
-            port = launch_params['vnc_base_port'] + i
+        for index, player in enumerate(players if show_all else players[:1]):
+            port = launch_params['vnc_base_port'] + index
             host = launch_params['vnc_host']
             logger.info(f"Launching vnc viewer for {player} on address {host}:{port}")
             launch_vnc_viewer(host, port)
-
-        logger.info("\n"
-                    "In headful mode, you must specify and start the game manually.\n"
-                    "Select the map, wait for bots to join the game "
-                    "and then start the game.")
+        logger.info(
+            """
+            \nIn headful mode, you must specify and start the game manually.\n
+            Select the map, wait for bots to join the game and then start the game.
+            """
+        )
 
     logger.info(f"Waiting until game {launch_params['game_name']} is finished...")
     running_time = time.time()
     while True:
         containers = running_containers(launch_params['game_name'])
-
         if len(containers) == 0:  # game finished
             break
-
         if len(containers) >= 2:  # update the last time when there were multiple containers
             running_time = time.time()
         if len(containers) == 1 and time.time() - running_time > MAX_TIME_RUNNING_SINGLE_CONTAINER:
-            # One container has been running for too long,
-            # likely because of some crash.
-            # Let's stop this one as well before overall game timeout.
-            raise ContainerException("One lingering container has been found "
-                                     "after single container timeout "
-                                     f"({MAX_TIME_RUNNING_SINGLE_CONTAINER} sec), "
-                                     "the game probably crashed.")
-
+            raise ContainerException(
+                f"""
+                One lingering container has been found after single container timeout
+                ({MAX_TIME_RUNNING_SINGLE_CONTAINER} sec), the game probably crashed.
+                """
+            )
         logger.debug(f"Waiting. {containers}")
         wait_callback()
 
     exit_codes = [container_exit_code(container) for container in containers]
-
     # remove containers before throwing exception
     logger.debug("Removing game containers")
-    cleanup_containers(start_containers)
+    remove_game_containers(launch_params['game_name'])
 
     if any(exit_code == EXIT_CODE_REALTIME_OUTED for exit_code in exit_codes):
         raise RealtimeOutedException(f"Some of the game containers has realtime outed.")
@@ -441,5 +459,7 @@ def launch_game(players: List[Player], launch_params: Dict[str, Any],
         for nth_player, player in enumerate(players):
             if isinstance(player, BotPlayer):
                 logger.debug(f"Overwriting files for {player}")
-                distutils.dir_util.copy_tree(f"{player.write_dir}/{launch_params['game_name']}_{nth_player}",
-                          player.read_dir)
+                distutils.dir_util.copy_tree(
+                    f"{player.write_dir}/{launch_params['game_name']}_{nth_player}",
+                    player.read_dir
+                )

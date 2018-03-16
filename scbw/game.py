@@ -7,8 +7,8 @@ from argparse import Namespace
 from scbw.bot_factory import retrieve_bots
 from scbw.bot_storage import LocalBotStorage, SscaitBotStorage
 from scbw.docker_utils import (
-    cleanup_containers, dockermachine_ip, launch_game,
-    running_containers, stop_containers
+    dockermachine_ip, launch_game,
+    remove_game_containers
 )
 from scbw.error import GameException, RealtimeOutedException
 from scbw.game_type import GameType
@@ -136,15 +136,9 @@ def run_game(
     except KeyboardInterrupt:
         logger.warning("Caught interrupt, shutting down containers")
         logger.warning("This can take a moment, please wait.")
-
         # prevent another throw of KeyboardInterrupt exception
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-        containers = running_containers(game_name)
-        stop_containers(containers)
-        logger.debug("Removing game containers")
-        cleanup_containers(containers)
-
+        remove_game_containers(game_name)
         logger.info(f"Game cancelled.")
         raise
 
@@ -153,7 +147,6 @@ def run_game(
 
     if is_1v1_game:
         game_time = time.time() - time_start
-
         return GameResult(
             game_name, players, game_time,
             # game error states
