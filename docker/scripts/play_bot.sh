@@ -44,9 +44,16 @@ sleep 1
 start_game "$@"
 sleep 3
 
-if [ $NTH_PLAYER == "0" ]; then # if is_server
-  launch_multiplayer
+if [ "$IS_HEADFUL" == "1" ] && [ $NTH_PLAYER == "0" ]; then # if is_server
+    launch_multiplayer
 fi
+
+if [ "$IS_HEADFUL" == "1" ]; then
+    set +e
+    keep_game_not_moving &
+    set -e
+fi
+
 
 if [ -z "${PLAY_TIMEOUT+set}" ]; then
     detect_game_finished

@@ -19,7 +19,9 @@ prepare_tm
 prepare_character
 start_gui
 start_game "$@"
-sleep 10
+sleep 3
+
+launch_multiplayer
 
 detect_game_finished
 LOG "Game finished." >> "$LOG_GAME"
