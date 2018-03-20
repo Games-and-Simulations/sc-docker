@@ -1,11 +1,14 @@
 from typing import List, Iterable
 
-from .bot_storage import BotStorage
-from .player import BotPlayer, PlayerRace
+from scbw.bot_storage import BotStorage
+from scbw.player import BotPlayer, PlayerRace
 
 
-def retrieve_bots(bot_specs: Iterable[str],
-                  bot_storages: Iterable[BotStorage]) -> List[BotPlayer]:
+
+def retrieve_bots(
+    bot_specs: Iterable[str],
+    bot_storages: Iterable[BotStorage]
+) -> List[BotPlayer]:
     bots = []
     for bot_spec in bot_specs:
         parts = bot_spec.split(":")

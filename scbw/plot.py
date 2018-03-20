@@ -1,17 +1,21 @@
+import logging
 import matplotlib.pyplot as plt
-
 import pandas as pd
 
-from .logs import find_frames
-import logging
+from scbw.logs import find_frames
+
+
 
 logger = logging.getLogger(__name__)
 
 
+
 class RealtimeFramePlotter:
+
     YLIM_MAX = 100
 
-    def __init__(self, log_dir, game_name, players):
+
+    def __init__(self, log_dir, game_name, players) -> None:
         self.log_dir = log_dir
         self.game_name = game_name
 
@@ -36,7 +40,8 @@ class RealtimeFramePlotter:
 
         self.figure.tight_layout()
 
-    def redraw(self):
+
+    def redraw(self) -> None:
         try:
             for idx, frame_file in enumerate(sorted(find_frames(self.log_dir, self.game_name))):
                 df = pd.read_csv(frame_file)
@@ -51,5 +56,6 @@ class RealtimeFramePlotter:
         except Exception as e:
             logger.warning(e)
 
-    def save(self, file):
+
+    def save(self, file) -> None:
         self.figure.savefig(file)

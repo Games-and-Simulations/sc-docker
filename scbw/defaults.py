@@ -1,18 +1,6 @@
 import os
 import platform
 
-__all__ = (
-    "VERSION",
-    "SCBW_BASE_DIR",
-    "SC_LOG_DIR",
-    "SC_BWAPI_DATA_BWTA_DIR",
-    "SC_BWAPI_DATA_BWTA2_DIR",
-    "SC_BOT_DIR",
-    "SC_MAP_DIR",
-    "SC_IMAGE",
-    "SC_PARENT_IMAGE",
-    "SC_JAVA_IMAGE"
-)
 
 
 def get_data_dir() -> str:
@@ -33,6 +21,5 @@ SC_BOT_DIR = f"{SCBW_BASE_DIR}/bots"
 SC_MAP_DIR = f"{SCBW_BASE_DIR}/maps"
 
 SC_IMAGE = "starcraft:game-" + VERSION
-
 SC_PARENT_IMAGE = "ggaic/starcraft:java-" + VERSION
 SC_JAVA_IMAGE = "starcraft:java"

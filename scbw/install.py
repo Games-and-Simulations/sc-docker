@@ -1,20 +1,27 @@
 import logging
 import os
-from os.path import exists
-
+import os.path
 import sys
 
-from .defaults import *
-from .docker import check_docker_version, check_docker_can_run, check_docker_has_local_net, \
-    create_local_net, create_local_image, remove_game_image
-from .map import download_sscait_maps, download_bwta_caches
-from .utils import create_data_dirs
+from scbw.defaults import (
+    SCBW_BASE_DIR, SC_IMAGE, SC_LOG_DIR, SC_BOT_DIR, SC_MAP_DIR,
+    SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR
+)
+from scbw.docker import (
+    check_docker_version, check_docker_can_run, check_docker_has_local_net,
+    create_local_net, remove_game_image, create_local_image
+)
+from scbw.map import download_bwta_caches, download_sscait_maps
+from scbw.utils import create_data_dirs
+
+
 
 logger = logging.getLogger(__name__)
 
 
-def install():
-    if exists(SCBW_BASE_DIR):
+
+def install() -> None:
+    if os.path.exists(SCBW_BASE_DIR):
         logger.warning(f"Path {SCBW_BASE_DIR} found, re-installing scbw package.")
         logger.warning("Re-creating the base game image...")
 
