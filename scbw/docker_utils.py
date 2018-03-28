@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 docker_client = docker.from_env()
 
 DOCKER_STARCRAFT_NETWORK = "sc_net"
+SUBNET_CIDR = "172.18.0.0/16"
 BASE_VNC_PORT = 5900
 VNC_HOST = "localhost"
 APP_DIR = "/app"
@@ -64,22 +65,22 @@ def check_docker_can_run() -> None:
     """
     logger.info("checking docker can run")
     version = docker_client.version()['ApiVersion']
-    output = docker_client.containers.run('hello-world')
+    docker_client.containers.run('hello-world')
     logger.debug(f"Using docker API version {version}")
 
 
 def ensure_local_net(
-    network: str = DOCKER_STARCRAFT_NETWORK,
-    subnet: str = '172.18.0.0/16'
+    network_name: str = DOCKER_STARCRAFT_NETWORK,
+    subnet_cidr: str = SUBNET_CIDR
 ) -> None:
     """
     Create docker local net if not found.
 
     :raises docker.errors.APIError
     """
-    logger.info(f"Checking whether docker has network {network}")
+    logger.info(f"Checking whether docker has network {network_name}")
     output = None
-    ipam_pool = docker.types.IPAMPool(subnet=subnet)
+    ipam_pool = docker.types.IPAMPool(subnet=subnet_cidr)
     ipam_config = docker.types.IPAMConfig(pool_configs=[ipam_pool])
     networks = docker_client.networks.list(names = DOCKER_STARCRAFT_NETWORK)
     output = networks[0].short_id if networks else None
@@ -90,22 +91,22 @@ def ensure_local_net(
 
 
 def ensure_local_image(
-    image: str,
+    local_image: str,
     parent_image: str = SC_PARENT_IMAGE,
     java_image: str = SC_JAVA_IMAGE,
     starcraft_base_dir: str = SCBW_BASE_DIR,
     starcraft_binary_link: str = 'http://files.theabyss.ru/sc/starcraft.zip',
 ) -> None:
     """
-    Check if `image` is present locally. If it is not, pull parent images and build.
+    Check if `local_image` is present locally. If it is not, pull parent images and build.
     This includes pulling starcraft binary.
 
     :raises docker.errors.ImageNotFound
     :raises docker.errors.APIError
     """
-    logger.info(f"Checking if there is local image {image}")
+    logger.info(f"Checking if there is local image {local_image}")
     output = None
-    output = docker_client.images.get(image).short_id
+    output = docker_client.images.get(local_image).short_id
     if output is not None:
         logger.info('Image found locally.')
         return
@@ -124,38 +125,38 @@ def ensure_local_image(
     pulled_image = docker_client.images.pull(SC_PARENT_IMAGE)
     pulled_image.tag(SC_JAVA_IMAGE)
 
-    logger.info(f"building local image {image}, this may take a while...")
-    docker_client.images.build(path=base_dir, dockerfile='game.dockerfile', tag=image)
-    logger.info(f"successfully built image {image}")
+    logger.info(f"building local image {local_image}, this may take a while...")
+    docker_client.images.build(path=base_dir, dockerfile='game.dockerfile', tag=local_image)
+    logger.info(f"successfully built image {local_image}")
 
 
 def remove_game_image(image_name: str) -> None:
+    """
+    :raises docker.errors.APIError
+    """
     try:
         docker_client.images.get(image_name)
     except docker.errors.ImageNotFound:
         pass
-    except docker.errors.APIError:
-        logger.error(f'There occurred an error trying to find image {image_name}')
     else:
         docker_client.images.remove(image_name, force=True)
     logger.info(f'Docker image {image_name} removed.')
 
 
-def check_dockermachine() -> bool:
+def check_dockermachine() -> None:
     """
     Checks that docker-machine is available on the computer
+
+    :raises FileNotFoundError if docker-machine is not present
     """
     logger.debug("checking docker-machine presence")
-    try:
-        out = subprocess.check_output(['docker-machine', 'version'])
-        out = out.decode("utf-8")
-        out = out.replace('docker-machine.exe', '').replace('docker-machine', '')
-        out = out.strip()
-        logger.debug(f"Using docker machine version {out}")
-        return True
-    except Exception as e:
-        logger.debug(f"Docker machine not present")
-        return False
+    out = subprocess\
+        .check_output(['docker-machine', 'version'])\
+        .decode("utf-8")\
+        .replace('docker-machine.exe', '')\
+        .replace('docker-machine', '')\
+        .strip()
+    logger.debug(f"Using docker machine {out}")
 
 
 def dockermachine_ip() -> Optional[str]:
@@ -167,27 +168,15 @@ def dockermachine_ip() -> Optional[str]:
     """
     if not check_dockermachine():
         return None
-    try:
-        out = subprocess.check_output(['docker-machine', 'ip'])
-        return out.decode("utf-8").strip()
-    except Exception as e:
-        logger.debug(f"Docker machine not present")
-        return None
+    out = subprocess.check_output(['docker-machine', 'ip'])
+    return out.decode("utf-8").strip()
 
 
 def check_output(*args, **kwargs) -> Optional[None]:
-    try:
-        return subprocess.check_output(*args, **kwargs)
-    except subprocess.CalledProcessError:
-        print(f"Failed calling {args} {kwargs}")
-        sys.exit(1)
-
-
-def call(*args, **kwargs) -> None:
-    code = subprocess.call(*args, **kwargs)
-    if code != 0:
-        print(f"Failed calling {args} {kwargs}")
-        sys.exit(1)
+    """
+    :raises subprocess.CalledProcessError
+    """
+    return subprocess.check_output(*args, **kwargs)
 
 
 def check_docker_requirements(image: str) -> None:
@@ -237,7 +226,10 @@ def launch_image(
     docker_image: str,
     docker_opts: List[str]
 ) -> None:
-
+    """
+    :raises docker,errors.APIError
+    :raises DockerException
+    """
     container_name = f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}"
 
     volumes={
@@ -321,20 +313,17 @@ def launch_image(
         """
     )
     container = None
-    try:
-        container = docker_client.containers.run(
-            docker_image,
-            command=command,
-            name=container_name,
-            detach=True,
-            environment=env,
-            privileged=True,
-            volumes=volumes,
-            network=DOCKER_STARCRAFT_NETWORK,
-            ports=ports
-        )
-    except docker.errors.APIError:
-        logger.error('An error occurred during container run')
+    container = docker_client.containers.run(
+        docker_image,
+        command=command,
+        name=container_name,
+        detach=True,
+        environment=env,
+        privileged=True,
+        volumes=volumes,
+        network=DOCKER_STARCRAFT_NETWORK,
+        ports=ports
+    )
     if container:
         container_id = running_containers(container_name)
         logger.info(f"launched {player}")
@@ -344,16 +333,19 @@ def launch_image(
 
 
 def running_containers(name_filter: str) -> List[str]:
+    """
+    :raises docker.exceptions.APIError
+    """
     return [container.short_id for container in docker_client.containers.list(filters={'name': name_filter})]
 
 
 def remove_game_containers(name_filter: str) -> None:
-    try:
-        for container in docker_client.containers.list(filters={'name': name_filter}):
-            container.stop()
-            container.remove()
-    except docker.errors.APIError:
-        logger.error('There occurred an error while trying to stop and remove containers')
+    """
+    :raises docker.exceptions.APIError
+    """
+    for container in docker_client.containers.list(filters={'name': name_filter}):
+        container.stop()
+        container.remove()
 
 
 def container_exit_code(container_id: str) -> Optional[int]:
