@@ -23,3 +23,4 @@ SC_MAP_DIR = f"{SCBW_BASE_DIR}/maps"
 SC_IMAGE = "starcraft:game-" + VERSION
 SC_PARENT_IMAGE = "ggaic/starcraft:java-" + VERSION
 SC_JAVA_IMAGE = "starcraft:java"
+SC_BINARY_LINK = "http://files.theabyss.ru/sc/starcraft.zip"
