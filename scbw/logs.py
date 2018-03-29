@@ -1,5 +1,5 @@
-import glob
 from typing import List
+import glob
 
 
 def find_logs(log_dir: str, game_name: str) -> List[str]:

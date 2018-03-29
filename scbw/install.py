@@ -1,34 +1,32 @@
 import logging
 import os
-from os.path import exists
+import os.path
 
-import sys
-
-from .defaults import *
-from .docker import check_docker_version, check_docker_can_run, check_docker_has_local_net, \
-    create_local_net, create_local_image, remove_game_image
-from .map import download_sscait_maps, download_bwta_caches
-from .utils import create_data_dirs
+from scbw.defaults import (
+    SCBW_BASE_DIR, SC_IMAGE, SC_LOG_DIR, SC_BOT_DIR, SC_MAP_DIR,
+    SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR
+)
+from scbw.docker_utils import (
+    ensure_docker_can_run, ensure_local_net,
+    remove_game_image, ensure_local_image
+)
+from scbw.map import download_bwta_caches, download_sscait_maps
+from scbw.utils import create_data_dirs
 
 logger = logging.getLogger(__name__)
 
 
-def install():
-    if exists(SCBW_BASE_DIR):
+def install() -> None:
+    if os.path.exists(SCBW_BASE_DIR):
         logger.warning(f"Path {SCBW_BASE_DIR} found, re-installing scbw package.")
-        logger.info("This will re-create the base game image, continue? [Y/n]")
-        do_continue = input()
-        if not do_continue == "y" and not do_continue == "Y" and not do_continue == "":
-            logger.warning("Reinstall aborted by user.")
-            sys.exit(1)
+        logger.warning("Re-creating the base game image...")
 
-    check_docker_version()
-    check_docker_can_run()
-    check_docker_has_local_net() or create_local_net()
+    ensure_docker_can_run()
+    ensure_local_net()
 
     # remove old image in case of update
     remove_game_image(SC_IMAGE)
-    create_local_image(SC_IMAGE)
+    ensure_local_image(SC_IMAGE)
 
     create_data_dirs(
         SC_LOG_DIR,

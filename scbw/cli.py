@@ -1,16 +1,20 @@
 import argparse
 import logging
+import os.path
 import sys
-from os.path import exists
 
 import coloredlogs
-
-from .defaults import *
-from .docker import BASE_VNC_PORT, VNC_HOST
-from .error import ScbwException
-from .game import run_game, GameType
-from .player import PlayerRace, bot_regex
-from .utils import random_string
+import docker
+from scbw.defaults import (
+    SC_BOT_DIR, SC_LOG_DIR, SC_MAP_DIR, SCBW_BASE_DIR, SC_IMAGE,
+    SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR, VERSION
+)
+from scbw.docker_utils import BASE_VNC_PORT, VNC_HOST
+from scbw.error import ScbwException
+from scbw.game import run_game
+from scbw.game_type import GameType
+from scbw.player import bot_regex, PlayerRace
+from scbw.utils import random_string
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +132,11 @@ parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")
 
 
+def _image_version_up_to_date():
+    client = docker.from_env()
+    return any(tag == SC_IMAGE for image in client.images.list('starcraft') for tag in image.tags)
+
+
 # todo: add support for multi-PC play.
 # We need to think about how to setup docker IPs,
 # maybe we will need to specify manually routing tables? :/
@@ -143,18 +152,19 @@ def main():
         fmt="%(asctime)s %(levelname)s %(name)s[%(process)d] %(message)s" if args.log_verbose
         else "%(levelname)s %(message)s")
 
-    if args.install:
+    if args.install or not _image_version_up_to_date():
         from .install import install
         try:
             install()
-            sys.exit(0)
+            if args.install:
+                sys.exit(0)
         except ScbwException as e:
             logger.exception(e)
             sys.exit(1)
         except KeyboardInterrupt:
             sys.exit(1)
 
-    if not exists(SCBW_BASE_DIR):
+    if not os.path.exists(SCBW_BASE_DIR):
         parser.error(f'The data directory {SCBW_BASE_DIR} was not found. '
                      f'Did you run "scbw.play --install"?')
         # parser.error exits
