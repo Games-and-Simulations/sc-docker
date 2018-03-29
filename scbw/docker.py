@@ -240,6 +240,7 @@ def launch_image(
         hide_names: bool,
         drop_players: bool,
         allow_input: bool,
+        launch_multiplayer: bool,
 
         # mount dirs
         log_dir: str,
@@ -250,6 +251,7 @@ def launch_image(
 
         vnc_base_port: int,
         vnc_host: int,
+        capture_movement: bool,
 
         # docker
         docker_image: str,
@@ -310,6 +312,8 @@ def launch_image(
         TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) or allow_input else "0",
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED,
+        CAPTURE_MOUSE_MOVEMENT="1" if capture_movement else "0",
+        HEADFUL_LAUNCH_MULTIPLAYER="1" if launch_multiplayer else "0",
 
         JAVA_DEBUG="0"
     )

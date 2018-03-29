@@ -44,14 +44,12 @@ sleep 1
 start_game "$@"
 sleep 3
 
-if [ "$IS_HEADFUL" == "1" ] && [ $NTH_PLAYER == "0" ]; then # if is_server
+if [ "$IS_HEADFUL" == "1" ] && [ $NTH_PLAYER == "0" ] && [ "$HEADFUL_LAUNCH_MULTIPLAYER" == "1" ]; then # if is_server
     launch_multiplayer
 fi
 
-if [ "$IS_HEADFUL" == "1" ]; then
-    set +e
-    keep_game_not_moving &
-    set -e
+if [ "$CAPTURE_MOUSE_MOVEMENT" == "1" ]; then
+    /app/play_capture_mouse_movement.sh &
 fi
 
 

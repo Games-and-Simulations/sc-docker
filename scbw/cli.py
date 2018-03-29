@@ -66,6 +66,9 @@ parser.add_argument("--timeout", type=int, default=None,
 parser.add_argument("--hide_names", action="store_true",
                     help="Hide player names, each player will be called only 'player'.\n"
                          "By default, show player names (as their bot name)")
+parser.add_argument("--launch_multiplayer", action="store_true",
+                    help="In headful mode, automatically launch multiplayer.\n"
+                         "Experimental. (automatically sends keys to the starcraft window).")
 
 # Volumes
 parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR,
@@ -91,6 +94,9 @@ parser.add_argument('--vnc_base_port', type=int, default=BASE_VNC_PORT,
 parser.add_argument('--vnc_host', type=str, default='',
                     help="Address of the host on which VNC connections would be accessible\n"
                          f"default:\n{VNC_HOST} or IP address of the docker-machine")
+parser.add_argument('--capture_movement', action="store_true",
+                    help="If mouse gets outside of the VNC window, \n"
+                         "do not move the game (only use mini map)")
 
 # Settings
 parser.add_argument('--show_all', action="store_true",

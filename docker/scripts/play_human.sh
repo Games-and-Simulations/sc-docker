@@ -21,7 +21,9 @@ start_gui
 start_game "$@"
 sleep 3
 
-launch_multiplayer
+if [ "$HEADFUL_LAUNCH_MULTIPLAYER" == "1" ]; then
+    launch_multiplayer
+fi
 
 detect_game_finished
 LOG "Game finished." >> "$LOG_GAME"

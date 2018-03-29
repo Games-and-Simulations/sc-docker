@@ -212,127 +212,108 @@ function detect_game_finished() {
 function update_registry() {
     # disable splash screen
     REG_KEY="HKEY_LOCAL_MACHINE\SOFTWARE\Blizzard Entertainment\Starcraft"
-    wine REG ADD ${REG_KEY} /v Gamma /t REG_DWORD /d 0000008c
-    wine REG ADD ${REG_KEY} /v ColorCycle /t REG_DWORD /d 00000001
-    wine REG ADD ${REG_KEY} /v UnitPortraits /t REG_DWORD /d 00000002
-    wine REG ADD ${REG_KEY} /v speed /t REG_DWORD /d 00000006
-    wine REG ADD ${REG_KEY} /v mscroll /t REG_DWORD /d 00000001
-    wine REG ADD ${REG_KEY} /v kscroll /t REG_DWORD /d 00000001
-    wine REG ADD ${REG_KEY} /v m_mscroll /t REG_DWORD /d 00000003
-    wine REG ADD ${REG_KEY} /v m_kscroll /t REG_DWORD /d 00000003
-    wine REG ADD ${REG_KEY} /v music /t REG_DWORD /d 0000002d
-    wine REG ADD ${REG_KEY} /v sfx /t REG_DWORD /d 0000001e
-    wine REG ADD ${REG_KEY} /v tipnum /t REG_DWORD /d 00000001
-    wine REG ADD ${REG_KEY} /v intro /t REG_DWORD /d 00000200
-    wine REG ADD ${REG_KEY} /v introX /t REG_DWORD /d 00000000
-    wine REG ADD ${REG_KEY} /v unitspeech /t REG_DWORD /d 00000001
-    wine REG ADD ${REG_KEY} /v unitnoise /t REG_DWORD /d 00000002
-    wine REG ADD ${REG_KEY} /v bldgnoise /t REG_DWORD /d 00000004
-    wine REG ADD ${REG_KEY} /v tip /t REG_DWORD /d 00000100
-    wine REG ADD ${REG_KEY} /v trigtext /t REG_DWORD /d 00000400
-    wine REG ADD ${REG_KEY} /v StarEdit /t REG_DWORD /d "Z:\app\sc\StarEdit.exe"
-    wine REG ADD ${REG_KEY} /v "Recent Maps"  /t REG_EXPAND_SZ /d ""
-    wine REG ADD ${REG_KEY} /v Retail /t REG_EXPAND_SZ /d "y"
-    wine REG ADD ${REG_KEY} /v Brood  /t REG_EXPAND_SZ /d "y"
-    wine REG ADD ${REG_KEY} /v StarCD /t REG_EXPAND_SZ /d ""
-    wine REG ADD ${REG_KEY} /v InstallPath /t REG_EXPAND_SZ /d "Z:\app\sc\\"
-    wine REG ADD ${REG_KEY} /v Program /t REG_EXPAND_SZ /d "Z:\app\sc\StarCraft.exe"
+#    wine REG ADD "${REG_KEY}" /v Gamma /t REG_DWORD /d 0000008c
+    wine REG ADD "${REG_KEY}" /v ColorCycle /t REG_DWORD /d 00000001
+    wine REG ADD "${REG_KEY}" /v UnitPortraits /t REG_DWORD /d 00000002
+    wine REG ADD "${REG_KEY}" /v speed /t REG_DWORD /d 00000006
+    wine REG ADD "${REG_KEY}" /v mscroll /t REG_DWORD /d 00000001
+    wine REG ADD "${REG_KEY}" /v kscroll /t REG_DWORD /d 00000001
+    wine REG ADD "${REG_KEY}" /v m_mscroll /t REG_DWORD /d 00000003
+    wine REG ADD "${REG_KEY}" /v m_kscroll /t REG_DWORD /d 00000003
+#    wine REG ADD "${REG_KEY}" /v music /t REG_DWORD /d 0000002d
+#    wine REG ADD "${REG_KEY}" /v sfx /t REG_DWORD /d 0000001e
+    wine REG ADD "${REG_KEY}" /v tipnum /t REG_DWORD /d 00000001
+    wine REG ADD "${REG_KEY}" /v intro /t REG_DWORD /d 00000200
+    wine REG ADD "${REG_KEY}" /v introX /t REG_DWORD /d 00000000
+    wine REG ADD "${REG_KEY}" /v unitspeech /t REG_DWORD /d 00000001
+    wine REG ADD "${REG_KEY}" /v unitnoise /t REG_DWORD /d 00000002
+    wine REG ADD "${REG_KEY}" /v bldgnoise /t REG_DWORD /d 00000004
+    wine REG ADD "${REG_KEY}" /v tip /t REG_DWORD /d 00000100
+    wine REG ADD "${REG_KEY}" /v trigtext /t REG_DWORD /d 00000400
+    wine REG ADD "${REG_KEY}" /v StarEdit /t REG_EXPAND_SZ /d "Z:\app\sc\StarEdit.exe"
+    wine REG ADD "${REG_KEY}" /v "Recent Maps"  /t REG_EXPAND_SZ /d ""
+    wine REG ADD "${REG_KEY}" /v Retail /t REG_EXPAND_SZ /d "y"
+    wine REG ADD "${REG_KEY}" /v Brood  /t REG_EXPAND_SZ /d "y"
+    wine REG ADD "${REG_KEY}" /v StarCD /t REG_EXPAND_SZ /d ""
+    wine REG ADD "${REG_KEY}" /v InstallPath /t REG_EXPAND_SZ /d "Z:\app\sc\\"
+    wine REG ADD "${REG_KEY}" /v Program /t REG_EXPAND_SZ /d "Z:\app\sc\StarCraft.exe"
 
     REG_KEY="HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Blizzard Entertainment\Starcraft\DelOpt0"
-    wine REG ADD ${REG_KEY} /v File0 /t REG_EXPAND_SZ /d "spc"
-    wine REG ADD ${REG_KEY} /v File1 /t REG_EXPAND_SZ /d "mpc"
-    wine REG ADD ${REG_KEY} /v Path0 /t REG_EXPAND_SZ /d "Z:\app\sc\characters"
-    wine REG ADD ${REG_KEY} /v Path1 /t REG_EXPAND_SZ /d "Z:\app\sc\characters"
+    wine REG ADD "${REG_KEY}" /v File0 /t REG_EXPAND_SZ /d "spc"
+    wine REG ADD "${REG_KEY}" /v File1 /t REG_EXPAND_SZ /d "mpc"
+    wine REG ADD "${REG_KEY}" /v Path0 /t REG_EXPAND_SZ /d "Z:\app\sc\characters"
+    wine REG ADD "${REG_KEY}" /v Path1 /t REG_EXPAND_SZ /d "Z:\app\sc\characters"
 }
 
 function launch_multiplayer() {
     # This a hacky way to go around "Unable to distribute map" bug
-    # that I couldn't debug. Basically sends appropriate keys to Starcraft to start the game.
+    # that I couldn't debug. Basically send appropriate keys to Starcraft to start the game.
 
     # todo: game type
     # todo: more testing
+    SLEEP_TIME=0.1
 
-    # Get to the root directory
+    # Go to the map root directory
     xdotool key G
-    sleep 0.1
+    sleep $SLEEP_TIME
     xdotool key Up
-    sleep 0.1
+    sleep $SLEEP_TIME
     xdotool key Return
-    sleep 0.1
+    sleep $SLEEP_TIME
 
     cd "$MAP_DIR"
     MAP_RELATIVE="${MAP_NAME/$MAP_DIR\//}"
     ADD_UP="" # If not in the root directory (as in the first loop), [Up One Level] is added
-    for path in ${MAP_RELATIVE//// }; do
-        FILES=$(echo "$(ls -p | grep -v / | sort )")
+    for path_part in ${MAP_RELATIVE//// }; do
+        FILES=$(echo "$(ls -p | grep -v / | grep '.*\.sc.*'| sort --ignore-case)")
 
-        if [ -d "$path" ]; then
-            # If no files, then menu will start at the first directory
+        # We need to change directory
+        if [ -d "$path_part" ]; then
+            # If there are no files in CWD, then menu will start at the first directory
             if [ -z "$FILES" ]; then
-                DIRS=$(echo -e "$(ls -d */ | sed 's/.$//')$ADD_UP" | sort)
-                POSITION=$(grep -n "$path" <(echo "$DIRS") | cut -d: -f1)
+                DIRS=$(echo -e "$(ls -d */ | sed 's/.$//')$ADD_UP" | sort --ignore-case)
+                POSITION=$(grep -n "$path_part" <(echo "$DIRS") | cut -d: -f1)
                 for i in `seq 2 $POSITION`;
                 do
                     xdotool key Down
-                    sleep 0.1
+                    sleep $SLEEP_TIME
                 done
             else
-            # If there are files, cursor will start at the first file
-                DIRS=$(echo -e "$(ls -d */ | sed 's/.$//')$ADD_UP" | sort -r)
-                POSITION=$(grep -n "$path" <(echo "$DIRS") | cut -d: -f1)
-                for i in `seq 2 $POSITION`;
+            # If there are map files in the CWD, cursor will start at the first file
+                DIRS=$(echo -e "$(ls -d */ | sed 's/.$//')$ADD_UP" | sort --ignore-case -r)
+                POSITION=$(grep -n "$path_part" <(echo "$DIRS") | cut -d: -f1)
+                for i in `seq 1 $POSITION`;
                 do
                     xdotool key Up
-                    sleep 0.1
+                    sleep $SLEEP_TIME
                 done
             fi
 
-            echo "cd $path"
-            cd "$path"
+            echo "cd $path_part"
+            cd "$path_part"
         else
-            POSITION=$(grep -n "$path" <(echo "$FILES") | cut -d: -f1)
+        # We need to select file
+            POSITION=$(grep -n "$path_part" <(echo "$FILES") | cut -d: -f1)
             for i in `seq 2 $POSITION`;
             do
                 xdotool key Down
-                sleep 0.1
+                sleep $SLEEP_TIME
             done
         fi
 
         xdotool key Return
-        sleep 0.1
+        sleep $SLEEP_TIME
 
         ADD_UP="\nUp One Level"
     done
 
-    xdotool key O
+    # Wait for players
     sleep 3
 
     # Position of the start button
-    # (we have to click, because key press goes to chat)
+    # (we have to click, because key press goes to chat at this point)
+    xdotool mousemove 521 395 click 1
+    xdotool mousemove 521 395 click 1
     xdotool mousemove 521 395 click 1
 }
 
-function keep_game_not_moving() {
-    while true
-    do
-        # get X, Y in local scope
-        eval $(xdotool getmouselocation --shell)
-        if [ $X -lt "8" ]; then
-            X="8"
-        fi
-        if [ $X -gt "632" ]; then
-            X="632"
-        fi
-        if [ $Y -lt "8" ]; then
-            Y="8"
-        fi
-        if [ $Y -gt "472" ]; then
-            Y="472"
-        fi
-        
-        if [ $X -eq "8" ] || [ $Y -eq "8" ] || [ $X -eq "632" ] || [ $Y -eq "472" ]; then
-            xdotool mousemove $X $Y
-            sleep 0.01
-        fi
-    done
-}

@@ -35,6 +35,8 @@ class GameArgs(Namespace):
     bwapi_data_bwta2_dir: str
     vnc_base_port: int
     vnc_host: str
+    capture_movement: bool
+    launch_multiplayer: bool
     show_all: bool
     allow_input: bool
     plot_realtime: bool
@@ -100,6 +102,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
                          and player.meta.javaDebugPort is not None
                          for player in players),
         allow_input=args.allow_input,
+        launch_multiplayer=args.launch_multiplayer,
 
         # mount dirs
         log_dir=args.log_dir,
@@ -111,6 +114,7 @@ def run_game(args: GameArgs, wait_callback: Optional[Callable] = None) -> Option
         # vnc
         vnc_base_port=args.vnc_base_port,
         vnc_host=args.vnc_host,
+        capture_movement=args.capture_movement,
 
         # docker
         docker_image=args.docker_image,
