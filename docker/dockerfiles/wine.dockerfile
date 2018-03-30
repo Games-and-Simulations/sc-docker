@@ -1,6 +1,6 @@
 # Basic images to build up X server with wine.
 FROM ubuntu:xenial
-MAINTAINER Michal Sustr <michal.sustr@aic.fel.cvut.cz>
+LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 ENV APP_DIR /app
 ENV LOG_DIR $APP_DIR/logs
