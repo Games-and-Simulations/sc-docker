@@ -3,7 +3,7 @@ import glob
 
 
 def find_logs(log_dir: str, game_name: str) -> List[str]:
-    return glob.glob(f"{log_dir}/{game_name}*.log")
+    return glob.glob(f"{log_dir}/{game_name}_*.log")
 
 
 def find_replays(map_dir: str, game_name: str) -> List[str]:
