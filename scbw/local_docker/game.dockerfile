@@ -1,5 +1,5 @@
 FROM starcraft:java
-MAINTAINER Michal Sustr <michal.sustr@aic.fel.cvut.cz>
+LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 #####################################################################
 USER starcraft

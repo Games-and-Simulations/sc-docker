@@ -1,5 +1,5 @@
 FROM starcraft:wine
-MAINTAINER Michal Sustr <michal.sustr@aic.fel.cvut.cz>
+LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 ENV SC_DIR="$APP_DIR/sc"
 ENV BWTA_DIR="$APP_DIR/bwta"

@@ -1,5 +1,5 @@
 FROM starcraft:play
-MAINTAINER Michal Sustr <michal.sustr@aic.fel.cvut.cz>
+LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 
 ENV JAVA_DIR="$APP_DIR/java"
