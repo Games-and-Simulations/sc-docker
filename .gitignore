@@ -15,6 +15,9 @@ venv/
 # Logs
 *.log
 
+# Exclude log files placed for testing
+!tests/unittests/data/**/*.log
+
 # IPython
 .ipynb_checkpoints
 
@@ -43,3 +46,6 @@ logs/*
 release.sh
 py36to34.sh
 scripts/py36to34.py
+
+# VSCode
+.vscode/
