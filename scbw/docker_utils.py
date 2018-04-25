@@ -5,6 +5,7 @@ import logging
 import os
 import os.path
 import re
+import shutil
 import subprocess
 import time
 from pprint import pformat
@@ -16,7 +17,7 @@ import docker.types
 from scbw.defaults import SCBW_BASE_DIR, SC_PARENT_IMAGE, SC_JAVA_IMAGE, SC_BINARY_LINK
 from scbw.error import ContainerException, DockerException, GameException, RealtimeOutedException
 from scbw.game_type import GameType
-from scbw.logs import find_frames, find_logs, find_replays, find_results
+from scbw.logs import find_frames, find_logs, find_replays, find_scores
 from scbw.player import BotPlayer, HumanPlayer, Player
 from scbw.utils import download_file
 from scbw.vnc import launch_vnc_viewer
@@ -208,10 +209,10 @@ def launch_image(
         hide_names: bool,
         drop_players: bool,
         allow_input: bool,
-        launch_multiplayer: bool,
+        auto_launch: bool,
 
         # mount dirs
-        log_dir: str,
+        game_dir: str,
         bot_dir: str,
         map_dir: str,
         bwapi_data_bwta_dir: str,
@@ -230,6 +231,9 @@ def launch_image(
     :raises DockerException
     """
     container_name = f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}"
+
+    log_dir = f"{game_dir}/{game_name}/logs_{nth_player}"
+    os.makedirs(log_dir, mode=0o777, exist_ok=True)  # todo: proper mode
 
     volumes = {
         xoscmounts(log_dir): {"bind": LOG_DIR, "mode": "rw"},
@@ -254,14 +258,14 @@ def launch_image(
         HIDE_NAMES="1" if hide_names else "0",
         DROP_PLAYERS="1" if drop_players else "0",
 
-        TM_LOG_RESULTS=f"../logs/{game_name}_{nth_player}_results.json",
-        TM_LOG_FRAMETIMES=f"../logs/{game_name}_{nth_player}_frames.csv",
+        TM_LOG_RESULTS=f"../logs/scores.json",
+        TM_LOG_FRAMETIMES=f"../logs/frames.csv",
         TM_SPEED_OVERRIDE=game_speed,
         TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) or allow_input else "0",
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED,
         CAPTURE_MOUSE_MOVEMENT="1" if capture_movement else "0",
-        HEADFUL_LAUNCH_MULTIPLAYER="1" if launch_multiplayer else "0",
+        HEADFUL_AUTO_LAUNCH="1" if auto_launch else "0",
 
         JAVA_DEBUG="0"
     )
@@ -269,7 +273,7 @@ def launch_image(
     if isinstance(player, BotPlayer):
         # Only mount write directory, read and AI
         # are copied from the bot directory in proper places in bwapi-data
-        bot_data_write_dir = f"{player.bot_dir}/write/{game_name}_{nth_player}"
+        bot_data_write_dir = f"{game_dir}/{game_name}/write_{nth_player}/"
         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
         volumes.update({
             xoscmounts(bot_data_write_dir): {"bind": BOT_DATA_WRITE_DIR, "mode": "rw"},
@@ -343,7 +347,7 @@ def remove_game_containers(name_filter: str) -> None:
     """
     :raises docker.exceptions.APIError
     """
-    for container in docker_client.containers.list(filters={"name": name_filter}):
+    for container in docker_client.containers.list(filters={"name": name_filter}, all=True):
         container.stop()
         container.remove()
 
@@ -370,23 +374,19 @@ def launch_game(
     if not players:
         raise GameException("at least one player must be specified")
 
-    # todo: this is a quick fix, do it properly later
-    existing_files = itertools.chain(
-        find_logs(launch_params["log_dir"], launch_params["game_name"]),
-        find_replays(launch_params["map_dir"], launch_params["game_name"]),
-        find_results(launch_params["log_dir"], launch_params["game_name"]),
-        find_frames(launch_params["log_dir"], launch_params["game_name"])
-    )
-    for file_ in existing_files:
-        logger.debug(f"removing existing file {file_}")
-        os.remove(file_)
+    game_dir = launch_params["game_dir"]
+    game_name = launch_params["game_name"]
+
+    if os.path.exists(f"{game_dir}/{game_name}"):
+        logger.info(f"removing existing game results of {game_name}")
+        shutil.rmtree(f"{game_dir}/{game_name}")
 
     for nth_player, player in enumerate(players):
         launch_image(player, nth_player=nth_player, num_players=len(players), **launch_params)
 
     logger.debug("checking if game has launched properly...")
     time.sleep(1)
-    start_containers = running_containers(launch_params["game_name"])
+    start_containers = running_containers(game_name)
     if len(start_containers) != len(players):
         raise DockerException("some containers exited prematurely, please check logs")
 
@@ -402,10 +402,10 @@ def launch_game(
                     "Select the map, wait for bots to join the game "
                     "and then start the game.")
 
-    logger.info(f"waiting until game {launch_params['game_name']} is finished...")
+    logger.info(f"waiting until game {game_name} is finished...")
     running_time = time.time()
     while True:
-        containers = running_containers(launch_params["game_name"])
+        containers = running_containers(game_name)
         if len(containers) == 0:  # game finished
             break
         if len(containers) >= 2:  # update the last time when there were multiple containers
@@ -418,9 +418,10 @@ def launch_game(
         wait_callback()
 
     exit_codes = [container_exit_code(container) for container in containers]
+
     # remove containers before throwing exception
     logger.debug("removing game containers")
-    remove_game_containers(launch_params["game_name"])
+    remove_game_containers(game_name)
 
     if any(exit_code == EXIT_CODE_REALTIME_OUTED for exit_code in exit_codes):
         raise RealtimeOutedException(f"some of the game containers has realtime outed.")
@@ -433,6 +434,6 @@ def launch_game(
             if isinstance(player, BotPlayer):
                 logger.debug(f"overwriting files for {player}")
                 distutils.dir_util.copy_tree(
-                    f"{player.write_dir}/{launch_params['game_name']}_{nth_player}",
+                    f"{game_dir}/{game_name}/write_{nth_player}",
                     player.read_dir
                 )

@@ -7,9 +7,8 @@ else
     IS_HEADFUL="0"
 fi
 
-LOG_BASENAME="${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME//[ ]/_}"
-LOG_GAME="${LOG_DIR}/${LOG_BASENAME}_game.log"
-LOG_BOT="${LOG_DIR}/${LOG_BASENAME}_bot.log"
+LOG_GAME="${LOG_DIR}/game.log"
+LOG_BOT="${LOG_DIR}/bot.log"
 BOT_TYPE="${BOT_FILE##*.}"
 DATE=$(date +%Y-%m-%d)
 REPLAY_FILE="${GAME_NAME}_${NTH_PLAYER}.rep"
@@ -44,8 +43,8 @@ sleep 1
 start_game "$@"
 sleep 3
 
-if [ "$IS_HEADFUL" == "1" ] && [ $NTH_PLAYER == "0" ] && [ "$HEADFUL_LAUNCH_MULTIPLAYER" == "1" ]; then # if is_server
-    launch_multiplayer
+if [ "$IS_HEADFUL" == "1" ] && [ $NTH_PLAYER == "0" ] && [ "$HEADFUL_AUTO_LAUNCH" == "1" ]; then # if is_server
+    auto_launch
 fi
 
 if [ "$CAPTURE_MOUSE_MOVEMENT" == "1" ]; then

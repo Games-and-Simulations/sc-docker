@@ -80,7 +80,6 @@ class BotPlayer(Player):
     At the time of creating instance it must have the file system structure satisfied.
     """
 
-
     def __init__(self, bot_dir: str) -> None:
         self.bot_dir = bot_dir
         self._check_structure()
@@ -138,11 +137,6 @@ class BotPlayer(Player):
         return f"{self.bot_dir}/read"
 
 
-    @property
-    def write_dir(self) -> dir:
-        return f"{self.bot_dir}/write"
-
-
     def _check_structure(self) -> None:
         if not os.path.exists(f"{self.bot_dir}"):
             raise PlayerException(f"Bot cannot be found in {self.bot_dir}")
@@ -154,8 +148,6 @@ class BotPlayer(Player):
             raise PlayerException(f"AI folder cannot be found in {self.ai_dir}")
         if not os.path.exists(f"{self.read_dir}"):
             raise PlayerException(f"read folder cannot be found in {self.read_dir}")
-        if not os.path.exists(f"{self.write_dir}"):
-            raise PlayerException(f"write folder cannot be found in {self.write_dir}")
 
 
     @staticmethod

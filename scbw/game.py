@@ -1,4 +1,8 @@
+import enum
+import glob
+import json
 import logging
+import os
 import signal
 import time
 from argparse import Namespace
@@ -17,7 +21,6 @@ from scbw.plot import RealtimeFramePlotter
 from scbw.result import GameResult
 from scbw.vnc import check_vnc_exists
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -32,14 +35,14 @@ class GameArgs(Namespace):
     hide_names: bool
     timeout: int
     bot_dir: str
-    log_dir: str
+    game_dir: str
     map_dir: str
     bwapi_data_bwta_dir: str
     bwapi_data_bwta2_dir: str
     vnc_base_port: int
     vnc_host: str
     capture_movement: bool
-    launch_multiplayer: bool
+    auto_launch: bool
     show_all: bool
     allow_input: bool
     plot_realtime: bool
@@ -49,8 +52,8 @@ class GameArgs(Namespace):
 
 
 def run_game(
-    args: GameArgs,
-    wait_callback: Optional[Callable] = None
+        args: GameArgs,
+        wait_callback: Optional[Callable] = None
 ) -> Optional[GameResult]:
     # Check all startup requirements
     if not args.headless:
@@ -70,6 +73,7 @@ def run_game(
         players.append(HumanPlayer())
     if args.bots is None:
         args.bots = []
+
     bot_storages = (
         LocalBotStorage(args.bot_dir),
         SscaitBotStorage(args.bot_dir)
@@ -89,7 +93,7 @@ def run_game(
         wait_callback = lambda: time.sleep(3)
 
     if args.plot_realtime:
-        plot_realtime = RealtimeFramePlotter(args.log_dir, game_name, players)
+        plot_realtime = RealtimeFramePlotter(args.game_dir, game_name, players)
 
         def _wait_callback():
             plot_realtime.redraw()
@@ -111,10 +115,10 @@ def run_game(
                          and player.meta.javaDebugPort is not None
                          for player in players),
         allow_input=args.allow_input,
-        launch_multiplayer=args.launch_multiplayer,
+        auto_launch=args.auto_launch,
 
         # mount dirs
-        log_dir=args.log_dir,
+        game_dir=args.game_dir,
         bot_dir=args.bot_dir,
         map_dir=args.map_dir,
         bwapi_data_bwta_dir=args.bwapi_data_bwta_dir,
@@ -151,16 +155,62 @@ def run_game(
         raise
 
     if args.plot_realtime:
-        plot_realtime.save(f"{args.log_dir}/{game_name}_frameplot.png")
+        plot_realtime.save(f"{args.game_dir}/{game_name}/frame_plot.png")
+
+    # move replay files
+    replay_files = set(
+        glob.glob(f"{args.map_dir}/replays/{game_name}_*.rep") +
+        glob.glob(f"{args.map_dir}/replays/{game_name}_*.REP")
+    )
+    for replay_file in replay_files:
+        nth_player = int(replay_file[:-4].split("_")[-1])
+        os.rename(replay_file, f"{args.game_dir}/{game_name}/player_{nth_player}.rep")
 
     if is_1v1_game:
         game_time = time.time() - time_start
-        return GameResult(
+        game_result = GameResult(
             game_name, players, game_time,
             # game error states
             is_realtime_outed,
             # dirs with results
-            args.map_dir, args.log_dir
+            args.map_dir, args.game_dir
         )
 
+        info = launch_params.copy()
+        info.update(dict(
+            read_overwrite=args.read_overwrite,
+            bots=args.bots,
+
+            is_crashed=game_result.is_crashed,
+            is_gametime_outed=game_result.is_gametime_outed,
+            is_realtime_outed=game_result.is_realtime_outed,
+            game_time=game_result.game_time,
+
+            winner=None,
+            loser=None,
+            winner_race=None,
+            loser_race=None,
+        ))
+        if game_result.is_valid:
+            info.update(dict(
+                winner=game_result.winner_player.name,
+                loser=game_result.loser_player.name,
+                winner_race=game_result.winner_player.race.value,
+                loser_race=game_result.loser_player.race.value,
+            ))
+
+        logger.debug(info)
+        with open(f"{args.game_dir}/{game_name}/result.json", "w") as f:
+            json.dump(info, f, cls=EnumEncoder)
+        logger.info(f"game {game_name} recorded")
+
+        return game_result
+
     return None
+
+
+class EnumEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, enum.Enum):
+            return obj.value
+        return super(EnumEncoder, self).default(obj)

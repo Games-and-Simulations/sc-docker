@@ -3,7 +3,7 @@ import os
 import os.path
 
 from scbw.defaults import (
-    SCBW_BASE_DIR, SC_IMAGE, SC_LOG_DIR, SC_BOT_DIR, SC_MAP_DIR,
+    SCBW_BASE_DIR, SC_IMAGE, SC_GAME_DIR, SC_BOT_DIR, SC_MAP_DIR,
     SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR
 )
 from scbw.docker_utils import (
@@ -29,7 +29,7 @@ def install() -> None:
     ensure_local_image(SC_IMAGE)
 
     create_data_dirs(
-        SC_LOG_DIR,
+        SC_GAME_DIR,
         SC_BWAPI_DATA_BWTA_DIR,
         SC_BWAPI_DATA_BWTA2_DIR,
         SC_BOT_DIR,

@@ -14,7 +14,7 @@ load 'libs/bats-assert/load'
     # Delete lingering test dir
     [ -d $TEST_DIR ] && rm -rf $TEST_DIR
 
-    mkdir $TEST_DIR $TEST_DIR/bots $TEST_DIR/maps $TEST_DIR/maps/replays $TEST_DIR/log $TEST_DIR/bwta $TEST_DIR/bwta2
+    mkdir $TEST_DIR $TEST_DIR/bots $TEST_DIR/maps $TEST_DIR/maps/replays $TEST_DIR/games $TEST_DIR/bwta $TEST_DIR/bwta2
     cp -r ExampleBot $TEST_DIR/bots
     cp -r ZZZKBot $TEST_DIR/bots
     cp maps/\(2\)Benzene.scx $TEST_DIR/maps
@@ -26,30 +26,31 @@ load 'libs/bats-assert/load'
         --game_name="TEST" \
         --map="(2)Benzene.scx" \
         --bot_dir=$TEST_DIR/bots \
-        --log_dir=$TEST_DIR/log \
+        --game_dir=$TEST_DIR/games \
         --map_dir=$TEST_DIR/maps \
         --bwapi_data_bwta2_dir=$TEST_DIR/bwta2 \
+        --docker_image=starcraft:game \
         --read_overwrite \
         --headless
     # check winner
     assert_output "1"
 
     # check logs
-    run ls $TEST_DIR/log/GAME_TEST_0_ExampleBot_bot.log | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_0/bot.log | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_0_ExampleBot_game.log | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_0/game.log | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_0_frames.csv | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_0/frames.csv | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_0_results.json | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_0/results.json | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_1_ZZZKBot_bot.log | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_1/bot.log | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_1_ZZZKBot_game.log | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_1/game.log | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_1_frames.csv | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_1/frames.csv | wc -l
     assert_output "1"
-    run ls $TEST_DIR/log/GAME_TEST_1_results.json | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/log_1/results.json | wc -l
     assert_output "1"
 
     # check replays
@@ -63,7 +64,7 @@ load 'libs/bats-assert/load'
     assert_output "1"
 
     # check write folder has contents
-    run ls $TEST_DIR/bots/ZZZKBot/write/GAME_TEST_1/ZZZKBot_v_1.5.0.0.0_Zerg_vs_ExampleBot_Terran.dat | wc -l
+    run ls $TEST_DIR/games/GAME_TEST/write_1/ZZZKBot_v_1.5.0.0.0_Zerg_vs_ExampleBot_Terran.dat | wc -l
     assert_output "1"
 
     # check read folder has been updated

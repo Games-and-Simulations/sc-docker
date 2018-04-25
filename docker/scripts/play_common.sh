@@ -81,8 +81,8 @@ function start_gui() {
         LOG_XVFB="/dev/null"
         LOG_XVNC="/dev/null"
     else
-        LOG_XVFB="${LOG_DIR}/${LOG_BASENAME}_xvfb.log"
-        LOG_XVNC="${LOG_DIR}/${LOG_BASENAME}_xvnc.log"
+        LOG_XVFB="${LOG_DIR}/xvfb.log"
+        LOG_XVNC="${LOG_DIR}/xvnc.log"
     fi
 
 
@@ -116,16 +116,16 @@ function start_bot() {
                 $DEBUG_CMD \
                 -Djava.library.path="C:\windows\system32" \
                 -jar "${BOT_EXECUTABLE}" \
-                >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
+                >> "${LOG_DIR}/bot.log" 2>&1
 
         elif [ "$BOT_TYPE" == "exe" ]; then
             wine "${BOT_EXECUTABLE}" \
-                >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
+                >> "${LOG_DIR}/bot.log" 2>&1
 
         elif [ "$BOT_TYPE" == "jython" ]; then
             win_java32 \
                 -cp "${BOT_EXECUTABLE}" org.python.util.jython "$BOT_DATA_AI_DIR/__run__.py" \
-                >> "${LOG_DIR}/${LOG_BASENAME}_bot.log" 2>&1
+                >> "${LOG_DIR}/bot.log" 2>&1
         fi
 
         LOG "Bot exited." >> "$LOG_BOT"
@@ -245,7 +245,7 @@ function update_registry() {
     wine REG ADD "${REG_KEY}" /v Path1 /t REG_EXPAND_SZ /d "Z:\app\sc\characters"
 }
 
-function launch_multiplayer() {
+function auto_launch() {
     # This a hacky way to go around "Unable to distribute map" bug
     # that I couldn't debug. Basically send appropriate keys to Starcraft to start the game.
 

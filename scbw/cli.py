@@ -6,7 +6,7 @@ import sys
 import coloredlogs
 import docker
 from scbw.defaults import (
-    SC_BOT_DIR, SC_LOG_DIR, SC_MAP_DIR, SCBW_BASE_DIR, SC_IMAGE,
+    SC_BOT_DIR, SC_GAME_DIR, SC_MAP_DIR, SCBW_BASE_DIR, SC_IMAGE,
     SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR, VERSION
 )
 from scbw.docker_utils import BASE_VNC_PORT, VNC_HOST
@@ -70,15 +70,15 @@ parser.add_argument("--timeout", type=int, default=None,
 parser.add_argument("--hide_names", action="store_true",
                     help="Hide player names, each player will be called only 'player'.\n"
                          "By default, show player names (as their bot name)")
-parser.add_argument("--launch_multiplayer", action="store_true",
+parser.add_argument("--auto_launch", action="store_true",
                     help="In headful mode, automatically launch multiplayer.\n"
                          "Experimental. (automatically sends keys to the starcraft window).")
 
 # Volumes
 parser.add_argument('--bot_dir', type=str, default=SC_BOT_DIR,
                     help=f"Directory where bots are stored, default:\n{SC_BOT_DIR}")
-parser.add_argument('--log_dir', type=str, default=SC_LOG_DIR,
-                    help=f"Directory where logs are stored, default:\n{SC_LOG_DIR}")
+parser.add_argument('--game_dir', type=str, default=SC_GAME_DIR,
+                    help=f"Directory where game logs and results are stored, default:\n{SC_GAME_DIR}")
 parser.add_argument('--map_dir', type=str, default=SC_MAP_DIR,
                     help=f"Directory where maps are stored, default:\n{SC_MAP_DIR}")
 
@@ -126,7 +126,7 @@ parser.add_argument('--opt', type=str,
 parser.add_argument('--plot_realtime', action='store_true',
                     help="Allow realtime plotting of frame information.\n"
                          "At the end of the game, this plot will be saved\n"
-                         "to file {LOG_DIR}/{GAME_NAME}_frameplot.png")
+                         "to file {GAME_DIR}/{GAME_NAME}/frame_plot.png")
 
 parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")
@@ -199,7 +199,7 @@ def main():
         logger.info("---")
 
         logger.info("Game results are saved here:")
-        for frame_file in sorted(game_result.result_files):
+        for frame_file in sorted(game_result.score_files):
             logger.info(frame_file)
         logger.info("---")
 

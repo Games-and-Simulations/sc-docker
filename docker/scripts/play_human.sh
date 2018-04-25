@@ -4,10 +4,9 @@ set -eux
 # human is always headful
 IS_HEADFUL="1"
 
-LOG_BASENAME=${GAME_NAME}_${NTH_PLAYER}_${PLAYER_NAME}
-LOG_GAME="${LOG_DIR}/${LOG_BASENAME}_game.log"
+LOG_GAME="${LOG_DIR}/game.log"
 DATE=$(date +%Y-%m-%d)
-REPLAY_FILE="${DATE}_${GAME_NAME}_${NTH_PLAYER}.rep"
+REPLAY_FILE="${GAME_NAME}_${NTH_PLAYER}.rep"
 BOT_BWAPI="4.2.0"
 . play_common.sh
 
@@ -21,8 +20,8 @@ start_gui
 start_game "$@"
 sleep 3
 
-if [ "$HEADFUL_LAUNCH_MULTIPLAYER" == "1" ]; then
-    launch_multiplayer
+if [ "$HEADFUL_AUTO_LAUNCH" == "1" ]; then
+    auto_launch
 fi
 
 detect_game_finished

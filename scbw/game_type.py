@@ -1,7 +1,6 @@
 import enum
 
 
-
 class GameType(enum.Enum):
     TOP_VS_BOTTOM = "TOP_VS_BOTTOM"
     MELEE = "MELEE"

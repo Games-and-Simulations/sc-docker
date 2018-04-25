@@ -14,7 +14,7 @@ def get_data_dir() -> str:
 VERSION = "0.2b10"
 
 SCBW_BASE_DIR = get_data_dir()
-SC_LOG_DIR = f"{SCBW_BASE_DIR}/logs"
+SC_GAME_DIR = f"{SCBW_BASE_DIR}/games"
 SC_BWAPI_DATA_BWTA_DIR = f"{SCBW_BASE_DIR}/bwapi-data/BWTA"
 SC_BWAPI_DATA_BWTA2_DIR = f"{SCBW_BASE_DIR}/bwapi-data/BWTA2"
 SC_BOT_DIR = f"{SCBW_BASE_DIR}/bots"
