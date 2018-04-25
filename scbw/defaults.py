@@ -2,7 +2,6 @@ import os
 import platform
 
 
-
 def get_data_dir() -> str:
     system = platform.system()
     if system == "Windows":
@@ -11,7 +10,7 @@ def get_data_dir() -> str:
         return os.path.expanduser("~") + "/.scbw"
 
 
-VERSION = "0.2b10"
+VERSION = "1.0"
 
 SCBW_BASE_DIR = get_data_dir()
 SC_GAME_DIR = f"{SCBW_BASE_DIR}/games"
