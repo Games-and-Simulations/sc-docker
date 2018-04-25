@@ -19,7 +19,7 @@ from scbw.error import ContainerException, DockerException, GameException, Realt
 from scbw.game_type import GameType
 from scbw.logs import find_frames, find_logs, find_replays, find_scores
 from scbw.player import BotPlayer, HumanPlayer, Player
-from scbw.utils import download_file
+from scbw.utils import download_file, random_string
 from scbw.vnc import launch_vnc_viewer
 
 logger = logging.getLogger(__name__)
@@ -104,8 +104,8 @@ def ensure_local_image(
     :raises docker.errors.APIError
     """
     logger.info(f"checking if there is local image {local_image}")
-    docker_image = docker_client.images.search(local_image)
-    if docker_image and docker_image.short_id is not None:
+    docker_images = docker_client.images.list(local_image)
+    if len(docker_images) and docker_images[0].short_id is not None:
         logger.info(f"image {local_image} found locally.")
         return
 
@@ -207,6 +207,7 @@ def launch_image(
         game_speed: int,
         timeout: Optional[int],
         hide_names: bool,
+        random_names: bool,
         drop_players: bool,
         allow_input: bool,
         auto_launch: bool,
@@ -247,7 +248,7 @@ def launch_image(
         ports.update({"5900/tcp": vnc_base_port + nth_player})
 
     env = dict(
-        PLAYER_NAME=player.name,
+        PLAYER_NAME=player.name if not random_names else random_string(8),
         PLAYER_RACE=player.race.value,
         NTH_PLAYER=nth_player,
         NUM_PLAYERS=num_players,

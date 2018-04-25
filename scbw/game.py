@@ -33,6 +33,7 @@ class GameArgs(Namespace):
     game_type: str
     game_speed: int
     hide_names: bool
+    random_names: bool
     timeout: int
     bot_dir: str
     game_dir: str
@@ -116,6 +117,7 @@ def run_game(
                          for player in players),
         allow_input=args.allow_input,
         auto_launch=args.auto_launch,
+        random_names=args.random_names,
 
         # mount dirs
         game_dir=args.game_dir,

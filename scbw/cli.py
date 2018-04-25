@@ -70,6 +70,8 @@ parser.add_argument("--timeout", type=int, default=None,
 parser.add_argument("--hide_names", action="store_true",
                     help="Hide player names, each player will be called only 'player'.\n"
                          "By default, show player names (as their bot name)")
+parser.add_argument("--random_names", action="store_true",
+                    help="Randomize player names.")
 parser.add_argument("--auto_launch", action="store_true",
                     help="In headful mode, automatically launch multiplayer.\n"
                          "Experimental. (automatically sends keys to the starcraft window).")
