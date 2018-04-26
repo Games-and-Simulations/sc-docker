@@ -271,6 +271,9 @@ def launch_image(
         JAVA_DEBUG="0"
     )
 
+    if timeout is not None:
+        env["PLAY_TIMEOUT"] = timeout
+
     if isinstance(player, BotPlayer):
         # Only mount write directory, read and AI
         # are copied from the bot directory in proper places in bwapi-data
