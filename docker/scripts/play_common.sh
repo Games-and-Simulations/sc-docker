@@ -114,6 +114,7 @@ function start_bot() {
         if [ "$BOT_TYPE" == "jar" ]; then
             win_java32 \
                 $DEBUG_CMD \
+                $JAVA_OPTS \
                 -Djava.library.path="C:\windows\system32" \
                 -jar "${BOT_EXECUTABLE}" \
                 >> "${LOG_DIR}/bot.log" 2>&1

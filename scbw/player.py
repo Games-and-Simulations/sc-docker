@@ -66,6 +66,7 @@ class BotJsonMeta:
     bwapiDLL: Optional[str] = None  # link to website
     botProfileURL: Optional[str] = None  # link to website
     javaDebugPort: Optional[int] = None  # optionally allow attaching debugger
+    javaOpts: Optional[str] = None # optional parameters to JVM
 
 
 class BotPlayer(Player):
@@ -166,6 +167,7 @@ class BotPlayer(Player):
         meta.bwapiDLL = json_spec['bwapiDLL'] if 'bwapiDLL' in json_spec else None
         meta.botProfileURL = json_spec['botProfileURL'] if 'botProfileURL' in json_spec else None
         meta.javaDebugPort = json_spec['javaDebugPort'] if 'javaDebugPort' in json_spec else None
+        meta.javaOpts = json_spec['javaOpts'] if 'javaOpts' in json_spec else None
 
         return meta
 
