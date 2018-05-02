@@ -176,6 +176,13 @@ def main():
         parser.error('the following arguments are required: --bots or --human')
         # parser.error exits
 
+    if os.path.exists(f"{args.game_dir}/GAME_{args.game_name}"):
+        logger.info(f'Game {args.game_name} has already been played, '
+                    f'do you wish to continue (and remove logs) ? (Y/n)')
+        answer = input()
+        if answer.lower() not in ("", "yes", "y"):
+            sys.exit(1)
+
     try:
         game_result = run_game(args)
         if game_result is None:
