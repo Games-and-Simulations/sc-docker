@@ -39,6 +39,7 @@ BWTA_DIR = f"{APP_DIR}/bwta"
 BWAPI_DIR = f"{APP_DIR}/bwapi"
 BOT_DIR = f"{APP_DIR}/bot"
 MAP_DIR = f"{SC_DIR}/maps"
+ERRORS_DIR = f"{SC_DIR}/Errors"
 BWAPI_DATA_DIR = f"{SC_DIR}/bwapi-data"
 BWAPI_DATA_BWTA_DIR = f"{BWAPI_DATA_DIR}/BWTA"
 BWAPI_DATA_BWTA2_DIR = f"{BWAPI_DATA_DIR}/BWTA2"
@@ -234,11 +235,14 @@ def launch_image(
     container_name = f"{game_name}_{nth_player}_{player.name.replace(' ', '_')}"
 
     log_dir = f"{game_dir}/{game_name}/logs_{nth_player}"
+    crashes_dir = f"{game_dir}/{game_name}/crashes_{nth_player}"
     os.makedirs(log_dir, mode=0o777, exist_ok=True)  # todo: proper mode
+    os.makedirs(crashes_dir, mode=0o777, exist_ok=True)  # todo: proper mode
 
     volumes = {
         xoscmounts(log_dir): {"bind": LOG_DIR, "mode": "rw"},
         xoscmounts(map_dir): {"bind": MAP_DIR, "mode": "rw"},
+        xoscmounts(crashes_dir): {"bind": ERRORS_DIR, "mode": "rw"},
         xoscmounts(bwapi_data_bwta_dir): {"bind": BWAPI_DATA_BWTA_DIR, "mode": "rw"},
         xoscmounts(bwapi_data_bwta2_dir): {"bind": BWAPI_DATA_BWTA2_DIR, "mode": "rw"},
     }
