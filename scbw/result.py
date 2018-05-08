@@ -115,7 +115,7 @@ class GameResult:
             return
 
         winner_score_file = [file for file, score in scores.items() if score.is_winner][0]
-        nth_player = int(winner_score_file.replace("/scores.json", "").split("_")[-1])
+        nth_player = int(winner_score_file.replace("/scores.json", "").replace("\\scores.json", "").split("_")[-1])
 
         self._nth_winner_player = nth_player
         self._nth_loser_player = 1 - nth_player
