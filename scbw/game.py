@@ -161,8 +161,9 @@ def run_game(
 
     # move replay files
     replay_files = set(
-        glob.glob(f"{args.map_dir}/replays/{game_name}_*.rep") +
-        glob.glob(f"{args.map_dir}/replays/{game_name}_*.REP")
+        # there are at most 8 players for a game
+        glob.glob(f"{args.map_dir}/replays/{game_name}_[0-7].rep") +
+        glob.glob(f"{args.map_dir}/replays/{game_name}_[0-7].REP")
     )
     for replay_file in replay_files:
         nth_player = int(replay_file[:-4].split("_")[-1])
