@@ -129,7 +129,7 @@ class GameResult:
     @property
     def replay_files(self) -> List[str]:
         if self._replay_files is None:
-            self._replay_files = find_replays(self.map_dir, self.game_name)
+            self._replay_files = find_replays(self.game_dir, self.game_name)
         return self._replay_files
 
     @property
