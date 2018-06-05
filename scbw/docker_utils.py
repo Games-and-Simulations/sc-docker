@@ -289,6 +289,11 @@ def launch_image(
         })
         env["BOT_FILE"] = player.bot_basefilename
         env["BOT_BWAPI"] = player.bwapi_version
+
+        env["JAVA_DEBUG"] = "0"
+        env["JAVA_DEBUG_PORT"] = ""
+        env["JAVA_OPTS"] = ""
+
         command = ["/app/play_bot.sh"]
         if player.meta.javaDebugPort is not None:
             ports.update({"player.meta.javaDebugPort/tcp": player.meta.javaDebugPort})
@@ -396,7 +401,7 @@ def launch_game(
 
     logger.debug("checking if game has launched properly...")
     time.sleep(1)
-    start_containers = running_containers(game_name)
+    start_containers = running_containers(game_name + "_")
     if len(start_containers) != len(players):
         raise DockerException("some containers exited prematurely, please check logs")
 
