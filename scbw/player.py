@@ -67,6 +67,7 @@ class BotJsonMeta:
     botProfileURL: Optional[str] = None  # link to website
     javaDebugPort: Optional[int] = None  # optionally allow attaching debugger
     javaOpts: Optional[str] = None # optional parameters to JVM
+    port : Optional[str] = None # optionally publish a custom port to the hos
 
 
 class BotPlayer(Player):
@@ -168,6 +169,7 @@ class BotPlayer(Player):
         meta.botProfileURL = json_spec['botProfileURL'] if 'botProfileURL' in json_spec else None
         meta.javaDebugPort = json_spec['javaDebugPort'] if 'javaDebugPort' in json_spec else None
         meta.javaOpts = json_spec['javaOpts'] if 'javaOpts' in json_spec else None
+        meta.port = json_spec['port'] if 'port' in json_spec else None
 
         return meta
 
