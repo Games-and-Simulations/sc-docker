@@ -67,7 +67,7 @@ class BotJsonMeta:
     botProfileURL: Optional[str] = None  # link to website
     javaDebugPort: Optional[int] = None  # optionally allow attaching debugger
     javaOpts: Optional[str] = None # optional parameters to JVM
-    port : Optional[str] = None # optionally publish a custom port to the hos
+    port : Optional[str] = None # optionally publish a custom port to the host
 
 
 class BotPlayer(Player):
