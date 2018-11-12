@@ -12,5 +12,6 @@ versions_md5s = {
 supported_versions = [
     "4.2.0",
     "4.1.2",
-    "3.7.5"
+    "3.7.5",
+    "3.7.4"
 ]
