@@ -1,5 +1,5 @@
 # Basic images to build up X server with wine.
-FROM ubuntu:xenial
+FROM ubuntu:cosmic
 LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 ENV APP_DIR /app
@@ -49,26 +49,11 @@ RUN set -x \
 #
 # Use the latest version of winetricks
 RUN set -x \
-  && apt-get update -y \
-  && apt-get install -y --no-install-recommends \
-    xvfb xauth x11vnc x11-utils x11-xserver-utils xdotool \
-    curl unzip software-properties-common joe vim sudo wget curl tree screen tmux p7zip apt-transport-https winbind \
-    binutils cabextract unrar zenity \
-  && curl -L https://dl.winehq.org/wine-builds/Release.key -o Release.key \
-  && apt-key add Release.key \
-  && apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ \
   && dpkg --add-architecture i386 \
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
-      wine-staging-i386=2.20.0~xenial \
-      wine-staging-amd64=2.20.0~xenial \
-      wine-staging=2.20.0~xenial \
-  && rm -rf /var/lib/apt/lists/* \
-  && rm Release.key \
-  && ln -s /opt/wine-staging/bin/wine /usr/bin/wine \
-  && curl -SL 'https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks' \
-        -o /usr/local/bin/winetricks \
-  && chmod +x /usr/local/bin/winetricks
+    xvfb xauth x11vnc wine wine32 winetricks ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 ENV PATH $PATH:/opt/wine-staging/bin/
 
