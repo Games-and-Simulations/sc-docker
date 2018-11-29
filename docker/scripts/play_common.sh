@@ -105,28 +105,35 @@ function start_bot() {
     {
         pushd $SC_DIR
 
+        LOG "Changed to directory ${SC_DIR}" >> "$LOG_BOT"
+
         DEBUG_CMD=""
         if [ "$JAVA_DEBUG" -eq "1" ]; then
-            DEBUG_CMD="-Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=n"
+            DEBUG_CMD="-Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=y"
         fi
 
+        LOG "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "$LOG_BOT"
+
         # todo: run under "bot"
-        if [ "$BOT_TYPE" == "jar" ]; then
+        if [ -f "$BWAPI_DATA_DIR/AI/run_proxy.bat" ]; then
+            LOG "Executing $BWAPI_DATA_DIR/AI/run_proxy.bat" >> "$LOG_BOT"
+            WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "${LOG_BOT}" 2>&1
+        elif [ "$BOT_TYPE" == "jar" ]; then
+            LOG "Executing JAR" >> "$LOG_BOT"
             win_java32 \
                 $DEBUG_CMD \
                 $JAVA_OPTS \
-                -Djava.library.path="C:\windows\system32" \
                 -jar "${BOT_EXECUTABLE}" \
-                >> "${LOG_DIR}/bot.log" 2>&1
+                >> "${LOG_BOT}" 2>&1
 
         elif [ "$BOT_TYPE" == "exe" ]; then
             wine "${BOT_EXECUTABLE}" \
-                >> "${LOG_DIR}/bot.log" 2>&1
+                >> "${LOG_BOT}" 2>&1
 
         elif [ "$BOT_TYPE" == "jython" ]; then
             win_java32 \
                 -cp "${BOT_EXECUTABLE}" org.python.util.jython "$BOT_DATA_AI_DIR/__run__.py" \
-                >> "${LOG_DIR}/bot.log" 2>&1
+                >> "${LOG_BOT}" 2>&1
         fi
 
         LOG "Bot exited." >> "$LOG_BOT"

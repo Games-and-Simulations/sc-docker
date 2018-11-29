@@ -55,8 +55,6 @@ RUN set -x \
     xvfb xauth x11vnc wine wine32 winetricks ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-ENV PATH $PATH:/opt/wine-staging/bin/
-
 COPY scripts/winegui /usr/bin/winegui
 
 # Create root APP_DIR

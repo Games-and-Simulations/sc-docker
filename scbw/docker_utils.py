@@ -296,7 +296,7 @@ def launch_image(
 
         command = ["/app/play_bot.sh"]
         if player.meta.javaDebugPort is not None:
-            ports.update({"player.meta.javaDebugPort/tcp": player.meta.javaDebugPort})
+            ports.update({f"{player.meta.javaDebugPort}/tcp": player.meta.javaDebugPort})
             env["JAVA_DEBUG"] = "1"
             env["JAVA_DEBUG_PORT"] = player.meta.javaDebugPort
         if player.meta.javaOpts is not None:

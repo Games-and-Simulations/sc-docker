@@ -8,10 +8,10 @@ ENV JAVA_DIR="$APP_DIR/java"
 USER starcraft
 WORKDIR $APP_DIR
 
-COPY --chown=starcraft:users jre-8u192-windows-i586.tar.gz jre.tar.gz
+COPY --chown=starcraft:users java-1.8.0-openjdk-1.8.0.191-1.b12.ojdkbuild.windows.x86.zip jdk.zip
 RUN set -x \
-    && tar -xzf jre.tar.gz \
-    && mv jre1.8.0_192/ $JAVA_DIR/ \
-    && rm jre.tar.gz
+    && unzip jdk.zip\
+    && mv java-1.8.0-openjdk-1.8.0.191-1.b12.ojdkbuild.windows.x86/ $JAVA_DIR/ \
+    && rm jdk.zip
 
 COPY scripts/win_java32 /usr/bin/win_java32
