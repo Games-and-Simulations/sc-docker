@@ -96,8 +96,27 @@ function start_gui() {
     sleep 1
 }
 
+# Bot might use an server/client infrastructure, so connect it after the game has started
+function connect_bot() {
+    {
+        pushd $SC_DIR
+
+        if [ "$BOT_TYPE" == "dll" ] && [ -f "$BWAPI_DATA_DIR/AI/run_proxy.bat" ]; then
+            LOG "Running run_proxy.bat for Module bot *AFTER* game has started." >> "$LOG_BOT"
+            WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "${LOG_BOT}" 2>&1
+        fi
+
+        popd
+    } &
+}
+
 function start_bot() {
     . hook_before_bot_start.sh
+
+    if [ "$BOT_TYPE" == "dll" ]; then
+        LOG "Module bot started by BWAPI" >> "$LOG_BOT"
+        return 0
+    fi
 
     # Launch the bot!
     LOG "Starting bot ${BOT_FILE}" >> "$LOG_BOT"
@@ -105,18 +124,13 @@ function start_bot() {
     {
         pushd $SC_DIR
 
-        LOG "Changed to directory ${SC_DIR}" >> "$LOG_BOT"
-
         DEBUG_CMD=""
         if [ "$JAVA_DEBUG" -eq "1" ]; then
             DEBUG_CMD="-Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=y"
         fi
 
-        LOG "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "$LOG_BOT"
-
         # todo: run under "bot"
         if [ -f "$BWAPI_DATA_DIR/AI/run_proxy.bat" ]; then
-            LOG "Executing $BWAPI_DATA_DIR/AI/run_proxy.bat" >> "$LOG_BOT"
             WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "${LOG_BOT}" 2>&1
         elif [ "$BOT_TYPE" == "jar" ]; then
             LOG "Executing JAR" >> "$LOG_BOT"

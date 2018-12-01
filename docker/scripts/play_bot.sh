@@ -19,7 +19,9 @@ check_bot_requirements
 
 # Copy to BWAPI data dir
 cp -r "$BOT_DIR/AI/." "$BOT_DATA_AI_DIR"
+cp -r "$BOT_DIR/supplementalAI/." "$BOT_DATA_AI_DIR" || true
 cp -r "$BOT_DIR/read/." "$BOT_DATA_READ_DIR"
+cp -r "$BOT_DIR/supplementalRead/." "$BOT_DATA_READ_DIR" || true
 cp "$BOT_DIR/BWAPI.dll" "$BWAPI_DATA_DIR"
 cp -r "$BWAPI_DIR/bot/." "$BWAPI_DATA_DIR"
 
@@ -42,6 +44,9 @@ sleep 1
 
 start_game "$@"
 sleep 3
+
+connect_bot
+sleep 1
 
 if [ "$IS_HEADFUL" == "1" ] && [ $NTH_PLAYER == "0" ] && [ "$HEADFUL_AUTO_LAUNCH" == "1" ]; then # if is_server
     auto_launch
