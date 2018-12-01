@@ -101,9 +101,9 @@ function connect_bot() {
     {
         pushd $SC_DIR
 
-        if [ "$BOT_TYPE" == "dll" ] && [ -f "$BWAPI_DATA_DIR/AI/run_proxy.bat" ]; then
-            LOG "Running run_proxy.bat for Module bot *AFTER* game has started." >> "$LOG_BOT"
-            WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "${LOG_BOT}" 2>&1
+        if [ "$BOT_TYPE" == "dll" ] && [ -f "$BWAPI_DATA_DIR/AI/run_connect.bat" ]; then
+            LOG "Running run_connect.bat for Module bot *AFTER* game has started." >> "$LOG_BOT"
+            WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_connect.bat" >> "${LOG_BOT}" 2>&1
         fi
 
         popd
@@ -130,10 +130,10 @@ function start_bot() {
         fi
 
         # todo: run under "bot"
-        if [ -f "$BWAPI_DATA_DIR/AI/run_proxy.bat" ]; then
+        if [ "$BOT_TYPE" != "dll" ] && [ -f "$BWAPI_DATA_DIR/AI/run_proxy.bat" ]; then
             WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "${LOG_BOT}" 2>&1
+
         elif [ "$BOT_TYPE" == "jar" ]; then
-            LOG "Executing JAR" >> "$LOG_BOT"
             win_java32 \
                 $DEBUG_CMD \
                 $JAVA_OPTS \
