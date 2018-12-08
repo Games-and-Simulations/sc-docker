@@ -145,6 +145,7 @@ def run_game(
         )
     except RealtimeOutedException:
         is_realtime_outed = True
+        logger.debug(f"Game timed out")
 
     except KeyboardInterrupt:
         logger.warning("Caught interrupt, shutting down containers")

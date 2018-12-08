@@ -432,7 +432,9 @@ def launch_game(
         logger.debug(f"waiting. {containers}")
         wait_callback()
 
-    exit_codes = [container_exit_code(container) for container in containers]
+    containers = docker_client.containers.list(filters={"name": game_name}, all=True)
+    exit_codes = [container_exit_code(container.short_id) for container in containers]
+    logger.debug(f"Exit codes: {exit_codes}")
 
     # remove containers before throwing exception
     logger.debug("removing game containers")
