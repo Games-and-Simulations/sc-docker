@@ -35,6 +35,7 @@ class GameArgs(Namespace):
     hide_names: bool
     random_names: bool
     timeout: int
+    timeout_at_frame: int
     bot_dir: str
     game_dir: str
     map_dir: str
@@ -111,6 +112,7 @@ def run_game(
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
         timeout=args.timeout,
+        timeout_at_frame=args.timeout_at_frame,
         hide_names=args.hide_names,
         drop_players=any(isinstance(player, BotPlayer)
                          and player.meta.javaDebugPort is not None

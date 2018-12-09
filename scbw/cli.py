@@ -67,6 +67,9 @@ parser.add_argument("--game_speed", type=int, default=0,
 parser.add_argument("--timeout", type=int, default=None,
                     help="Kill docker container after timeout seconds.\n"
                          "If not set, run without timeout.")
+parser.add_argument("--timeout_at_frame", type=int, default=None,
+                    help="End game after the given frame count.\n"
+                         "If not set, run without frame limit.")
 parser.add_argument("--hide_names", action="store_true",
                     help="Hide player names, each player will be called only 'player'.\n"
                          "By default, show player names (as their bot name)")

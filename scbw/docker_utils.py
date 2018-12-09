@@ -207,6 +207,7 @@ def launch_image(
         game_type: GameType,
         game_speed: int,
         timeout: Optional[int],
+        timeout_at_frame: Optional[int],
         hide_names: bool,
         random_names: bool,
         drop_players: bool,
@@ -267,6 +268,7 @@ def launch_image(
         TM_LOG_FRAMETIMES=f"../logs/frames.csv",
         TM_SPEED_OVERRIDE=game_speed,
         TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) or allow_input else "0",
+        TM_TIME_OUT_AT_FRAME=timeout_at_frame or "-1",
 
         EXIT_CODE_REALTIME_OUTED=EXIT_CODE_REALTIME_OUTED,
         CAPTURE_MOUSE_MOVEMENT="1" if capture_movement else "0",

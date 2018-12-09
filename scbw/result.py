@@ -13,6 +13,7 @@ class ScoreResult:
             self,
             is_winner: bool,
             is_crashed: bool,
+            timed_out: bool,
             building_score: int,
             kill_score: int,
             razing_score: int,
@@ -20,6 +21,7 @@ class ScoreResult:
     ) -> None:
         self.is_winner = is_winner
         self.is_crashed = is_crashed
+        self.timed_out = timed_out
         self.building_score = building_score
         self.kill_score = kill_score
         self.razing_score = razing_score
@@ -33,6 +35,7 @@ class ScoreResult:
         return ScoreResult(
             v['is_winner'],
             v['is_crashed'],
+            v['timed_out'],
             v['building_score'],
             v['kill_score'],
             v['razing_score'],
@@ -99,6 +102,11 @@ class GameResult:
         if any(score.is_crashed for score in scores.values()):
             logger.warning(f"Some of the players crashed in game '{self.game_name}'")
             self._is_crashed = True
+            return
+
+        if any(score.timed_out for score in scores.values()):
+            logger.warning(f"Some of the players timed out in game '{self.game_name}'")
+            self._is_gametime_outed = True
             return
 
         if not any(score.is_winner for score in scores.values()):
