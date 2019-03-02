@@ -67,7 +67,7 @@ See [more usage examples](USAGE.md).
 ## Known limitations
 
 - Headful mode needs to specify the map manually due to "Unable to distribute map" bug.
-- Works only for BWAPI 3.7.4, 3.7.5, 4.1.2, and 4.2.0
+- Works only for BWAPI 3.7.4, 3.7.5, 4.1.2, 4.2.0 and 4.3.0
 
 ## Specification
 
