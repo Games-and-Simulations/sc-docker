@@ -210,9 +210,15 @@ def main():
             logger.info(frame_file)
         logger.info("---")
 
+        logger.info("Unit event information is saved here:")
+        for event_file in sorted(game_result.unit_event_files):
+            logger.info(event_file)
+        logger.info("---")
+
+
         logger.info("Game results are saved here:")
-        for frame_file in sorted(game_result.score_files):
-            logger.info(frame_file)
+        for score_file in sorted(game_result.score_files):
+            logger.info(score_file)
         logger.info("---")
 
         if game_result.is_valid:

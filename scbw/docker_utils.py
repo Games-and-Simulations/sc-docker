@@ -266,6 +266,7 @@ def launch_image(
 
         TM_LOG_RESULTS=f"../logs/scores.json",
         TM_LOG_FRAMETIMES=f"../logs/frames.csv",
+        TM_LOG_UNIT_EVENTS=f"../logs/unit_events.csv",
         TM_SPEED_OVERRIDE=game_speed,
         TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) or allow_input else "0",
         TM_TIME_OUT_AT_FRAME=timeout_at_frame or "-1",
