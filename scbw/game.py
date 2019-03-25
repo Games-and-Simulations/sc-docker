@@ -50,7 +50,8 @@ class GameArgs(Namespace):
     plot_realtime: bool
     read_overwrite: bool
     docker_image: str
-    opt: str
+    nano_cpus: int
+    mem_limit: str
 
 
 def run_game(
@@ -83,8 +84,6 @@ def run_game(
     players += retrieve_bots(args.bots, bot_storages)
 
     is_1v1_game = len(players) == 2
-
-    opts = [] if not args.opt else args.opt.split(" ")
 
     if args.vnc_host == "":
         args.vnc_host = dockermachine_ip() or "localhost"
@@ -135,7 +134,8 @@ def run_game(
 
         # docker
         docker_image=args.docker_image,
-        docker_opts=opts,
+        nano_cpus=args.nano_cpus,
+        mem_limit=args.mem_limit
     )
 
     time_start = time.time()

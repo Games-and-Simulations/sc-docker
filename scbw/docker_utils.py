@@ -227,7 +227,8 @@ def launch_image(
 
         # docker
         docker_image: str,
-        docker_opts: List[str]
+        nano_cpus: Optional[int],
+        mem_limit: Optional[str]
 ) -> None:
     """
     :raises docker,errors.APIError
@@ -332,6 +333,8 @@ def launch_image(
         f"volumes={pformat(volumes, indent=4)}\n"
         f"network={DOCKER_STARCRAFT_NETWORK}\n"
         f"ports={ports}\n"
+        f"nano_cpus={nano_cpus}\n"
+        f"mem_limit={mem_limit}\n"
     )
 
     container = docker_client.containers.run(
@@ -343,7 +346,9 @@ def launch_image(
         privileged=True,
         volumes=volumes,
         network=DOCKER_STARCRAFT_NETWORK,
-        ports=ports
+        ports=ports,
+        nano_cpus=nano_cpus,
+        mem_limit=mem_limit or None
     )
     if container:
         container_id = running_containers(container_name)

@@ -126,12 +126,15 @@ parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
                     help="The name of the image that should \n"
                          "be used to launch the game.\n"
                          "This helps with local development.")
-parser.add_argument('--opt', type=str,
-                    help="Specify custom docker run options")
 parser.add_argument('--plot_realtime', action='store_true',
                     help="Allow realtime plotting of frame information.\n"
                          "At the end of the game, this plot will be saved\n"
                          "to file {GAME_DIR}/{GAME_NAME}/frame_plot.png")
+parser.add_argument('--mem_limit', type=str, default=None,
+                    help="Limit started containers to the given amount of memory.")
+parser.add_argument('--nano_cpus', type=int, default=None,
+                    help="Limit started containers to the given amount of cpu nanos.")
+
 
 parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")

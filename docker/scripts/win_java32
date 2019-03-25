@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-wine ${JAVA_DIR}/bin/java.exe -Xms512m -Xmx768m -server -XX:+UseG1GC -XX:MaxGCPauseMillis=15 "$@"
+wine ${JAVA_DIR}/bin/java.exe "$@"
