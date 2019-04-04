@@ -1,6 +1,5 @@
 import distutils.dir_util
 import distutils.errors
-import itertools
 import logging
 import os
 import os.path
@@ -14,12 +13,11 @@ from typing import List, Optional, Callable, Dict, Any
 import docker
 import docker.errors
 import docker.types
-from scbw.defaults import SCBW_BASE_DIR, SC_PARENT_IMAGE, SC_JAVA_IMAGE, SC_BINARY_LINK
+
 from scbw.error import ContainerException, DockerException, GameException, RealtimeOutedException
 from scbw.game_type import GameType
-from scbw.logs import find_frames, find_logs, find_replays, find_scores
 from scbw.player import BotPlayer, HumanPlayer, Player
-from scbw.utils import download_file, random_string
+from scbw.utils import random_string
 from scbw.vnc import launch_vnc_viewer
 
 logger = logging.getLogger(__name__)
@@ -90,56 +88,14 @@ def ensure_local_net(
     logger.debug(f"docker network id: {output}")
 
 
-def ensure_local_image(
-        local_image: str,
-        parent_image: str = SC_PARENT_IMAGE,
-        java_image: str = SC_JAVA_IMAGE,
-        starcraft_base_dir: str = SCBW_BASE_DIR,
-        starcraft_binary_link: str = SC_BINARY_LINK,
-) -> None:
-    """
-    Check if `local_image` is present locally. If it is not, pull parent images and build.
-    This includes pulling starcraft binary.
-
-    :raises docker.errors.ImageNotFound
-    :raises docker.errors.APIError
-    """
-    logger.info(f"checking if there is local image {local_image}")
-    docker_images = docker_client.images.list(local_image)
-    if len(docker_images) and docker_images[0].short_id is not None:
-        logger.info(f"image {local_image} found locally.")
-        return
-
-    logger.info("image not found locally, creating...")
-    pkg_docker_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "local_docker")
-    base_dir = os.path.join(starcraft_base_dir, "docker")
-    logger.info(f"copying files from {pkg_docker_dir} to {base_dir}.")
-    distutils.dir_util.copy_tree(pkg_docker_dir, base_dir)
-
-    starcraft_zip_file = f"{base_dir}/starcraft.zip"
-    if not os.path.exists(starcraft_zip_file):
-        logger.info(f"downloading starcraft.zip to {starcraft_zip_file}")
-        download_file(starcraft_binary_link, starcraft_zip_file)
-
-    logger.info(f"pulling image {parent_image}, this may take a while...")
-    pulled_image = docker_client.images.pull(parent_image)
-    pulled_image.tag(java_image)
-
-    logger.info(f"building local image {local_image}, this may take a while...")
-    docker_client.images.build(path=base_dir, dockerfile="game.dockerfile", tag=local_image)
-    logger.info(f"successfully built image {local_image}")
-
-
-def remove_game_image(image_name: str) -> None:
+def check_for_game_image(image_name: str) -> None:
     try:
         docker_client.images.get(image_name)
     except docker.errors.ImageNotFound:
-        pass
+        logger.error(f"please make sure to have pulled or built the image {image_name}")
     except docker.errors.APIError:
-        logger.error(f"there occurred an error trying to find image {image_name}")
-    else:
-        docker_client.images.remove(image_name, force=True)
-    logger.info(f"docker image {image_name} removed.")
+        pass
+    logger.info(f"docker image {image_name} present.")
 
 
 def check_dockermachine() -> bool:

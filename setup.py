@@ -7,7 +7,6 @@ from setuptools import setup
 
 from scbw.defaults import VERSION
 
-
 setup(
     name='scbw',
     version=VERSION,

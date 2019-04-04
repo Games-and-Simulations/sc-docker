@@ -8,7 +8,7 @@ from scbw.defaults import (
 )
 from scbw.docker_utils import (
     ensure_docker_can_run, ensure_local_net,
-    remove_game_image, ensure_local_image
+    check_for_game_image
 )
 from scbw.map import download_bwta_caches, download_sscait_maps
 from scbw.utils import create_data_dirs
@@ -24,9 +24,8 @@ def install() -> None:
     ensure_docker_can_run()
     ensure_local_net()
 
-    # remove old image in case of update
-    remove_game_image(SC_IMAGE)
-    ensure_local_image(SC_IMAGE)
+    # ensure docker image is present
+    check_for_game_image(SC_IMAGE)
 
     create_data_dirs(
         SC_GAME_DIR,
