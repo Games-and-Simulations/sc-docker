@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux
 
-BUILD_ARGS="--build-arg BOT_UID=${BOT_UID:-1000} --build-arg STARCRAFT_UID=${STARCRAFT_UID:-1001}"
+BUILD_ARGS="--build-arg BOT_UID=${BOT_UID:-2001} --build-arg STARCRAFT_UID=${STARCRAFT_UID:-$(id -u)}"
 
 docker build ${BUILD_ARGS} -f dockerfiles/wine.dockerfile  -t starcraft:wine   .
 docker build ${BUILD_ARGS} -f dockerfiles/bwapi.dockerfile -t starcraft:bwapi  .

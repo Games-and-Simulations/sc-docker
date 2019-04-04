@@ -18,7 +18,7 @@ ENV BWAPI_DATA_BWTA_DIR="$BWAPI_DATA_DIR/BWTA"
 ENV BWAPI_DATA_BWTA2_DIR="$BWAPI_DATA_DIR/BWTA2"
 ENV BOT_DATA_WRITE_DIR="$BWAPI_DATA_DIR/write"
 
-ENV BOT_UID 1001
+ARG BOT_UID=1001
 
 # these are ports that SC uses,
 # according to http://wiki.teamliquid.net/starcraft/Port_Forwarding
