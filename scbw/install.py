@@ -10,7 +10,7 @@ from scbw.docker_utils import (
     ensure_docker_can_run, ensure_local_net,
     check_for_game_image
 )
-from scbw.map import download_bwta_caches, download_sscait_maps
+from scbw.map import download_bwta_caches, download_sscait_maps, download_season_maps
 from scbw.utils import create_data_dirs
 
 logger = logging.getLogger(__name__)
@@ -36,6 +36,7 @@ def install() -> None:
     )
 
     download_sscait_maps(SC_MAP_DIR)
+    download_season_maps(SC_MAP_DIR)
     download_bwta_caches(SC_BWAPI_DATA_BWTA_DIR, SC_BWAPI_DATA_BWTA2_DIR)
     os.makedirs(f"{SC_MAP_DIR}/replays", exist_ok=True)
     os.makedirs(f"{SC_MAP_DIR}/BroodWar", exist_ok=True)

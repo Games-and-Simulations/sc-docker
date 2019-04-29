@@ -25,6 +25,12 @@ def download_sscait_maps(map_dir: str) -> None:
         "http://sscaitournament.com/files/sscai_map_pack.zip", map_dir
     )
 
+def download_season_maps(map_dir: str) -> None:
+    logger.info("downloading maps for 2019 season 1")
+    download_extract_zip(
+        "https://github.com/Bytekeeper/sc-docker/releases/download/Maps_2019Season1/2019Season1.zip", map_dir
+    )
+
 
 def download_bwta_caches(bwta_dir: str, bwta2_dir: str) -> None:
     logger.info("downloading BWTA caches")
