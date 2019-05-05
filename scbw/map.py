@@ -40,6 +40,11 @@ def download_bwta_caches(bwta_dir: str, bwta2_dir: str) -> None:
         tmp_dir
     )
 
+    download_extract_zip(
+        "https://github.com/Bytekeeper/sc-docker/releases/download/Maps_2019Season1/BWTA_cache_2019Season1.zip",
+        tmp_dir
+    )
+
     for file in os.listdir(tmp_dir + "/bwapi-data/BWTA"):
         if not os.path.exists(f"{bwta_dir}/{file}"):
             shutil.move(tmp_dir + "/bwapi-data/BWTA/" + file, bwta_dir)
