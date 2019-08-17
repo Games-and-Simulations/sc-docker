@@ -261,6 +261,12 @@ def launch_image(
             env["JAVA_DEBUG_PORT"] = player.meta.javaDebugPort
         if player.meta.javaOpts is not None:
             env["JAVA_OPTS"] = player.meta.javaOpts
+        if player.meta.port is not None:
+            if isinstance(player.meta.port, int) or player.meta.port.isdigit():
+                ports.update({str(player.meta.port) + '/tcp': int(player.meta.port)})
+            else:
+                forward, local = [int(x) for x in player.meta.port.split(':')]
+                ports.update({str(local) + '/tcp': forward})
     else:
         command = ["/app/play_human.sh"]
 
