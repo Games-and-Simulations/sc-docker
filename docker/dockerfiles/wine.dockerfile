@@ -1,5 +1,5 @@
 # Basic images to build up X server with wine.
-FROM ubuntu:cosmic
+FROM ubuntu:18.04
 LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 ENV APP_DIR /app
@@ -52,7 +52,7 @@ RUN set -x \
   && dpkg --add-architecture i386 \
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
-    xvfb xauth x11vnc wine wine32 winetricks ca-certificates winbind \
+    xvfb xauth x11vnc wine-stable wine32 winetricks ca-certificates winbind \
   && rm -rf /var/lib/apt/lists/*
 
 COPY scripts/winegui /usr/bin/winegui
