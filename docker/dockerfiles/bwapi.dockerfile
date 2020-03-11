@@ -35,6 +35,7 @@ RUN set -x \
     --ingroup users \
     --home /home/bot \
     --disabled-password \
+    --gecos "" \
     --shell /bin/bash \
     --quiet \
     bot \
