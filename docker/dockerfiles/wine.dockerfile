@@ -34,6 +34,7 @@ RUN set -x \
     --uid $STARCRAFT_UID \
     --home /home/starcraft \
     --disabled-password \
+    --gecos "" \
     --shell /bin/bash \
     --ingroup users \
     --quiet \
