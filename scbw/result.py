@@ -2,7 +2,7 @@ import json
 import logging
 from typing import List, Optional
 
-from scbw.logs import find_frames, find_logs, find_replays, find_scores
+from scbw.logs import find_frames, find_unit_events, find_logs, find_replays, find_scores
 from scbw.player import Player
 
 logger = logging.getLogger(__name__)
@@ -72,6 +72,7 @@ class GameResult:
         self._log_files = None
         self._replay_files = None
         self._frame_files = None
+        self._unit_event_files = None
         self._score_files = None
 
         self.score_results = []
@@ -151,6 +152,13 @@ class GameResult:
         if self._frame_files is None:
             self._frame_files = find_frames(self.game_dir, self.game_name)
         return self._frame_files
+
+    @property
+    def unit_event_files(self) -> List[str]:
+        if self._unit_event_files is None:
+            self._unit_event_files = find_unit_events(self.game_dir, self.game_name)
+        return self._unit_event_files
+
 
     @property
     def score_files(self) -> List[str]:

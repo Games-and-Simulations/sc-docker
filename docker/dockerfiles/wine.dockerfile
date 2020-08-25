@@ -1,5 +1,5 @@
 # Basic images to build up X server with wine.
-FROM ubuntu:cosmic
+FROM ubuntu:18.04
 LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 ENV APP_DIR /app
@@ -14,7 +14,7 @@ ENV WINEARCH win32
 ENV DISPLAY :0.0
 # Make possible to use custom title bars
 ENV WINEGUI_TITLEBAR "docker"
-ENV STARCRAFT_UID 1000
+ARG STARCRAFT_UID=1000
 ENV BASE_VNC_PORT 5900
 
 EXPOSE $BASE_VNC_PORT
@@ -34,6 +34,7 @@ RUN set -x \
     --uid $STARCRAFT_UID \
     --home /home/starcraft \
     --disabled-password \
+    --gecos "" \
     --shell /bin/bash \
     --ingroup users \
     --quiet \
@@ -52,7 +53,7 @@ RUN set -x \
   && dpkg --add-architecture i386 \
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
-    xvfb xauth x11vnc wine wine32 winetricks ca-certificates winbind \
+    xvfb xauth x11vnc wine-stable wine32 winetricks ca-certificates winbind \
   && rm -rf /var/lib/apt/lists/*
 
 COPY scripts/winegui /usr/bin/winegui
