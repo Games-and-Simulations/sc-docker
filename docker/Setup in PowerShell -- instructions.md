@@ -1,7 +1,7 @@
 The guide: how to set up ByteKeeper's sc-docker in Windows PowerShell -- step-by-step instructions
 ======================================================================================
 
-Note: this guide is intended for Windows installations mainly. Changes for Mac installations will be pointed out along the way. The guide is not guaranteed to work for all Linux versions, despite a few successes. Also, a proper installation of docker is assumed here and should be done first before any of the commands/actions contained in this guide is attempted. For more details on how to install a docker, please see: https://github.com/basil-ladder/sc-docker/blob/master/INSTALL.md
+Note: this guide is intended for Windows installations mainly. The guide is applicable for Mac installations with a few changes which will be pointed out along the way. The guide is not guaranteed to work for all Linux versions, despite a few successes. Also, a proper installation of a docker is assumed here and should be done first before attempting any of the commands/actions in this guide. For more details on how to install a docker, please see: https://github.com/basil-ladder/sc-docker/blob/master/INSTALL.md
 
 
 Optional:
