@@ -54,5 +54,4 @@ https://www.oracle.com/technetwork/es/java/javase/downloads/jre8-downloads-21331
 5. Do `pip3 install dist/scbw-1.0.4_BK-py3-none-any.whl`
 6. When launching a game, append `--docker_image starcraft:game`
 An example command may look like this:
-`scbw.play --bots "Hao Pan" "Martin Rooijackers" --headless --timeout 630 --read_overwrite --game_speed 0 --map "sscai/(4)Fighting Spirit.scx" --docker_image starcraft:game`
-Failure of appending the command may result in the original image (`starcraft:game-1.0.4`) being used.
+`scbw.play --bots "Hao Pan" "Martin Rooijackers" --headless --timeout 630 --read_overwrite --game_speed 0 --map "sscai/(4)Fighting Spirit.scx"`
