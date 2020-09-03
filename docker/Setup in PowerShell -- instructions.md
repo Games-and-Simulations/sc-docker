@@ -2,7 +2,9 @@ The guide: how to set up ByteKeeper's sc-docker for the BASIL ladder in Windows 
 ======================================================================================
 
 Notes 
-* this guide is intended for Windows installations mainly. The guide is applicable for Mac installations with a few changes which will be pointed out along the way. The guide is not guaranteed to work for all Linux versions, despite a few successes. Also, a proper installation of a docker is assumed here and should be done first before attempting any of the commands/actions in this guide. For more details on how to install a docker, please see: https://github.com/basil-ladder/sc-docker/blob/master/INSTALL.md
+* This guide is intended for Windows installations mainly. The guide is applicable for Mac installations with a few changes which will be pointed out along the way. The guide is not guaranteed to work for all Linux versions, despite a few successes. 
+
+* A proper installation of a docker is assumed here and should be done first before attempting any of the commands/actions in this guide. For more details on how to install a docker, please see: https://github.com/basil-ladder/sc-docker/blob/master/INSTALL.md
 
 * For Windows users, you may skip steps 1-2 and instead execute the `build_images.ps1` PowerShell script found in the `sc-docker\docker` folder. If any error message pops up, please do steps 1-2 as described below to get an idea on where it really went wrong.
 
@@ -11,18 +13,18 @@ Using Notepad++ proved to be working for the purposes here.
 
 * It is normal to see this message during the installation process:
 `SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.`
-More some explanation please see: https://github.com/moby/moby/issues/20397
+For some explanations, please see: https://github.com/moby/moby/issues/20397
 
 Optional steps:
 * Do `pip uninstall scbw` if you have installed `scbw` previously to avoid potential conflicts.
-* Do "Reset to factory defaults..." in docker if there are images relating to sc-docker previously installed (e.g., the StarCraft game image). Proceed with caution if you have other images which are not related to sc-docker.
+* Do "Reset to factory defaults..." in docker if there are sc-docker-related images previously installed (e.g., the StarCraft game image). Proceed with caution if you have other images which are not related to sc-docker.
 
 Steps:
 
 0. Download jre-8u192-windows-i586.tar.gz and move it to the `sc-docker\docker` folder
 https://www.oracle.com/technetwork/es/java/javase/downloads/jre8-downloads-2133155.html?printOnly=1
   
-  The use of `openjdk` is not advised here as it is much slower.
+    The use of `openjdk` is not advised here as it is much slower.
   
 1. In Windows PowerShell (it is suggested that you run PowerShell in administrator mode), cd to this folder: `sc-docker\docker`; For Mac users, do the same thing in the Terminal app.
 
