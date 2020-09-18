@@ -31,14 +31,13 @@ USER root
 # Add this user to sudo group for later use if needed.
 RUN set -x \
   && adduser \
-    --uid $STARCRAFT_UID \
-    --home /home/starcraft \
-    --disabled-password \
-    --gecos "" \
-    --shell /bin/bash \
-    --ingroup users \
-    --quiet \
-    starcraft \
+  --uid $STARCRAFT_UID \
+  --home /home/starcraft \
+  --disabled-password \
+  --shell /bin/bash \
+  --ingroup users \
+  --quiet \
+  starcraft \
   && adduser starcraft sudo \
   && echo 'starcraft:starcraft' | chpasswd
 
@@ -50,10 +49,18 @@ RUN set -x \
 #
 # Use the latest version of winetricks
 RUN set -x \
+  && apt-get update \
+  && apt-get install wget gnupg2 software-properties-common -y \
   && dpkg --add-architecture i386 \
+  && wget -nc https://dl.winehq.org/wine-builds/winehq.key \
+  && wget -nc https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key \
+  && apt-key add winehq.key \
+  && apt-key add Release.key \
+  && apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ bionic main' \
+  && add-apt-repository 'deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./' \
   && apt-get update -y \
-  && apt-get install -y --no-install-recommends \
-    xvfb xauth x11vnc wine-stable wine32 winetricks ca-certificates winbind \
+  && apt-get install -y --no-install-recommends xvfb xauth x11vnc winehq-stable winetricks \
+  # wine32 winetricks ca-certificates winbind \
   && rm -rf /var/lib/apt/lists/*
 
 COPY scripts/winegui /usr/bin/winegui

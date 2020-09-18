@@ -1,22 +1,16 @@
-dist: trusty
 language: python
-python:
-  - "3.6"
 services:
   - docker
 cache:
   directories:
     - /tmp/sc-docker
 before_script:
-  - pip3 install numpy==1.16.6
-  - python3 setup.py bdist_wheel
-  - pip3 install dist/scbw*.whl
+  - pip3 install .
   - '[ -f /tmp/sc-docker/starcraft.zip ] && cp /tmp/sc-docker/starcraft.zip scbw/local_docker && echo "Using cached starcraft.zip" || true'
-  - cp tests/*.dockerfile docker/dockerfiles
   - pushd docker
   - ./build_images.sh
   - popd
   - "[ -f /tmp/sc-docker/starcraft.zip ] || cp scbw/local_docker/starcraft.zip /tmp/sc-docker/starcraft.zip"
   - scbw.play --install
 script:
-  - scbw.play --headless --bots Locutus 'Marine Hell' --timeout 180 --docker_image starcraft:game 2>&1 | grep 'Winner is BotPlayer:Locutus:P' || (cat $HOME/.scbw/games/*/logs_0/* && false)
+  - scbw.play --headless --bots Locutus 'Marine Hell' --timeout 180 2>&1 | grep 'Winner is BotPlayer:Locutus:P' || (cat $HOME/.scbw/games/*/logs_0/* && false)
