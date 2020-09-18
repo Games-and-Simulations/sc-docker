@@ -5,6 +5,7 @@ cache:
   directories:
     - /tmp/sc-docker
 before_script:
+  - pip3 install numpy==1.16.6
   - python3 setup.py bdist_wheel
   - pip3 install dist/scbw*.whl
   - '[ -f /tmp/sc-docker/starcraft.zip ] && cp /tmp/sc-docker/starcraft.zip scbw/local_docker && echo "Using cached starcraft.zip" || true'
