@@ -9,7 +9,6 @@ before_script:
   - python3 setup.py bdist_wheel
   - pip3 install dist/scbw*.whl
   - '[ -f /tmp/sc-docker/starcraft.zip ] && cp /tmp/sc-docker/starcraft.zip scbw/local_docker && echo "Using cached starcraft.zip" || true'
-  - cp tests/*.dockerfile docker/dockerfiles
   - pushd docker
   - ./build_images.sh
   - popd
