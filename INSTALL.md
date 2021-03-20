@@ -44,6 +44,8 @@ Test to check install was successful:
 
     docker run hello-world
 
+Now build the images required to run sc-docker. Enter the docker directory and run `build_images.sh`. Now you're setup to install scbw to manage the game containers.
+
 You can manually [download docker of specified version](https://download.docker.com) if it is missing from list of packages. For example
 
 - [Ubuntu 17.04 Zesty 64-bit `docker-ce` package](https://download.docker.com/linux/ubuntu/dists/zesty/pool/stable/amd64/docker-ce_17.09.0~ce-0~ubuntu_amd64.deb)
@@ -102,6 +104,8 @@ Enter yor credentials:
 
 Sometimes popup for entering your credentials could appear after VNC window, so don't miss it.
 
+Now build the images required to run sc-docker. Enter the docker directory and run `build_images.ps1`. Now you're setup to install scbw to manage the game containers.
+
 ### Python & pip
 
 Download and install Python 3.6 release from [Python releases for Windows](https://www.python.org/downloads/windows/)
@@ -135,7 +139,9 @@ Test in terminal that install was successful:
 
     docker run hello-world
 
-You might need to add `/Library` folder in `File Sharing` settings.
+You might need to add `/Library` folder in `File Sharing` settings.sh
+
+Now build the images required to run sc-docker. Enter the docker directory and run `build_images.sh`. Now you're setup to install scbw to manage the game containers.
 
 ### Python & pip
 
