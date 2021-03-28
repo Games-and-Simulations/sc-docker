@@ -291,7 +291,6 @@ def launch_image(
         f"name={container_name}\n"
         f"detach={True}\n"
         f"environment={pformat(env, indent=4)}\n"
-        f"privileged={True}\n"
         f"volumes={pformat(volumes, indent=4)}\n"
         f"network={DOCKER_STARCRAFT_NETWORK}\n"
         f"ports={ports}\n"
@@ -305,7 +304,6 @@ def launch_image(
         name=container_name,
         detach=True,
         environment=env,
-        privileged=True,
         volumes=volumes,
         network=DOCKER_STARCRAFT_NETWORK,
         ports=ports,
