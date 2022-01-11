@@ -64,6 +64,8 @@ parser.add_argument("--game_type", type=str, metavar="GAME_TYPE",
 parser.add_argument("--game_speed", type=int, default=0,
                     help="Set game speed (pause of ms between frames),\n"
                          "use -1 for game default.")
+parser.add_argument("--seed_override", type=int,
+                    help="Set random seed.")
 parser.add_argument("--timeout", type=int, default=None,
                     help="Kill docker container after timeout seconds.\n"
                          "If not set, run without timeout.")

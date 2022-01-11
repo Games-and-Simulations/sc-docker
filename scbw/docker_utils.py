@@ -162,6 +162,7 @@ def launch_image(
         map_name: str,
         game_type: GameType,
         game_speed: int,
+        seed_override: str,
         timeout: Optional[int],
         timeout_at_frame: Optional[int],
         hide_names: bool,
@@ -218,6 +219,7 @@ def launch_image(
         MAP_NAME=f"/app/sc/maps/{map_name}",
         GAME_TYPE=game_type.value,
         SPEED_OVERRIDE=game_speed,
+        SEED_OVERRIDE=seed_override,
         HIDE_NAMES="1" if hide_names else "0",
         DROP_PLAYERS="1" if drop_players else "0",
 
@@ -225,6 +227,7 @@ def launch_image(
         TM_LOG_FRAMETIMES=f"../logs/frames.csv",
         TM_LOG_UNIT_EVENTS=f"../logs/unit_events.csv",
         TM_SPEED_OVERRIDE=game_speed,
+        TM_SEED_OVERRIDE=seed_override,
         TM_ALLOW_USER_INPUT="1" if isinstance(player, HumanPlayer) or allow_input else "0",
         TM_TIME_OUT_AT_FRAME=timeout_at_frame or "-1",
 

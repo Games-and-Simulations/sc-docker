@@ -32,6 +32,7 @@ class GameArgs(Namespace):
     game_name: str
     game_type: str
     game_speed: int
+    seed_override: int
     hide_names: bool
     random_names: bool
     timeout: int
@@ -102,6 +103,11 @@ def run_game(
     else:
         _wait_callback = wait_callback
 
+    # Seed override is empty string if not specified, integer otherwise
+    seed_override = ""
+    if args.seed_override is not None:
+        seed_override = str(args.seed_override)
+
     # Prepare game launching
     launch_params = dict(
         # game settings
@@ -110,6 +116,7 @@ def run_game(
         map_name=args.map,
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
+        seed_override=seed_override,
         timeout=args.timeout,
         timeout_at_frame=args.timeout_at_frame,
         hide_names=args.hide_names,

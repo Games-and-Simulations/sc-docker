@@ -54,6 +54,7 @@ function prepare_bwapi() {
     sed -i "s:^save_replay = :save_replay = maps/replays/$REPLAY_FILE:g" "${BWAPI_INI}"
     sed -i "s:^wait_for_min_players = :wait_for_min_players = $NUM_PLAYERS:g" "${BWAPI_INI}"
     sed -i "s:^speed_override = :speed_override = $SPEED_OVERRIDE:g" "${BWAPI_INI}"
+    sed -i "s:^seed_override = :seed_override = $SEED_OVERRIDE:g" "${BWAPI_INI}"
 
     # todo: solve bug with "Unable to distribute map"
     # hotfix for headful mode, but we need to select map unfortunately
