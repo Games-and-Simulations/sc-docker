@@ -64,9 +64,14 @@ parser.add_argument("--game_type", type=str, metavar="GAME_TYPE",
 parser.add_argument("--game_speed", type=int, default=0,
                     help="Set game speed (pause of ms between frames),\n"
                          "use -1 for game default.")
+parser.add_argument("--seed_override", type=int,
+                    help="Set random seed.")
 parser.add_argument("--timeout", type=int, default=None,
                     help="Kill docker container after timeout seconds.\n"
                          "If not set, run without timeout.")
+parser.add_argument("--timeout_at_frame", type=int, default=None,
+                    help="End game after the given frame count.\n"
+                         "If not set, run without frame limit.")
 parser.add_argument("--hide_names", action="store_true",
                     help="Hide player names, each player will be called only 'player'.\n"
                          "By default, show player names (as their bot name)")
@@ -123,12 +128,15 @@ parser.add_argument('--docker_image', type=str, default=SC_IMAGE,
                     help="The name of the image that should \n"
                          "be used to launch the game.\n"
                          "This helps with local development.")
-parser.add_argument('--opt', type=str,
-                    help="Specify custom docker run options")
 parser.add_argument('--plot_realtime', action='store_true',
                     help="Allow realtime plotting of frame information.\n"
                          "At the end of the game, this plot will be saved\n"
                          "to file {GAME_DIR}/{GAME_NAME}/frame_plot.png")
+parser.add_argument('--mem_limit', type=str, default=None,
+                    help="Limit started containers to the given amount of memory.")
+parser.add_argument('--nano_cpus', type=int, default=None,
+                    help="Limit started containers to the given amount of cpu nanos.")
+
 
 parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")
@@ -207,9 +215,15 @@ def main():
             logger.info(frame_file)
         logger.info("---")
 
+        logger.info("Unit event information is saved here:")
+        for event_file in sorted(game_result.unit_event_files):
+            logger.info(event_file)
+        logger.info("---")
+
+
         logger.info("Game results are saved here:")
-        for frame_file in sorted(game_result.score_files):
-            logger.info(frame_file)
+        for score_file in sorted(game_result.score_files):
+            logger.info(score_file)
         logger.info("---")
 
         if game_result.is_valid:

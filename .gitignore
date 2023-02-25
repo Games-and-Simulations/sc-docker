@@ -49,3 +49,4 @@ scripts/py36to34.py
 
 # VSCode
 .vscode/
+docker/.Rhistory

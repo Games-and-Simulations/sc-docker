@@ -67,12 +67,12 @@ See [more usage examples](USAGE.md).
 ## Known limitations
 
 - Headful mode needs to specify the map manually due to "Unable to distribute map" bug.
-- Works only for BWAPI 4.1.2, 4.2.0 (because I don't have TM compiled for those versions)
+- Works only for BWAPI 3.7.4, 3.7.5, 4.1.2, 4.2.0 and 4.4.0
 
 ## Specification
 
 - StarCraft 1.16.1 game from ICCUP (no need for special installs!)
-- BWAPI 4.1.2, 4.2.0
+- BWAPI 3.7.4, 3.7.5, 4.1.2, 4.2.0
 - BWTA 2.2
 - SSCAI maps pack with BWTA/BWTA2 caches
 - 32bit oracle Java 8 `1.8.0_152-b16`

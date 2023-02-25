@@ -32,9 +32,11 @@ class GameArgs(Namespace):
     game_name: str
     game_type: str
     game_speed: int
+    seed_override: int
     hide_names: bool
     random_names: bool
     timeout: int
+    timeout_at_frame: int
     bot_dir: str
     game_dir: str
     map_dir: str
@@ -49,7 +51,8 @@ class GameArgs(Namespace):
     plot_realtime: bool
     read_overwrite: bool
     docker_image: str
-    opt: str
+    nano_cpus: int
+    mem_limit: str
 
 
 def run_game(
@@ -83,8 +86,6 @@ def run_game(
 
     is_1v1_game = len(players) == 2
 
-    opts = [] if not args.opt else args.opt.split(" ")
-
     if args.vnc_host == "":
         args.vnc_host = dockermachine_ip() or "localhost"
         logger.debug(f"Using vnc host '{args.vnc_host}'")
@@ -102,6 +103,11 @@ def run_game(
     else:
         _wait_callback = wait_callback
 
+    # Seed override is empty string if not specified, integer otherwise
+    seed_override = ""
+    if args.seed_override is not None:
+        seed_override = str(args.seed_override)
+
     # Prepare game launching
     launch_params = dict(
         # game settings
@@ -110,7 +116,9 @@ def run_game(
         map_name=args.map,
         game_type=GameType(args.game_type),
         game_speed=args.game_speed,
+        seed_override=seed_override,
         timeout=args.timeout,
+        timeout_at_frame=args.timeout_at_frame,
         hide_names=args.hide_names,
         drop_players=any(isinstance(player, BotPlayer)
                          and player.meta.javaDebugPort is not None
@@ -133,7 +141,8 @@ def run_game(
 
         # docker
         docker_image=args.docker_image,
-        docker_opts=opts,
+        nano_cpus=args.nano_cpus,
+        mem_limit=args.mem_limit
     )
 
     time_start = time.time()
@@ -145,6 +154,7 @@ def run_game(
         )
     except RealtimeOutedException:
         is_realtime_outed = True
+        logger.debug(f"Game timed out")
 
     except KeyboardInterrupt:
         logger.warning("Caught interrupt, shutting down containers")

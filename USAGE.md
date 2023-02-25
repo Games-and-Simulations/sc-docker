@@ -111,6 +111,10 @@ Use this structure:
       3.7.5   5e590ea55c2d3c66a36bf75537f8655a
       3.7.4   6e940dc6acc76b6e459b39a9cdd466ae
 
+- **/supplementalAI/** - additional files that will be copied to *AI*.
+
+-- **/supplementalRead/** - additional files that will be coped to *read*, ie. configuration files.
+
 Now you should be able to play game:
 
     $ scbw.play --bots "NEW BOT" "krasi0"

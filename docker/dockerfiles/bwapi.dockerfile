@@ -18,7 +18,7 @@ ENV BWAPI_DATA_BWTA_DIR="$BWAPI_DATA_DIR/BWTA"
 ENV BWAPI_DATA_BWTA2_DIR="$BWAPI_DATA_DIR/BWTA2"
 ENV BOT_DATA_WRITE_DIR="$BWAPI_DATA_DIR/write"
 
-ENV BOT_UID 1001
+ARG BOT_UID=1001
 
 # these are ports that SC uses,
 # according to http://wiki.teamliquid.net/starcraft/Port_Forwarding
@@ -35,6 +35,7 @@ RUN set -x \
     --ingroup users \
     --home /home/bot \
     --disabled-password \
+    --gecos "" \
     --shell /bin/bash \
     --quiet \
     bot \
@@ -56,9 +57,8 @@ COPY --chown=starcraft:users dlls/* $WINEPREFIX/drive_c/windows/system32/
 # Install more dlls from winetricks. It requires X-server so let's run in bg for now :)
 RUN /bin/bash -c "Xvfb :0 -auth ~/.Xauthority -screen 0 640x480x24 & winetricks -q vcrun2015"
 
-# Download bwheadless
-RUN curl -L https://github.com/tscmoo/bwheadless/releases/download/v0.1/bwheadless.exe \
-    -o "$SC_DIR/bwheadless.exe"
+# Copy bwheadless
+COPY --chown=starcraft:users bwheadless.exe $SC_DIR
 
 # Copy relevant BWAPI versions (cached)
 COPY --chown=starcraft:users bwapi $BWAPI_DIR

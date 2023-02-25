@@ -1,5 +1,5 @@
 # Basic images to build up X server with wine.
-FROM ubuntu:xenial
+FROM ubuntu:18.04
 LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 ENV APP_DIR /app
@@ -14,7 +14,7 @@ ENV WINEARCH win32
 ENV DISPLAY :0.0
 # Make possible to use custom title bars
 ENV WINEGUI_TITLEBAR "docker"
-ENV STARCRAFT_UID 1000
+ARG STARCRAFT_UID=1000
 ENV BASE_VNC_PORT 5900
 
 EXPOSE $BASE_VNC_PORT
@@ -31,13 +31,13 @@ USER root
 # Add this user to sudo group for later use if needed.
 RUN set -x \
   && adduser \
-    --uid $STARCRAFT_UID \
-    --home /home/starcraft \
-    --disabled-password \
-    --shell /bin/bash \
-    --ingroup users \
-    --quiet \
-    starcraft \
+  --uid $STARCRAFT_UID \
+  --home /home/starcraft \
+  --disabled-password \
+  --shell /bin/bash \
+  --ingroup users \
+  --quiet \
+  starcraft \
   && adduser starcraft sudo \
   && echo 'starcraft:starcraft' | chpasswd
 
@@ -49,28 +49,19 @@ RUN set -x \
 #
 # Use the latest version of winetricks
 RUN set -x \
-  && apt-get update -y \
-  && apt-get install -y --no-install-recommends \
-    xvfb xauth x11vnc x11-utils x11-xserver-utils xdotool \
-    curl unzip software-properties-common joe vim sudo wget curl tree screen tmux p7zip apt-transport-https winbind \
-    binutils cabextract unrar zenity \
-  && curl -L https://dl.winehq.org/wine-builds/Release.key -o Release.key \
-  && apt-key add Release.key \
-  && apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ \
+  && apt-get update \
+  && apt-get install wget gnupg2 software-properties-common -y \
   && dpkg --add-architecture i386 \
+  && wget -nc https://dl.winehq.org/wine-builds/winehq.key \
+  && wget -nc https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key \
+  && apt-key add winehq.key \
+  && apt-key add Release.key \
+  && apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ bionic main' \
+  && add-apt-repository 'deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./' \
   && apt-get update -y \
-  && apt-get install -y --no-install-recommends \
-      wine-staging-i386=2.20.0~xenial \
-      wine-staging-amd64=2.20.0~xenial \
-      wine-staging=2.20.0~xenial \
-  && rm -rf /var/lib/apt/lists/* \
-  && rm Release.key \
-  && ln -s /opt/wine-staging/bin/wine /usr/bin/wine \
-  && curl -SL 'https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks' \
-        -o /usr/local/bin/winetricks \
-  && chmod +x /usr/local/bin/winetricks
-
-ENV PATH $PATH:/opt/wine-staging/bin/
+  && apt-get install -y --no-install-recommends xvfb xauth x11vnc winehq-stable winetricks \
+  # wine32 winetricks ca-certificates winbind \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY scripts/winegui /usr/bin/winegui
 

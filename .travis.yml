@@ -1,0 +1,16 @@
+language: python
+services:
+  - docker
+cache:
+  directories:
+    - /tmp/sc-docker
+before_script:
+  - pip3 install .
+  - '[ -f /tmp/sc-docker/starcraft.zip ] && cp /tmp/sc-docker/starcraft.zip scbw/local_docker && echo "Using cached starcraft.zip" || true'
+  - pushd docker
+  - ./build_images.sh
+  - popd
+  - "[ -f /tmp/sc-docker/starcraft.zip ] || cp scbw/local_docker/starcraft.zip /tmp/sc-docker/starcraft.zip"
+  - scbw.play --install
+script:
+  - scbw.play --headless --bots Locutus 'Marine Hell' --timeout 180 2>&1 | grep 'Winner is BotPlayer:Locutus:P' || (cat $HOME/.scbw/games/*/logs_0/* && false)

@@ -54,6 +54,7 @@ function prepare_bwapi() {
     sed -i "s:^save_replay = :save_replay = maps/replays/$REPLAY_FILE:g" "${BWAPI_INI}"
     sed -i "s:^wait_for_min_players = :wait_for_min_players = $NUM_PLAYERS:g" "${BWAPI_INI}"
     sed -i "s:^speed_override = :speed_override = $SPEED_OVERRIDE:g" "${BWAPI_INI}"
+    sed -i "s:^seed_override = :seed_override = $SEED_OVERRIDE:g" "${BWAPI_INI}"
 
     # todo: solve bug with "Unable to distribute map"
     # hotfix for headful mode, but we need to select map unfortunately
@@ -96,8 +97,27 @@ function start_gui() {
     sleep 1
 }
 
+# Bot might use an server/client infrastructure, so connect it after the game has started
+function connect_bot() {
+    {
+        pushd $SC_DIR
+
+        if [ "$BOT_TYPE" == "dll" ] && [ -f "$BWAPI_DATA_DIR/AI/run_connect.bat" ]; then
+            LOG "Running run_connect.bat for Module bot *AFTER* game has started." >> "$LOG_BOT"
+            WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_connect.bat" >> "${LOG_BOT}" 2>&1
+        fi
+
+        popd
+    } &
+}
+
 function start_bot() {
     . hook_before_bot_start.sh
+
+    if [ "$BOT_TYPE" == "dll" ]; then
+        LOG "Module bot started by BWAPI" >> "$LOG_BOT"
+        return 0
+    fi
 
     # Launch the bot!
     LOG "Starting bot ${BOT_FILE}" >> "$LOG_BOT"
@@ -107,26 +127,28 @@ function start_bot() {
 
         DEBUG_CMD=""
         if [ "$JAVA_DEBUG" -eq "1" ]; then
-            DEBUG_CMD="-Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=n"
+            DEBUG_CMD="-Xdebug -agentlib:jdwp=transport=dt_socket,address="${JAVA_DEBUG_PORT}",server=y,suspend=y"
         fi
 
         # todo: run under "bot"
-        if [ "$BOT_TYPE" == "jar" ]; then
+        if [ "$BOT_TYPE" != "dll" ] && [ -f "$BWAPI_DATA_DIR/AI/run_proxy.bat" ]; then
+            WINEPATH="$JAVA_DIR/bin" wine cmd /c "$BWAPI_DATA_DIR/AI/run_proxy.bat" >> "${LOG_BOT}" 2>&1
+
+        elif [ "$BOT_TYPE" == "jar" ]; then
             win_java32 \
                 $DEBUG_CMD \
                 $JAVA_OPTS \
-                -Djava.library.path="C:\windows\system32" \
                 -jar "${BOT_EXECUTABLE}" \
-                >> "${LOG_DIR}/bot.log" 2>&1
+                >> "${LOG_BOT}" 2>&1
 
         elif [ "$BOT_TYPE" == "exe" ]; then
             wine "${BOT_EXECUTABLE}" \
-                >> "${LOG_DIR}/bot.log" 2>&1
+                >> "${LOG_BOT}" 2>&1
 
         elif [ "$BOT_TYPE" == "jython" ]; then
             win_java32 \
                 -cp "${BOT_EXECUTABLE}" org.python.util.jython "$BOT_DATA_AI_DIR/__run__.py" \
-                >> "${LOG_DIR}/bot.log" 2>&1
+                >> "${LOG_BOT}" 2>&1
         fi
 
         LOG "Bot exited." >> "$LOG_BOT"
