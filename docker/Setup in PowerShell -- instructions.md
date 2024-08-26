@@ -17,8 +17,11 @@ Using Notepad++ proved to be working for the purposes here.
 `SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.`
 For some explanations, please see: https://github.com/moby/moby/issues/20397
 
+* Make sure you clone with proper line ending, not doing so will result in bash errors
+git clone https://github.com/basil-ladder/sc-docker.git --config core.autocrlf=input
+
 Optional steps:
-* Do `pip uninstall scbw` if you have installed `scbw` previously to avoid potential conflicts.
+* Do `pip uninstall scbw` and `pip uninstall basil-scbw` if you have installed `scbw` previously to avoid potential conflicts.
 * Do "Reset to factory defaults..." in docker if there are sc-docker-related images previously installed (e.g., the StarCraft game image). Proceed with caution if you have other images which are not related to sc-docker.
 
 Steps:
@@ -66,7 +69,7 @@ https://www.oracle.com/technetwork/es/java/javase/downloads/jre8-downloads-21331
 
 3. Do `pip install wheel`
 4. Navigate one level up to `sc-docker`, Do `py setup.py bdist_wheel` or `python3 setup.py bdist_wheel` depending on how your Python is setup. For Mac users: use the latter (`python3...`).
-5. Do `pip3 install dist/scbw-1.0.4_BK-py3-none-any.whl`
+5. Do `pip3 install dist/basil_scbw-1.1.0-py3-none-any.whl`
 6. An example command to run a game may look like this:
 `scbw.play --bots "Hao Pan" "Martin Rooijackers" --headless --timeout 630 --read_overwrite --game_speed 0 --map "sscai/(4)Fighting Spirit.scx"`
 7. For Windows users: do `scbw.play --install` if you see `docker.errors.NotFound: 404 Client Error: Not Found ("network sc_net not found")` after launching a game.
