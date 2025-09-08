@@ -1,11 +1,11 @@
 # Basic images to build up X server with wine.
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
 ENV APP_DIR /app
 ENV LOG_DIR $APP_DIR/logs
 # Disable stupid install of mono/gecko, we don't need that
-ENV WINEDLLOVERRIDES="mscoree,mshtml="
+ENV WINEDLLOVERRIDES="mscoree,mshtml=,winemenubuilder.exe=d"
 # Wine path
 ENV WINEPREFIX /home/starcraft/.wine
 # Make sure to run 32bit windows
@@ -30,37 +30,45 @@ USER root
 #
 # Add this user to sudo group for later use if needed.
 RUN set -x \
-  && adduser \
-  --uid $STARCRAFT_UID \
-  --home /home/starcraft \
-  --disabled-password \
-  --shell /bin/bash \
-  --ingroup users \
-  --quiet \
-  starcraft \
-  && adduser starcraft sudo \
+  && apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends sudo \
+  && userdel -r ubuntu || true \
+  && useradd -u $STARCRAFT_UID -d /home/starcraft -m -s /bin/bash -G users,sudo starcraft \
   && echo 'starcraft:starcraft' | chpasswd
 
 
 # Install packages required for connecting against X Server
 # and for building the image, and some other helpful tools.
 #
-# Install wine and related packages.
-#
-# Use the latest version of winetricks
+# Enable multiarch support for 32-bit libraries
+RUN dpkg --add-architecture i386
+
+# Install dependencies for Wine and X11
 RUN set -x \
   && apt-get update \
-  && apt-get install wget gnupg2 software-properties-common -y \
-  && dpkg --add-architecture i386 \
-  && wget -nc https://dl.winehq.org/wine-builds/winehq.key \
-  && wget -nc https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key \
-  && apt-key add winehq.key \
-  && apt-key add Release.key \
-  && apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ bionic main' \
-  && add-apt-repository 'deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./' \
-  && apt-get update -y \
-  && apt-get install -y --no-install-recommends xvfb xauth x11vnc winehq-stable winetricks \
-  # wine32 winetricks ca-certificates winbind \
+  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+     wget \
+     ca-certificates \
+     xvfb \
+     xauth \
+     x11vnc \
+     tar \
+     xz-utils \
+     libc6-dev \
+     lib32z1 \
+     lib32ncurses6 \
+     lib32stdc++6 \
+     xdotool \
+     cabextract \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install Wine and winetricks
+RUN set -x \
+  && apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    wine32 \
+    wine32-preloader \
+    winetricks \
   && rm -rf /var/lib/apt/lists/*
 
 COPY scripts/winegui /usr/bin/winegui
@@ -81,4 +89,9 @@ VOLUME $LOG_DIR
 #
 # windows doesn't have sleep, but this hack seems to work :-)
 RUN set -eux && xvfb-run wine ping 127.0.0.1 -n 1 | cat
+RUN wine wineboot --init
 
+# Install key Windows networking components into the Wine prefix
+# Using xvfb-run to avoid DISPLAY problems during build
+RUN winetricks -q --force cmd || true \
+  && xvfb-run -a winetricks -q directplay wininet winhttp urlmon || true

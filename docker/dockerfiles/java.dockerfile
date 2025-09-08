@@ -1,6 +1,9 @@
 FROM starcraft:play
 LABEL maintainer="Michal Sustr <michal.sustr@aic.fel.cvut.cz>"
 
+# Install unzip as root
+USER root
+RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_DIR="$APP_DIR/java"
 

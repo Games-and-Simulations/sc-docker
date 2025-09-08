@@ -6,7 +6,7 @@ USER starcraft
 WORKDIR $SC_DIR
 
 # Get Starcraft game from ICCUP
-COPY starcraft.zip /tmp/starcraft.zip
+COPY --chown=starcraft:users starcraft.zip /tmp/starcraft.zip
 COPY player* /tmp/
 
 RUN unzip -q /tmp/starcraft.zip -d /tmp/starcraft \
@@ -15,7 +15,7 @@ RUN unzip -q /tmp/starcraft.zip -d /tmp/starcraft \
     && cp /tmp/player* /tmp/starcraft/characters \
     && chown starcraft:users -R /tmp/starcraft/characters
 
-USER root
+
 RUN rm /tmp/starcraft.zip \
     && mv /tmp/starcraft/* $SC_DIR/
 

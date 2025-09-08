@@ -142,7 +142,12 @@ def run_game(
         # docker
         docker_image=args.docker_image,
         nano_cpus=args.nano_cpus,
-        mem_limit=args.mem_limit
+        mem_limit=args.mem_limit,
+        
+        # debug
+        debug=getattr(args, 'debug', False),
+        debug_log_dir=getattr(args, 'debug_log_dir', None),
+        
     )
 
     time_start = time.time()

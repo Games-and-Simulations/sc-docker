@@ -1,0 +1,51 @@
+--- a/scbw/docker_utils.py
++++ b/scbw/docker_utils.py
+@@ -4,6 +4,7 @@ import logging
+ import os
+ import re
+ import time
++import platform
+ import subprocess
+ from typing import Optional, List
+ 
+@@ -208,8 +209,12 @@ def launch_image(
+     os.makedirs(crashes_dir, mode=0o777, exist_ok=True)  # todo: proper mode
+     
+     # Fix permissions for Podman compatibility
+-    os.chmod(log_dir, 0o777)
+-    os.chmod(crashes_dir, 0o777)
++    # Note: chmod has no effect on Windows but is harmless
++    try:
++        os.chmod(log_dir, 0o777)
++        os.chmod(crashes_dir, 0o777)
++    except (OSError, NotImplementedError):
++        pass  # Windows may not support chmod on mounted volumes
+     
+     # Switch to debug image if debug mode is enabled
+     if debug:
+@@ -232,8 +237,12 @@ def launch_image(
+         expanded_debug_dir = os.path.expanduser(debug_log_dir)
+         debug_subdir = os.path.join(expanded_debug_dir, "debug")
+         os.makedirs(debug_subdir, mode=0o777, exist_ok=True)
+-        os.chmod(debug_subdir, 0o777)
++        try:
++            os.chmod(debug_subdir, 0o777)
++        except (OSError, NotImplementedError):
++            pass
+         volumes[xoscmounts(debug_subdir)] = {"bind": debug_container_dir, "mode": "rw"}
++        logger.debug(f"Platform: {platform.system()}, Debug mount: {debug_subdir} -> {debug_container_dir}")
+         logger.info(f"Debug logs will be saved to: {debug_subdir}")
+ 
+     ports = {}
+@@ -299,7 +308,10 @@ def launch_image(
+         bot_data_write_dir = f"{game_dir}/{game_name}/write_{nth_player}/"
+         os.makedirs(bot_data_write_dir, mode=0o777, exist_ok=True)  # todo: proper mode
+         # Fix permissions for Podman compatibility
+-        os.chmod(bot_data_write_dir, 0o777)
++        try:
++            os.chmod(bot_data_write_dir, 0o777)
++        except (OSError, NotImplementedError):
++            pass
+         volumes.update({
+             xoscmounts(bot_data_write_dir): {"bind": BOT_DATA_WRITE_DIR, "mode": "rw"},
+             xoscmounts(player.bot_dir): {"bind": BOT_DIR, "mode": "ro"},

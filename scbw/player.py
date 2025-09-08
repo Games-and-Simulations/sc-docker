@@ -197,8 +197,8 @@ class BotPlayer(Player):
 
 
 _races = "|".join([race.value for race in PlayerRace])
-_expr = re.compile("^[a-zA-Z0-9_][a-zA-Z0-9_. -]{0,40}"
-                   "(\:(" + _races + "))?$")
+_expr = re.compile(r"^[a-zA-Z0-9_][a-zA-Z0-9_. -]{0,40}"
+                   r"(\:(" + _races + r"))?$")
 
 
 def bot_regex(bot: str) -> str:

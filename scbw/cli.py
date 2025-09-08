@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import os.path
 import sys
 
@@ -119,6 +120,14 @@ parser.add_argument('--log_level', type=str, default="INFO",
                     help="Logging level.")
 parser.add_argument('--log_verbose', action="store_true",
                     help="Add more information to logging, as time and PID.")
+parser.add_argument('--debug', action="store_true",
+                    help="Enable debug mode. Implies --log_level DEBUG and --log_verbose.\n"
+                         "Also replaces starcraft:game container with starcraft:dbg container\n"
+                         "which has additional debugging tools installed.")
+parser.add_argument('--debug_log_dir', type=str, default=None,
+                    help="Host directory where debug logs should be saved. Only used with --debug.\n"
+                         "Supports ~ expansion (e.g., ~/.scbw/logs).\n"
+                         "Default is {game_dir}/{game_name}/debug_logs.")
 parser.add_argument('--read_overwrite', action="store_true",
                     help="At the end of each game, copy the contents\n"
                          "of 'write' directory to the read directory\n"
@@ -137,13 +146,26 @@ parser.add_argument('--mem_limit', type=str, default=None,
 parser.add_argument('--nano_cpus', type=int, default=None,
                     help="Limit started containers to the given amount of cpu nanos.")
 
+# BWAPI multiplayer control
+parser.add_argument('--manual', action='store_true',
+                    help="Disable automatic multiplayer menu navigation.\n"
+                         "Gives you manual control via VNC.")
+parser.add_argument('--auto-menu', type=str,
+                    help="Set BWAPI auto_menu mode.\n"
+                         "Options: OFF, LAN, SINGLE_PLAYER, etc.")
+parser.add_argument('--lan-mode', type=str,
+                    help="Set BWAPI lan_mode setting.\n"
+                         "Options: 'Local PC', 'Local Area Network (UDP)', etc.")
+
 
 parser.add_argument('-v', "--version", action='store_true', dest='show_version',
                     help="Show current version")
 
 
 def _image_version_up_to_date():
-    client = docker.from_env()
+    # Prefer the same container runtime as the main program (Docker first, then Podman)
+    from scbw.docker_utils import docker_client as _preferred_client
+    client = _preferred_client
     return any(tag == SC_IMAGE for image in client.images.list('starcraft') for tag in image.tags)
 
 
@@ -156,6 +178,26 @@ def main():
     if args.show_version:
         print(VERSION)
         sys.exit(0)
+
+    # Handle debug flag implications
+    if args.debug:
+        args.log_level = 'DEBUG'
+        args.log_verbose = True
+        # Set default debug_log_dir if not specified
+        if args.debug_log_dir is None:
+            args.debug_log_dir = f"{args.game_dir}/{args.game_name}/debug_logs"
+        else:
+            # Expand user path (~) to absolute path
+            args.debug_log_dir = os.path.expanduser(args.debug_log_dir)
+            # Create the directory if it doesn't exist
+            os.makedirs(args.debug_log_dir, mode=0o755, exist_ok=True)
+        
+        # Ensure debug_log_dir is absolute path and exists
+        args.debug_log_dir = os.path.abspath(args.debug_log_dir)
+        os.makedirs(args.debug_log_dir, mode=0o755, exist_ok=True)
+        logger.debug(f"Debug logs will be saved to: {args.debug_log_dir}")
+    elif args.debug_log_dir is not None:
+        parser.error('--debug_log_dir can only be used with --debug flag')
 
     coloredlogs.install(
         level=args.log_level,
@@ -190,6 +232,16 @@ def main():
         answer = input()
         if answer.lower() not in ("", "yes", "y"):
             sys.exit(1)
+
+    # Set environment variables based on command-line flags for BWAPI control
+    if args.manual:
+        # --manual only affects human players, bots still use auto_menu=LAN by default
+        os.environ["BWAPI_AUTO_MENU_HUMAN"] = "OFF"
+    elif args.auto_menu:
+        os.environ["BWAPI_AUTO_MENU"] = args.auto_menu
+    
+    if args.lan_mode:
+        os.environ["BWAPI_LAN_MODE"] = args.lan_mode
 
     try:
         game_result = run_game(args)

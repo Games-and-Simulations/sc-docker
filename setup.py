@@ -37,17 +37,23 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
     keywords='starcraft docker broodwar ai bot',
     install_requires=['requests',
                       'coloredlogs',
                       'numpy',
                       'tqdm',
-                      'requests',
                       'python-dateutil',
                       'pandas',
                       'matplotlib',
-                      'docker'],
+                      'docker',
+                      'setuptools'],
     packages=['scbw'],
     entry_points={  # Optional
         'console_scripts': [

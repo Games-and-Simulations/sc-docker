@@ -22,23 +22,15 @@ ARG BOT_UID=1001
 
 # these are ports that SC uses,
 # according to http://wiki.teamliquid.net/starcraft/Port_Forwarding
-EXPOSE 6111:6119 6111:6119/udp
+EXPOSE 6111-6119 6111-6119/udp
 
 #####################################################################
 USER root
 
 # Create bot user which will have access only to BOT_DATA_*_DIR
 RUN set -x \
-    && addgroup bot \
-    && adduser \
-    --uid $BOT_UID \
-    --ingroup users \
-    --home /home/bot \
-    --disabled-password \
-    --gecos "" \
-    --shell /bin/bash \
-    --quiet \
-    bot \
+    && groupadd bot \
+    && useradd -u $BOT_UID -d /home/bot -m -s /bin/bash -g users bot \
     && usermod -aG bot bot
 
 # Sometime there was a weird error with protocols
@@ -53,9 +45,6 @@ RUN mkdir "${SC_DIR}"
 
 # Copy dll files
 COPY --chown=starcraft:users dlls/* $WINEPREFIX/drive_c/windows/system32/
-
-# Install more dlls from winetricks. It requires X-server so let's run in bg for now :)
-RUN /bin/bash -c "Xvfb :0 -auth ~/.Xauthority -screen 0 640x480x24 & winetricks -q vcrun2015"
 
 # Copy bwheadless
 COPY --chown=starcraft:users bwheadless.exe $SC_DIR

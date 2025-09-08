@@ -22,7 +22,7 @@ def install() -> None:
         logger.warning("Re-creating the base game image...")
 
     ensure_docker_can_run()
-    ensure_local_net()
+    ensure_local_net()  # Create simple bridge network without custom IPAM
 
     # ensure docker image is present
     check_for_game_image(SC_IMAGE)

@@ -77,6 +77,19 @@ function prepare_bwapi() {
     cat "$BWAPI_INI"
 }
 
+function start_headless_display() {
+    if [ -z "${LOG_GUI+set}" ]; then
+        LOG_XVFB="/dev/null"
+    else
+        LOG_XVFB="${LOG_DIR}/xvfb.log"
+    fi
+
+    # Launch only Xvfb for headless mode
+    LOG "Starting headless X display, saving logs to " "$LOG_XVFB"
+    Xvfb :0 -screen 0 640x480x24 >> "$LOG_XVFB" 2>&1 &
+    sleep 1
+}
+
 function start_gui() {
     if [ -z "${LOG_GUI+set}" ]; then
         LOG_XVFB="/dev/null"
@@ -89,7 +102,7 @@ function start_gui() {
 
     # Launch the GUI!
     LOG "Starting X, savings logs to " "$LOG_XVFB"
-    Xvfb :0 -auth ~/.Xauthority -screen 0 640x480x24 >> "$LOG_XVFB" 2>&1 &
+    Xvfb :0 -screen 0 640x480x24 >> "$LOG_XVFB" 2>&1 &
     sleep 1
 
     LOG "Starting VNC server" "$LOG_XVNC"
@@ -163,7 +176,8 @@ function start_bot() {
 function start_game() {
     . hook_before_game_start.sh
 
-    [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
+    # LastReplay.rep removal is now handled gracefully in hook_before_game_start.sh
+    # [ -f "$MAP_DIR/replays/LastReplay.rep" ] && rm "$MAP_DIR/replays/LastReplay.rep"
 
     update_registry
 

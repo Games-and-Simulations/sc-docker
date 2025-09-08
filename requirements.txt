@@ -1,0 +1,13 @@
+# StarCraft Brood War Docker Launcher Dependencies
+requests
+coloredlogs
+numpy
+tqdm
+python-dateutil
+pandas
+matplotlib
+docker
+setuptools
+
+# Note: setuptools is required for Python 3.13 compatibility
+# as the package uses setuptools._distutils to replace deprecated distutils
